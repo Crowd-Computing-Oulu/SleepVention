@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Restaurant</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .mycontainer {
+          max-width: 400px;
+          margin: 0 auto;
+          margin-top: 100px;
+        }
+        body {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mycontainer">
+        <h3>Fill in the required information:</h3>
+        <form id="restaurantForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" name="name">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="mobile">Mobile:</label>
+                <input type="text" class="form-control" id="mobile" name="mobile">
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" class="form-control" id="address" name="address">
+            </div>
+            <div class="form-group">
+                <label for="opening_time">Opening Time:</label>
+                <input type="text" class="form-control" id="opening_time" name="opening_time">
+            </div>
+            <div class="form-group">
+                <label for="closing_time">Closing Time:</label>
+                <input type="text" class="form-control" id="closing_time" name="closing_time">
+            </div>
+            <div class="form-group">
+                <label for="logo">Logo:</label>
+                <input type="file" class="form-control" id="logo" name="logo">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <a href="restaurant.html" class="btn btn-danger">Cancel</a>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="scripts.js"></script>
+    <script>
+        // Attach event listener to the form submission
+        document.getElementById("restaurantForm").addEventListener("submit", submitRestaurantForm);
+    </script>
+</body>
+</html>

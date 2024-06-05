@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Homepage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            height: 40vh;
+            width: auto;
+        }
+
+        .chart-wrapper {
+            margin-top: 70px;
+            margin-bottom: 170px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg ps-3 navbar-light bg-light">
+        <a class="navbar-brand" href="homepage.html">
+            <img src="logo.webp" alt="Logo" style="height: 30px" />
+        </a>
+        <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse d-flex justify-content-between" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="mydata.html">My Data</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="mystudies.html">My Studies</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="explore.html">Explore</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav d-flex justify-content-between">
+                <li class="nav-item">
+                    <a class="nav-link" href="profile.html">
+                        <img src="profile.png" style="height: 30px;">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">Sleep Data Dashboard</h2>
+
+        <div class="row chart-wrapper justify-content-center text-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="justify-content-center">
+                    <canvas id="sleepHoursChart"></canvas>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <p>
+                    This graph shows the average hours of sleep per night over the
+                    past month. The data indicates fluctuations in sleep patterns,
+                    highlighting the importance of maintaining a consistent sleep
+                    schedule.
+                </p>
+            </div>
+        </div>
+
+        <div class="row chart-wrapper justify-content-center text-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="justify-content-center">
+                    <canvas id="sleepQualityChart"></canvas>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <p>
+                    This graph illustrates the quality of sleep on a scale of 1 to 10
+                    over the past month. It shows how different factors such as
+                    stress, diet, and exercise can impact sleep quality.
+                </p>
+            </div>
+        </div>
+
+        <div class="row chart-wrapper justify-content-center text-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="justify-content-center">
+                    <canvas id="bedtimeChart"></canvas>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <p>
+                    This graph represents the average bedtime over the past month. It
+                    emphasizes the benefits of going to bed at a regular time each
+                    night to improve overall sleep quality.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data for Sleep Hours Chart
+        const sleepHoursData = {
+            labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+            datasets: [
+                {
+                    label: "Average Sleep Hours",
+                    data: [7.5, 6.8, 7.2, 7.0],
+                    backgroundColor: "rgba(54, 162, 235, 0.2)",
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    borderWidth: 1,
+                },
+            ],
+        };
+
+        // Data for Sleep Quality Chart
+        const sleepQualityData = {
+            labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
+            datasets: [
+                {
+                    label: "Sleep Quality (1-10)",
+                    data: [7, 6, 8, 7, 5, 6, 7],
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 1,
+                },
+            ],
+        };
+
+        // Data for Bedtime Chart
+        const bedtimeData = {
+            labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+            datasets: [
+                {
+                    label: "Average Bedtime",
+                    data: [22, 22.5, 23, 22],
+                    backgroundColor: "rgba(153, 102, 255, 0.2)",
+                    borderColor: "rgba(153, 102, 255, 1)",
+                    borderWidth: 1,
+                },
+            ],
+        };
+
+        // Configuration for Sleep Hours Chart
+        const sleepHoursConfig = {
+            type: "line",
+            data: sleepHoursData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top",
+                    },
+                },
+            },
+        };
+
+        // Configuration for Sleep Quality Chart
+        const sleepQualityConfig = {
+            type: "bar",
+            data: sleepQualityData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top",
+                    },
+                },
+            },
+        };
+
+        // Configuration for Bedtime Chart
+        const bedtimeConfig = {
+            type: "line",
+            data: bedtimeData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top",
+                    },
+                },
+            },
+        };
+
+        // Render Charts
+        window.onload = function () {
+            const sleepHoursCtx = document
+                .getElementById("sleepHoursChart")
+                .getContext("2d");
+            new Chart(sleepHoursCtx, sleepHoursConfig);
+
+            const sleepQualityCtx = document
+                .getElementById("sleepQualityChart")
+                .getContext("2d");
+            new Chart(sleepQualityCtx, sleepQualityConfig);
+
+            const bedtimeCtx = document
+                .getElementById("bedtimeChart")
+                .getContext("2d");
+            new Chart(bedtimeCtx, bedtimeConfig);
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
