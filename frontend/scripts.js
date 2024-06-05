@@ -31,7 +31,7 @@ function submitRegister() {
 
     fetchRequest(serverURL + 'register/', request)
     .then(data => {
-        // localStorage.setItem("token", "Token " + data.token);
+        localStorage.setItem("token", data.token);
         window.location.href = "profile.html";
     })
     .catch(error => {
@@ -55,7 +55,7 @@ function submitLogin() {
 
     fetchRequest(serverURL + 'login/', request)
     .then(data => {
-        // localStorage.setItem("token", "Token " + data.token);
+        localStorage.setItem("token", data.token);
         window.location.href = "homepage.html";
     })
     .catch(error => {
@@ -72,7 +72,7 @@ function generateProfileHtml(profileInfo) {
         <h5 class="card-title mt-4 mb-3">${profileInfo.username}</h5>
         <p class="card-text">Email: ${profileInfo.email}</p>
         <p class="card-text">Nationality: ${profileInfo.nationality}</p>
-        <p class="card-text">Date of birth: ${profileInfo.birthdate}</p>
+        <p class="card-text">Date of birth: ${profileInfo.birth_date}</p>
         <p class="card-text">Gender: ${profileInfo.gender}</p>
         <p class="card-text">Height: ${profileInfo.height}</p>
         <p class="card-text">Weight: ${profileInfo.weight}</p>
@@ -89,7 +89,7 @@ function getProfile(page) {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem("token") 
+            'token': localStorage.getItem("token") 
         }
     };
 
@@ -102,30 +102,46 @@ function getProfile(page) {
         }
     })
     .catch(error => {
-        alertError(error);
+        if (error.status === 401) {
+            // Handle unathorized error
+            window.location.href = "login.html";
+        } else {
+            alertError(error);
+        }
     });
 }
 
 function fillForm(profileInfo) {
-    document.getElementById("username").value = profileInfo.username;
-    document.getElementById("email").value = profileInfo.email;
+    // document.getElementById("username").value = profileInfo.username;
+    // document.getElementById("email").value = profileInfo.email;
     document.getElementById("nationality").value = profileInfo.nationality;
-    document.getElementById("birthdate").value = profileInfo.birthdate;
+    document.getElementById("birthdate").value = profileInfo.birth_date;
     document.getElementById("gender").value = profileInfo.gender;
     document.getElementById("height").value = profileInfo.height;
     document.getElementById("weight").value = profileInfo.weight;
 }
 
 function getProfileEditForm() {
-    const profileForm = {
-        username: document.getElementById("username").value,
-        email: document.getElementById("email").value,
-        nationality: document.getElementById("nationality").value,
-        birthdate: document.getElementById("birthdate").value,
-        gender: document.getElementById("gender").value,
-        height: document.getElementById("height").value,
-        weight: document.getElementById("weight").value
-    };
+    // const profileForm = {
+    //     // username: document.getElementById("username").value,
+    //     // email: document.getElementById("email").value,
+    //     nationality: document.getElementById("nationality").value,
+    //     birth_date: document.getElementById("birthdate").value,
+    //     gender: document.getElementById("gender").value,
+    //     height: document.getElementById("height").value,
+    //     weight: document.getElementById("weight").value
+    // };
+
+    const profileForm = Object.fromEntries(
+        Object.entries({
+          nationality: document.getElementById("nationality").value,
+          birth_date: document.getElementById("birthdate").value,
+          gender: document.getElementById("gender").value,
+          height: document.getElementById("height").value,
+          weight: document.getElementById("weight").value,
+        }).filter(([key, value]) => value !== "")
+      );
+
     return profileForm;
 }
 
@@ -136,7 +152,7 @@ function submitProfile() {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem("token")
+            'token': localStorage.getItem("token")
         },
         body: JSON.stringify(updatedProfile)
     };

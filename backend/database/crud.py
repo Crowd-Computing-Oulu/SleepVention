@@ -75,3 +75,25 @@ def add_token(db: Session, user_id: int):
     db.commit()
     db.refresh(token)
     return token
+
+
+def get_user_password(db: Session, user_id: int):
+    return db.query(tables.Passwords).filter(tables.Passwords.user_id == user_id).first().password
+
+
+def get_token(db: Session, token_str: str):
+    return db.query(tables.LoginTokens).filter(tables.LoginTokens.token == token_str).first()
+
+
+def get_user_information_by_user_id(db: Session, user_id: int):
+    return db.query(tables.UserInformation).filter(tables.UserInformation.user_id == user_id).first()
+
+
+def edit_user_information(db: Session, user_id: int, data: schemas.UserInformationSchema):
+    user_information = db.query(tables.UserInformation).filter(tables.UserInformation.user_id == user_id).first()
+    for key, value in data.dict().items():
+        setattr(user_information, key, value)
+    db.add(user_information)
+    db.commit()
+    db.refresh(user_information)
+    return user_information

@@ -1,19 +1,40 @@
-from datetime import datetime
+from datetime import date
+from typing import Optional
+
+from pydantic import BaseModel
+
+from database import tables, schemas
 
 
-class LoginResponseSchema:
+class LoginResponseSchema(BaseModel):
     """
         Schema representing the response to a login request.
 
-        Inherits from BaseSchema.
-
         :param user_id: Unique identifier for the user.
         :param token: Authentication token.
-        :param expiry: Date and time when the token expires.
     """
     user_id: int
     token: str
-    expiry: datetime
 
     class Config:
         from_attributes = True
+
+
+class UserProfileResponseSchema(BaseModel):
+    username: str
+    email: str
+    nationality: Optional[str] = None
+    birth_date: Optional[date] = None
+    gender: Optional[str] = None
+    height: Optional[float] = None
+    weight: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
+    def set_user_information(self, user_information):
+        self.nationality = user_information.nationality
+        self.birth_date = user_information.birth_date
+        self.gender = user_information.gender
+        self.height = user_information.height
+        self.weight = user_information.weight
