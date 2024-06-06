@@ -26,3 +26,40 @@ Phase 1 focuses on the development of an online data repository. This repository
 - **Backend:** Python, FastAPI
 - **Database:** SQLite
 
+## Deploying the Project Locally
+
+At the first place, you need to download the project. You can dowanload it completely as a zip file or do the following commands.
+
+### Clone the Project
+
+Run following commands in your terminal
+  ```sh
+  git clone https://github.com/MRSadeghi78/Quoridor.git
+  ```
+
+### Installation
+
+Make sure you have python installed in your computer
+   ```sh
+   python --version
+   ```
+If the version of python didn't show up, install python using following command in linux
+   ```sh
+   sudo apt-get update
+   sudo apt-get install python
+   ```
+Or if you use windows, download it from [here](https://www.python.org/downloads/windows/)
+
+Then, Install the project requirements.
+  ```sh
+   pip install -r ./backend/requirements.txt
+   ```
+
+### Run the Program
+
+First enter the backend directory, then run the following command:
+   ```sh
+   python main.py
+   ```
+
+Now go to the frontend directory and open one of the html files.
