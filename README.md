@@ -63,3 +63,10 @@ First enter the backend directory, then run the following command:
    ```
 
 Now go to the frontend directory and open one of the html files.
+
+## Contact
+
+MohammadReza Sadeghi
+  - [email](mohammadreza.sadeghi@oulu.fi)
+  - [linkedin](https://www.linkedin.com/in/mrsadeghi78/)
+  - [github](https://github.com/MRSadeghi78/)
