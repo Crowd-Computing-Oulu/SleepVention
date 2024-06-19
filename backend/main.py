@@ -85,3 +85,4 @@ async def edit_profile(
     response = responses.UserProfileResponseSchema.from_orm(current_user)
     response.set_user_information(user_information)
     return response
+
