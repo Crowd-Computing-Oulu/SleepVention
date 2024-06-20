@@ -14,6 +14,15 @@ function alertError(response) {
     })
 }
 
+function handleResponseError(error) {
+    if (error.status === 401) {
+        // Handle unathorized error
+        window.location.href = "login.html";
+    } else {
+        alertError(error);
+    }
+}
+
 function submitRegister() {
     var username = document.getElementById("username").value;
     var email = document.getElementById("email").value;
@@ -102,12 +111,7 @@ function getProfile(page) {
         }
     })
     .catch(error => {
-        if (error.status === 401) {
-            // Handle unathorized error
-            window.location.href = "login.html";
-        } else {
-            alertError(error);
-        }
+        handleResponseError(error);
     });
 }
 
@@ -122,15 +126,6 @@ function fillForm(profileInfo) {
 }
 
 function getProfileEditForm() {
-    // const profileForm = {
-    //     // username: document.getElementById("username").value,
-    //     // email: document.getElementById("email").value,
-    //     nationality: document.getElementById("nationality").value,
-    //     birth_date: document.getElementById("birthdate").value,
-    //     gender: document.getElementById("gender").value,
-    //     height: document.getElementById("height").value,
-    //     weight: document.getElementById("weight").value
-    // };
 
     const profileForm = Object.fromEntries(
         Object.entries({
