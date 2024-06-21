@@ -94,3 +94,7 @@ main {
 #sug-studies-nav {
   margin: 0 auto;
 }
+
+#logout-button {
+  color: red;
+}

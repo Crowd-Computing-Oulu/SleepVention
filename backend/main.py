@@ -85,3 +85,39 @@ async def edit_profile(
     response = responses.UserProfileResponseSchema.from_orm(current_user)
     response.set_user_information(user_information)
     return response
+
+
+@app.get("/home/")
+async def home(
+        request: Request,
+        db: Session = Depends(get_db)
+):
+    try:
+        current_user = authentication_utils.get_current_user(request, db)
+        return "Authorized"
+    except:
+        return "Not authorized"
+
+
+@app.get("/explore/")
+async def explore(
+        request: Request,
+        db: Session = Depends(get_db)
+):
+    try:
+        current_user = authentication_utils.get_current_user(request, db)
+        return "Authorized"
+    except:
+        return "Not authorized"
+
+
+@app.get("/about-us/")
+async def about_us(
+        request: Request,
+        db: Session = Depends(get_db)
+):
+    try:
+        current_user = authentication_utils.get_current_user(request, db)
+        return "Authorized"
+    except:
+        return "Not authorized"
