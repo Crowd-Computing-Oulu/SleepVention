@@ -24,10 +24,38 @@ function handleResponseError(error) {
     }
 }
 
+function verifyRegisterInfor(username, email, password) {
+    // Check if username is more than 3 characters
+    if (username.length <= 3) {
+        alert("Username must be more than 3 characters long.");
+        return false;
+    }
+
+    // Regular expression for validating email
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert("Invalid email format.");
+        return false;
+    }
+
+    // Regular expression for validating password
+    var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+        alert("Password must be at least 8 characters long and include a combination of lowercase and uppercase letters and numbers.");
+        return false;
+    }
+
+    return true;
+}
+
 function submitRegister() {
     var username = document.getElementById("username").value;
     var email = document.getElementById("email").value;
     var password = document.getElementById("password").value;
+
+    if (!verifyRegisterInfor(username, email, password)) {
+        return;
+    }
 
     var request = {
         method: 'POST',
