@@ -1,4 +1,5 @@
-const serverURL = "http://127.0.0.1:8000/"
+const serverURL = "http://127.0.0.1:8000/";
+const userSpecificPages = ["mydata.html", "mystudies.html", "profile.html", "edit_profile.html"];
 
 async function fetchRequest(url, request) {
     const response = await fetch(url, request);
@@ -236,4 +237,23 @@ function getAboutUs() {
         .catch(error => {
             alertError(error);
         });
+}
+
+function getCurrentPage() {
+    var currentPath = window.location.pathname;
+    var currentPage = currentPath.substring(currentPath.lastIndexOf('/') + 1);
+    return currentPage;
+}
+
+function logOut() {
+    localStorage.setItem("token", "-");
+
+    alert("Loging out was successful");
+    
+    const currentPage = getCurrentPage();
+    if (userSpecificPages.includes(currentPage)) {
+        window.location.href = "homepage.html";
+    } else {
+        window.location.reload();
+    }
 }

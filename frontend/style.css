@@ -98,3 +98,8 @@ main {
 #logout-button {
   color: red;
 }
+
+.form-container {
+  max-width: 400px;
+  margin-top: 50px;
+}
