@@ -121,8 +121,6 @@ function generateProfileHtml(profileInfo) {
 
 
 function getProfile(page) {
-    // TODO: get restaurant information from server
-
     var request = {
         method: 'GET',
         headers: {
@@ -284,4 +282,32 @@ function logOut() {
     } else {
         window.location.reload();
     }
+}
+
+function fillDataTable(data) {
+    const jsonString = JSON.stringify(data, null, 4); // Format JSON with 4 spaces
+    document.getElementById('json-data').textContent = jsonString;
+}
+
+function generateDataButtons(data) {
+    document.getElementById("data-button").textContent = data.activities[0].startDate;
+}
+
+function getMyData() {
+    var request = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+
+    fetchRequest(serverURL + 'mydata/', request)
+        .then(data => {
+            generateDataButtons(data);
+            fillDataTable(data);
+        })
+        .catch(error => {
+            handleResponseError(error);
+        });
 }

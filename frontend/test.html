@@ -3,66 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Restaurant</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .mycontainer {
-          max-width: 400px;
-          margin: 0 auto;
-          margin-top: 100px;
-        }
-        body {
-            padding: 20px;
-        }
-    </style>
+    <title>My Data</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.2.3/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container mycontainer">
-        <h3>Fill in the required information:</h3>
-        <form id="restaurantForm">
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" class="form-control" id="name" name="name">
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" class="form-control" id="email" name="email">
-            </div>
-            <div class="form-group">
-                <label for="mobile">Mobile:</label>
-                <input type="text" class="form-control" id="mobile" name="mobile">
-            </div>
-            <div class="form-group">
-                <label for="address">Address:</label>
-                <input type="text" class="form-control" id="address" name="address">
-            </div>
-            <div class="form-group">
-                <label for="opening_time">Opening Time:</label>
-                <input type="text" class="form-control" id="opening_time" name="opening_time">
-            </div>
-            <div class="form-group">
-                <label for="closing_time">Closing Time:</label>
-                <input type="text" class="form-control" id="closing_time" name="closing_time">
-            </div>
-            <div class="form-group">
-                <label for="logo">Logo:</label>
-                <input type="file" class="form-control" id="logo" name="logo">
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <a href="restaurant.html" class="btn btn-danger">Cancel</a>
-        </form>
+    <div class="container mt-5">
+        <h1>My Data</h1>
+        <pre id="jsonData" style="background-color: #f8f9fa; padding: 20px; border-radius: 5px;"></pre>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="scripts.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Attach event listener to the form submission
-        document.getElementById("restaurantForm").addEventListener("submit", submitRestaurantForm);
+        function displayJSON(data) {
+            const jsonString = JSON.stringify(data, null, 4); // Format JSON with 4 spaces
+            document.getElementById('jsonData').textContent = jsonString;
+        }
+
+        // Example JSON data
+        const jsonData = {
+            "activeDuration": 100000,
+            "activityLevel": [
+                {
+                    "minutes": 0,
+                    "name": "sedentary"
+                },
+                {
+                    "minutes": 1,
+                    "name": "lightly"
+                },
+                {
+                    "minutes": 0,
+                    "name": "fairly"
+                },
+                {
+                    "minutes": 0,
+                    "name": "very"
+                }
+            ],
+            "activityName": "Walk",
+            "activityTypeId": 90013,
+            "calories": 60,
+            "caloriesLink": "https://api.fitbit.com/1/user/-/activities/calories/date/2024-06-23/2024-06-23/1min/time/12:01/12:02.json",
+            "distance": 20,
+            "distanceUnit": "Kilometer",
+            "duration": 100000,
+            "hasActiveZoneMinutes": false,
+            "lastModified": "2024-06-24T09:23:17.000Z",
+            "logId": 64302832297,
+            "logType": "manual",
+            "manualValuesSpecified": {
+                "calories": true,
+                "distance": true,
+                "steps": false
+            },
+            "originalDuration": 100000,
+            "originalStartTime": "2024-06-23T12:01:01.000+03:00",
+            "pace": 5,
+            "source": {
+                "id": "227G5L",
+                "name": "Web API Explorer",
+                "trackerFeatures": [],
+                "type": "app",
+                "url": "http://swagger.io/swagger-ui/"
+            },
+            "speed": 720,
+            "startTime": "2024-06-23T12:01:01.000+03:00",
+            "steps": 9678
+        };
+
+        // Display the JSON data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            displayJSON(jsonData);
+        });
     </script>
 </body>
 </html>

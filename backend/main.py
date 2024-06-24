@@ -6,7 +6,7 @@ from database.init import get_db, Base, engine
 from database import schemas, crud
 from sqlalchemy.orm import Session
 
-from utils import responses, password_utils, authentication_utils
+from utils import responses, password_utils, authentication_utils, data_utils
 
 app = FastAPI()
 app.add_middleware(
@@ -121,3 +121,13 @@ async def about_us(
         return "Authorized"
     except:
         return "Not authorized"
+
+
+@app.get("/mydata/")
+async def mydata(
+        request: Request,
+        db: Session = Depends(get_db)
+):
+    user = authentication_utils.get_current_user(request, db)
+    user_data = data_utils.get_data_from_fitbit()
+    return user_data
