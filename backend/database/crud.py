@@ -97,3 +97,19 @@ def edit_user_information(db: Session, user_id: int, data: schemas.UserInformati
     db.commit()
     db.refresh(user_information)
     return user_information
+
+
+def get_fitbit_token_by_user_id(db: Session, user_id: int):
+    return db.query(tables.FitbitTokens).filter(tables.FitbitTokens.user_id == user_id).first()
+
+
+def add_fitbit_token(db: Session, user_id: int, access_token: str, refresh_token: str):
+    fitbit_token = tables.FitbitTokens(
+        user_id=user_id,
+        access_token=access_token,
+        refresh_token=refresh_token
+    )
+    db.add(fitbit_token)
+    db.commit()
+    db.refresh(fitbit_token)
+    return fitbit_token

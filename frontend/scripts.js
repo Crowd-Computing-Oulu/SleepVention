@@ -308,6 +308,11 @@ function getMyData() {
             fillDataTable(data);
         })
         .catch(error => {
-            handleResponseError(error);
+            if (error.status === 403) {
+			    window.open("https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23PDRW&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=lMNXGvUcuN9QrksqDqnUpS4YaUhIWzaTNH3KJEpV_jA&code_challenge_method=S256&state=" + localStorage.getItem("token"), '_blank').focus();
+            }
+            else {
+                handleResponseError(error);
+            }
         });
 }

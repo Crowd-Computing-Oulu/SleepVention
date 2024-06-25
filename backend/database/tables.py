@@ -18,6 +18,8 @@ class Users(Base):
     user_information = relationship("UserInformation", back_populates="user")
     # Relationship with login_tokens table
     login_tokens = relationship("LoginTokens", back_populates="user")
+    # Relationship with fitbit_tokens table
+    fitbit_token = relationship("FitbitTokens", back_populates="user")
 
 
 class Passwords(Base):
@@ -55,3 +57,12 @@ class LoginTokens(Base):
 
     # Relationship with users table
     user = relationship("Users", back_populates="login_tokens")
+
+
+class FitbitTokens(Base):
+    __tablename__ = 'fitbit_tokens'
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    access_token = Column(String(511), unique=True)
+    refresh_token = Column(String(255), unique=True)
+
+    user = relationship("Users", back_populates="fitbit_token")

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from pydantic import ValidationError
 
 from database.init import get_db, Base, engine
@@ -7,6 +8,8 @@ from database import schemas, crud
 from sqlalchemy.orm import Session
 
 from utils import responses, password_utils, authentication_utils, data_utils
+
+FITBIT_AUTHORIZATION_URL = 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23PDRW&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=lMNXGvUcuN9QrksqDqnUpS4YaUhIWzaTNH3KJEpV_jA&code_challenge_method=S256&state='
 
 app = FastAPI()
 app.add_middleware(
@@ -129,5 +132,22 @@ async def mydata(
         db: Session = Depends(get_db)
 ):
     user = authentication_utils.get_current_user(request, db)
-    user_data = data_utils.get_data_from_fitbit()
+    fitbit_token = crud.get_fitbit_token_by_user_id(db, user.id)
+    if not fitbit_token:
+        raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
+        # return RedirectResponse(FITBIT_AUTHORIZATION_URL + request.headers.get('token'), status_code=303)
+    user_data = data_utils.get_data_from_fitbit(db, user.id)
     return user_data
+
+
+@app.get("/fitbit-authenticate")
+async def fitbit_authenticate(
+        request: Request,
+        db: Session = Depends(get_db)
+):
+    fitbit_code = request.query_params.get('code')
+    user_token = request.query_params.get('state')
+    user = authentication_utils.get_current_user_by_token(user_token, db)
+    fitbit_token_response = data_utils.get_fitbit_token(fitbit_code)
+    crud.add_fitbit_token(db, user.id, fitbit_token_response['access_token'], fitbit_token_response['refresh_token'])
+    return Response(status_code=200)

@@ -22,7 +22,11 @@ def verify_token(token_str: str, db):
     return token
 
 
-def get_current_user(request: Request, db):
-    token_str = get_token(request)
+def get_current_user_by_token(token_str: str, db):
     token = verify_token(token_str, db)
     return token.user
+
+
+def get_current_user(request: Request, db):
+    token_str = get_token(request)
+    return get_current_user_by_token(token_str,db)
