@@ -26,6 +26,24 @@ def get_fitbit_token(fitbit_code):
         raise HTTPException(status_code=response.status_code, detail=response.text)
 
 
+def refresh_fitbit_token(fitbit_token):
+    refresh_token_str = fitbit_token.refresh_token
+    headers = {
+        'Authorization': 'Basic MjNQRFJXOjVjZmY5OWExNTEwZWQ2MjJmMGFiZWUzNGYwZTY4OTk3',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    data = {
+        'client_id': FITBIT_CLIENT_ID,
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token_str
+    }
+    response = requests.post(FITBIT_GET_TOKEN_URL, headers=headers, data=data)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
+
+
 def get_data_from_fitbit(db, user_id):
     fitbit_token = crud.get_fitbit_token_by_user_id(db, user_id)
     if not fitbit_token:
@@ -41,5 +59,10 @@ def get_data_from_fitbit(db, user_id):
 
     if response.status_code == 200:
         return response.json()
+    elif response.status_code == 401:
+        crud.delete_fitbit_token(db, user_id)
+        response_json = refresh_fitbit_token(fitbit_token)
+        crud.add_fitbit_token(db, user_id, response_json.access_token, response_json.refresh_token)
+        return response_json
     else:
         raise HTTPException(status_code=response.status_code, detail=response.text)

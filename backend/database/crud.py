@@ -113,3 +113,12 @@ def add_fitbit_token(db: Session, user_id: int, access_token: str, refresh_token
     db.commit()
     db.refresh(fitbit_token)
     return fitbit_token
+
+
+def delete_fitbit_token(db: Session, user_id):
+    fitbit_token = db.query(tables.FitbitTokens).filter(tables.FitbitTokens.user_id == user_id).first()
+    if not fitbit_token:
+        return False
+    db.delete(fitbit_token)
+    db.commit()
+    return True
