@@ -20,6 +20,11 @@ class Users(Base):
     login_tokens = relationship("LoginTokens", back_populates="user")
     # Relationship with fitbit_tokens table
     fitbit_token = relationship("FitbitTokens", back_populates="user")
+    # Relationship with fitbit_sleep_logs table
+    fitbit_sleep_logs = relationship("FitbitSleepLogs", back_populates="user")
+    fitbit_sleep_levels = relationship("FitbitSleepLevels", back_populates="user")
+    fitbit_heart_rate_logs = relationship("FitbitHeartRateLogs", back_populates="user")
+    fitbit_activity_logs = relationship("FitbitActivityLogs", back_populates="user")
 
 
 class Passwords(Base):
@@ -66,3 +71,71 @@ class FitbitTokens(Base):
     refresh_token = Column(String(255), unique=True)
 
     user = relationship("Users", back_populates="fitbit_token")
+
+
+class FitbitSleepLogs(Base):
+    __tablename__ = 'fitbit_sleep_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    last_updated = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    dateOfSleep = Column(Date, nullable=False)
+    minutesAfterWakeup = Column(Integer, nullable=False)
+    minutesAsleep = Column(Integer, nullable=False)
+    minutesAwake = Column(Integer, nullable=False)
+    minutesToFallAsleep = Column(Integer, nullable=False)
+    timeInBed = Column(Integer, nullable=False)
+    startTime = Column(DateTime, nullable=False)
+    duration = Column(Integer, nullable=False)
+    efficiency = Column(Integer, nullable=False)
+    deep_count = Column(Integer, nullable=False)
+    light_count = Column(Integer, nullable=False)
+    rem_count = Column(Integer, nullable=False)
+    wake_count = Column(Integer, nullable=False)
+    deep_minutes = Column(Integer, nullable=False)
+    light_minutes = Column(Integer, nullable=False)
+    rem_minutes = Column(Integer, nullable=False)
+    wake_minutes = Column(Integer, nullable=False)
+
+    user = relationship("Users", back_populates="sleep_logs")
+    sleep_levels = relationship("FitbitSleepLevels", back_populates="parent_sleep_log")
+
+
+class FitbitSleepLevels(Base):
+    __tablename__ = 'fitbit_sleep_levels'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    sleep_id = Column(Integer, ForeignKey('fitbit_sleep_logs.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    last_updated = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    dateTime = Column(DateTime, nullable=False)
+    level = Column(String(15), nullable=False)
+    seconds = Column(Integer, nullable=False)
+
+    parent_sleep_log = relationship("FitbitSleepLogs", back_populates="sleep_levels")
+    user = relationship("Users", back_populates="fitbit_sleep_levels")
+
+
+class FitbitHeartRateLogs(Base):
+    __tablename__ = 'fitbit_heart_rate_logs'
+    user_id = Column(Integer, ForeignKey('users.id'))
+    datetime = Column(Date, nullable=False)
+    restingHeartRate = Column(Integer)
+    dailyRmssd = Column(Float)
+    deepRmssd = Column(Float)
+
+    user = relationship("Users", back_populates="fitbit_heart_rate_logs")
+
+
+class Fitbit_activity_logs(Base):
+    __tablename__ = 'fitbit_activity_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    last_updated = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    activityName = Column(String(15), nullable=False)
+    calories = Column(Integer, nullable=False)
+    activeDuration = Column(Integer, nullable=False)
+    duration = Column(Integer, nullable=False)
+    elevationGain = Column(Integer, nullable=False)
+    startTime = Column(DateTime, nullable=False)
+    steps = Column(Integer, nullable=False)
+
+    user = relationship("Users", back_populates="fitbit_activity_logs")
