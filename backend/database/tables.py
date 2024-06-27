@@ -125,7 +125,7 @@ class FitbitHeartRateLogs(Base):
     user = relationship("Users", back_populates="fitbit_heart_rate_logs")
 
 
-class Fitbit_activity_logs(Base):
+class FitbitActivityLogs(Base):
     __tablename__ = 'fitbit_activity_logs'
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'))
