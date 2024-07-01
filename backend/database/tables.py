@@ -96,7 +96,7 @@ class FitbitSleepLogs(Base):
     rem_minutes = Column(Integer, nullable=False)
     wake_minutes = Column(Integer, nullable=False)
 
-    user = relationship("Users", back_populates="sleep_logs")
+    user = relationship("Users", back_populates="fitbit_sleep_logs")
     sleep_levels = relationship("FitbitSleepLevels", back_populates="parent_sleep_log")
 
 
@@ -116,6 +116,7 @@ class FitbitSleepLevels(Base):
 
 class FitbitHeartRateLogs(Base):
     __tablename__ = 'fitbit_heart_rate_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     datetime = Column(Date, nullable=False)
     restingHeartRate = Column(Integer)
