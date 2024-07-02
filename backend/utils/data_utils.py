@@ -1,6 +1,7 @@
 import requests
 from fastapi import HTTPException
 from database import crud
+from datetime import date, timedelta
 
 FITBIT_CLIENT_ID = '23PDRW'
 FITBIT_CLIENT_SECRET = '5cff99a1510ed622f0abee34f0e68997'
@@ -48,21 +49,33 @@ def get_data_from_fitbit(db, user_id):
     fitbit_token = crud.get_fitbit_token_by_user_id(db, user_id)
     if not fitbit_token:
         raise HTTPException(status_code=401, detail='Token not found')
+
+    fitbit_user_id = crud.get_fitbit_user_id(db, user_id)
+    if not fitbit_user_id:
+        raise HTTPException(status_code=404, detail='There is no fitbit account connected to this user')
+
     fitbit_token_str = fitbit_token.access_token
     headers = {
         'Authorization': f'Bearer {fitbit_token_str}',
     }
 
-    # Get user profile
-    user_profile_url = 'https://api.fitbit.com/1/user/-/activities/date/2024-06-24.json'
+    start_date = date.today() - timedelta(days=70)
+    start_date_formatted = start_date.strftime('%Y-%m-%d')
+    user_profile_url = f'https://api.fitbit.com/1/user/{fitbit_user_id}/activities/list.json?'
+    user_profile_url += f'afterDate={start_date_formatted}'
+    user_profile_url += '&sort=asc'
+    user_profile_url += '&limit=100'
+    user_profile_url += '&offset=0'
     response = requests.get(user_profile_url, headers=headers)
 
     if response.status_code == 200:
         return response.json()
     elif response.status_code == 401:
-        crud.delete_fitbit_token(db, user_id)
         response_json = refresh_fitbit_token(fitbit_token)
-        crud.add_fitbit_token(db, user_id, response_json.access_token, response_json.refresh_token)
+        try:
+            crud.add_fitbit_token(db, user_id, response_json.access_token, response_json.refresh_token)
+        except:
+            raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
         return response_json
     else:
         raise HTTPException(status_code=response.status_code, detail=response.text)

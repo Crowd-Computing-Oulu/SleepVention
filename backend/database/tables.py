@@ -25,6 +25,7 @@ class Users(Base):
     fitbit_sleep_levels = relationship("FitbitSleepLevels", back_populates="user")
     fitbit_heart_rate_logs = relationship("FitbitHeartRateLogs", back_populates="user")
     fitbit_activity_logs = relationship("FitbitActivityLogs", back_populates="user")
+    fitbit_user_id = relationship("FitbitUserId", back_populates="user")
 
 
 class Passwords(Base):
@@ -64,8 +65,18 @@ class LoginTokens(Base):
     user = relationship("Users", back_populates="login_tokens")
 
 
+class FitbitUserId(Base):
+    __tablename__ = 'fitbit_user_id'
+
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    fitbit_user_id = Column(String(255), unique=True, nullable=False)
+
+    user = relationship("Users", back_populates="fitbit_user_id")
+
+
 class FitbitTokens(Base):
     __tablename__ = 'fitbit_tokens'
+
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     access_token = Column(String(511), unique=True)
     refresh_token = Column(String(255), unique=True)
@@ -75,6 +86,7 @@ class FitbitTokens(Base):
 
 class FitbitSleepLogs(Base):
     __tablename__ = 'fitbit_sleep_logs'
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     last_updated = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
@@ -102,6 +114,7 @@ class FitbitSleepLogs(Base):
 
 class FitbitSleepLevels(Base):
     __tablename__ = 'fitbit_sleep_levels'
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     sleep_id = Column(Integer, ForeignKey('fitbit_sleep_logs.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
@@ -116,6 +129,7 @@ class FitbitSleepLevels(Base):
 
 class FitbitHeartRateLogs(Base):
     __tablename__ = 'fitbit_heart_rate_logs'
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     datetime = Column(Date, nullable=False)
@@ -128,15 +142,19 @@ class FitbitHeartRateLogs(Base):
 
 class FitbitActivityLogs(Base):
     __tablename__ = 'fitbit_activity_logs'
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     last_updated = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
-    activityName = Column(String(15), nullable=False)
-    calories = Column(Integer, nullable=False)
-    activeDuration = Column(Integer, nullable=False)
+    activityName = Column(String(15))
+    calories = Column(Integer)
+    activeDuration = Column(Integer)
     duration = Column(Integer, nullable=False)
-    elevationGain = Column(Integer, nullable=False)
+    elevationGain = Column(Integer)
     startTime = Column(DateTime, nullable=False)
-    steps = Column(Integer, nullable=False)
+    steps = Column(Integer)
+    averageHeartRate = Column(Integer)
+    pace = Column(Float)
+    speed = Column(Float)
 
     user = relationship("Users", back_populates="fitbit_activity_logs")

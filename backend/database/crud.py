@@ -104,21 +104,33 @@ def get_fitbit_token_by_user_id(db: Session, user_id: int):
 
 
 def add_fitbit_token(db: Session, user_id: int, access_token: str, refresh_token: str):
-    fitbit_token = tables.FitbitTokens(
-        user_id=user_id,
-        access_token=access_token,
-        refresh_token=refresh_token
-    )
+    fitbit_token = db.query(tables.FitbitTokens).filter(tables.FitbitTokens.user_id == user_id).first()
+    if not fitbit_token:
+        fitbit_token = tables.FitbitTokens(
+            user_id=user_id,
+            access_token=access_token,
+            refresh_token=refresh_token
+        )
+    else:
+        fitbit_token.access_token = access_token
+        fitbit_token.refresh_token = refresh_token
     db.add(fitbit_token)
     db.commit()
     db.refresh(fitbit_token)
     return fitbit_token
 
 
-def delete_fitbit_token(db: Session, user_id):
-    fitbit_token = db.query(tables.FitbitTokens).filter(tables.FitbitTokens.user_id == user_id).first()
-    if not fitbit_token:
-        return False
-    db.delete(fitbit_token)
+def add_fitbit_user_id(db: Session, user_id: int, fitbit_user_id_str: str):
+    fitbit_user_id = tables.FitbitUserId(
+        user_id=user_id,
+        fitbit_user_id=fitbit_user_id_str
+    )
+    db.add(fitbit_user_id)
     db.commit()
-    return True
+    db.refresh(fitbit_user_id)
+    return fitbit_user_id
+
+
+def get_fitbit_user_id(db: Session, user_id: int):
+    # return db.query(tables.FitbitUserId).filter(tables.FitbitUserId.user_id == user_id).first()
+    return '5VYD4S'

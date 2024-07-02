@@ -290,7 +290,21 @@ function fillDataTable(data) {
 }
 
 function generateDataButtons(data) {
-    document.getElementById("data-button").textContent = data.activities[0].startDate;
+    data.activities.forEach((data_date, index) => {
+        document.getElementById("data-date-buttons").innerHTML += `
+            <li class="mb-1">
+                <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 data-date-button" data-data-date-button-id="${index}">${data_date.startTime}</button>
+            </li>
+        `;
+    });
+
+    var dataDateButtons = document.querySelectorAll('.data-date-button');
+    dataDateButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            var buttonId = button.dataset.dataDateButtonId;
+            fillDataTable(data.activities[buttonId]);
+        });
+    });
 }
 
 function getMyData() {

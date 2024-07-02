@@ -135,7 +135,7 @@ async def mydata(
     fitbit_token = crud.get_fitbit_token_by_user_id(db, user.id)
     if not fitbit_token:
         raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
-        # return RedirectResponse(FITBIT_AUTHORIZATION_URL + request.headers.get('token'), status_code=303)
+    
     user_data = data_utils.get_data_from_fitbit(db, user.id)
     return user_data
 
