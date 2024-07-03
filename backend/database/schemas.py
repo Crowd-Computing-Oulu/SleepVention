@@ -45,3 +45,22 @@ class UserInformationSchema(BaseModel):
     gender: Optional[str] = None
     height: Optional[float] = None
     weight: Optional[float] = None
+
+
+class FitbitTokenSchema(BaseModel):
+    access_token: str
+    refresh_token: str
+
+
+class FitbitActivitySchema(BaseModel):
+    logId: int
+    activityName: str
+    calories: Optional[int] = None
+    activeDuration: Optional[int] = None
+    duration: int
+    elevationGain: Optional[int] = None
+    startTime: str
+    steps: Optional[int] = None
+    averageHeartRate: Optional[int] = None
+    pace: Optional[float] = None
+    speed: Optional[float] = None

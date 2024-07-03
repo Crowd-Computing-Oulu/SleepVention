@@ -1,4 +1,6 @@
-from sqlalchemy import Column, String, Boolean, Float, ForeignKey, Date, Integer, DateTime, func
+from datetime import datetime
+import re
+from sqlalchemy import Column, String, Boolean, Float, ForeignKey, Date, Integer, DateTime, func, Time
 from sqlalchemy.orm import relationship
 from database.init import Base
 
@@ -143,18 +145,35 @@ class FitbitHeartRateLogs(Base):
 class FitbitActivityLogs(Base):
     __tablename__ = 'fitbit_activity_logs'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     last_updated = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
-    activityName = Column(String(15))
+    date = Column(Date, nullable=False)
+    activityName = Column(String(15), nullable=False)
     calories = Column(Integer)
     activeDuration = Column(Integer)
     duration = Column(Integer, nullable=False)
     elevationGain = Column(Integer)
-    startTime = Column(DateTime, nullable=False)
+    startTime = Column(Time, nullable=False)
     steps = Column(Integer)
     averageHeartRate = Column(Integer)
     pace = Column(Float)
     speed = Column(Float)
 
     user = relationship("Users", back_populates="fitbit_activity_logs")
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            if key == 'logId':
+                self.id = value
+            elif key == 'startTime':
+                # extracting the date and time from the response
+                datetime_match = re.match(r"(\d{4}-\d{2}-\d{2}T)(\d{2}:\d{2}:\d{2})", value)
+                date_part, time_part = datetime_match.groups()
+                date_obj = datetime.strptime(date_part, '%Y-%m-%dT').date()
+                time_obj = datetime.strptime(time_part, '%H:%M:%S').time()
+                self.date = date_obj
+                self.startTime = time_obj
+            else:
+                setattr(self, key, value)
+

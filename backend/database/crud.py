@@ -1,4 +1,5 @@
 import uuid
+from typing import List, Any
 
 from sqlalchemy.orm import Session
 
@@ -134,3 +135,21 @@ def add_fitbit_user_id(db: Session, user_id: int, fitbit_user_id_str: str):
 def get_fitbit_user_id(db: Session, user_id: int):
     # return db.query(tables.FitbitUserId).filter(tables.FitbitUserId.user_id == user_id).first()
     return '5VYD4S'
+
+
+def add_fitbit_activities(db: Session, user_id: int, activities: List[Any]):
+    for activity in activities:
+        # Check if the activity with the same logId already exists
+        existing_activity = db.query(tables.FitbitActivityLogs).filter(tables.FitbitActivityLogs.id == activity['logId']).first()
+        if existing_activity:
+            continue  # Skip this activity if it already exists
+
+        # Create new activity row if it does not exist
+        new_activity_row = tables.FitbitActivityLogs(**activity)
+        db.add(new_activity_row)
+        db.commit()
+        db.refresh(new_activity_row)
+
+
+def get_fitbit_activities(db: Session, user_id: int):
+    return db.query(tables.FitbitActivityLogs).all()

@@ -1,6 +1,10 @@
+from typing import List
+
 import requests
 from fastapi import HTTPException
-from database import crud
+from sqlalchemy.orm import Session
+
+from database import crud, schemas
 from datetime import date, timedelta
 
 FITBIT_CLIENT_ID = '23PDRW'
@@ -9,7 +13,7 @@ PKCE_CODE_VERIFIER = '0n5r552d051q3e4l6a3t0x45224b5d4r3g4d2b0u3a2m012g6g4m6q3n4c
 FITBIT_GET_TOKEN_URL = 'https://api.fitbit.com/oauth2/token'
 
 
-def get_fitbit_token(fitbit_code):
+def get_fitbit_token(fitbit_code) -> schemas.FitbitTokenSchema:
     headers = {
         'Authorization': 'Basic MjNQRFJXOjVjZmY5OWExNTEwZWQ2MjJmMGFiZWUzNGYwZTY4OTk3',
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -22,12 +26,13 @@ def get_fitbit_token(fitbit_code):
     }
     response = requests.post(FITBIT_GET_TOKEN_URL, headers=headers, data=data)
     if response.status_code == 200:
-        return response.json()
+        fitbit_token = schemas.FitbitTokenSchema(**response.json())
+        return fitbit_token
     else:
         raise HTTPException(status_code=response.status_code, detail=response.text)
 
 
-def refresh_fitbit_token(fitbit_token):
+def refresh_fitbit_token(fitbit_token) -> schemas.FitbitTokenSchema:
     refresh_token_str = fitbit_token.refresh_token
     headers = {
         'Authorization': 'Basic MjNQRFJXOjVjZmY5OWExNTEwZWQ2MjJmMGFiZWUzNGYwZTY4OTk3',
@@ -40,12 +45,16 @@ def refresh_fitbit_token(fitbit_token):
     }
     response = requests.post(FITBIT_GET_TOKEN_URL, headers=headers, data=data)
     if response.status_code == 200:
-        return response.json()
+        fitbit_token = schemas.FitbitTokenSchema(**response.json())
+        return fitbit_token
     else:
         raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
 
 
-def get_data_from_fitbit(db, user_id):
+def get_data_from_fitbit(
+        db: Session,
+        user_id: int
+):
     fitbit_token = crud.get_fitbit_token_by_user_id(db, user_id)
     if not fitbit_token:
         raise HTTPException(status_code=401, detail='Token not found')
@@ -69,13 +78,21 @@ def get_data_from_fitbit(db, user_id):
     response = requests.get(user_profile_url, headers=headers)
 
     if response.status_code == 200:
-        return response.json()
+        return response.json()['activities']
     elif response.status_code == 401:
-        response_json = refresh_fitbit_token(fitbit_token)
+        new_fitbit_token = refresh_fitbit_token(fitbit_token)
         try:
-            crud.add_fitbit_token(db, user_id, response_json.access_token, response_json.refresh_token)
+            crud.add_fitbit_token(db, user_id, new_fitbit_token.access_token, new_fitbit_token.refresh_token)
+            response = requests.get(user_profile_url, headers=headers)
+            return response.json()['activities']
         except:
             raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
-        return response_json
     else:
         raise HTTPException(status_code=response.status_code, detail=response.text)
+
+
+def update_fitbit_data(db, user_id):
+    activities = get_data_from_fitbit(db, user_id)
+    crud.add_fitbit_activities(db, user_id, activities)
+    fitbit_activities = crud.get_fitbit_activities(db, user_id)
+    return fitbit_activities

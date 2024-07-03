@@ -135,9 +135,8 @@ async def mydata(
     fitbit_token = crud.get_fitbit_token_by_user_id(db, user.id)
     if not fitbit_token:
         raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
-    
-    user_data = data_utils.get_data_from_fitbit(db, user.id)
-    return user_data
+
+    return data_utils.update_fitbit_data(db, user.id)
 
 
 @app.get("/fitbit-authenticate")
@@ -148,6 +147,6 @@ async def fitbit_authenticate(
     fitbit_code = request.query_params.get('code')
     user_token = request.query_params.get('state')
     user = authentication_utils.get_current_user_by_token(user_token, db)
-    fitbit_token_response = data_utils.get_fitbit_token(fitbit_code)
-    crud.add_fitbit_token(db, user.id, fitbit_token_response['access_token'], fitbit_token_response['refresh_token'])
+    fitbit_token = data_utils.get_fitbit_token(fitbit_code)
+    crud.add_fitbit_token(db, user.id, fitbit_token.access_token, fitbit_token.refresh_token)
     return Response(status_code=200)

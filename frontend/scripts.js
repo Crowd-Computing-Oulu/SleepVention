@@ -290,7 +290,7 @@ function fillDataTable(data) {
 }
 
 function generateDataButtons(data) {
-    data.activities.forEach((data_date, index) => {
+    data.forEach((data_date, index) => {
         document.getElementById("data-date-buttons").innerHTML += `
             <li class="mb-1">
                 <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 data-date-button" data-data-date-button-id="${index}">${data_date.startTime}</button>
@@ -302,7 +302,7 @@ function generateDataButtons(data) {
     dataDateButtons.forEach(button => {
         button.addEventListener('click', function() {
             var buttonId = button.dataset.dataDateButtonId;
-            fillDataTable(data.activities[buttonId]);
+            fillDataTable(data[buttonId]);
         });
     });
 }
@@ -319,7 +319,7 @@ function getMyData() {
     fetchRequest(serverURL + 'mydata/', request)
         .then(data => {
             generateDataButtons(data);
-            fillDataTable(data);
+            // fillDataTable(data);
         })
         .catch(error => {
             if (error.status === 403) {
