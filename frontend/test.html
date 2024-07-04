@@ -1,80 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Data</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.2.3/css/bootstrap.min.css" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>My Data</title>
+	<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+	<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="container mt-5">
-        <h1>My Data</h1>
-        <pre id="jsonData" style="background-color: #f8f9fa; padding: 20px; border-radius: 5px;"></pre>
-    </div>
+	<nav class="navbar navbar-expand-lg ps-3 navbar-light bg-light">
+		<a class="navbar-brand" href="homepage.html">
+			<img src="logo.webp" alt="Logo" style="height: 30px;">
+		</a>
+		<button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarNav"
+			aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse d-flex justify-content-between" id="navbarNav">
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a class="nav-link active" href="mydata.html">My Data</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="mystudies.html">My Studies</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="explore.html">Explore</a>
+				</li>
+			</ul>
+			<ul class="navbar-nav d-flex justify-content-between">
+                <li class="nav-item" id="navbar-login">
+                    <button class="btn btn-link nav-link" id="logout-button" onclick="logOut();">Log Out</button>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="about_us.html">About Us</a>
+                </li>
+				<li class="nav-item">
+					<a class="nav-link" href="profile.html">
+						<img src="profile.png" style="height: 30px;">
+					</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+	<main class="d-flex flex-nowrap">
+		<div class="flex-shrink-0 p-3 bg-white" style="width: 280px;">
+			<ul class="list-unstyled ps-0">
+				<li class="mb-1">
+					<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+						data-bs-toggle="collapse" data-bs-target="#data1-collapse" aria-expanded="false">
+						Data Group 1
+					</button>
+					<div class="collapse" id="data1-collapse">
+						<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+							<li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded">Data Group
+									1.1</a></li>
+							<li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded">Data Group
+									1.2</a></li>
+							<li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded">Data Group
+									1.3</a></li>
+						</ul>
+					</div>
+				</li>
+				<li class="mb-1">
+					<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+						data-bs-toggle="collapse" data-bs-target="#data2-collapse" aria-expanded="false">
+						Data Group 2
+					</button>
+					<div class="collapse" id="data2-collapse">
+						<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+							<li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded">Data Group
+									2.1</a></li>
+							<li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded">Data Group
+									2.2</a></li>
+							<li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded">Data Group
+									2.3</a></li>
+						</ul>
+					</div>
+				</li>
+				<li class="mb-1">
+					<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+						data-bs-toggle="collapse" data-bs-target="#data3-collapse" aria-expanded="false">
+						Data Group 3
+					</button>
+					<div class="collapse" id="data3-collapse">
+						<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+							<li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded">Data Group
+									3.1</a></li>
+							<li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded">Data Group
+									3.2</a></li>
+							<li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded">Data Group
+									3.3</a></li>
+						</ul>
+					</div>
+				</li>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        function displayJSON(data) {
-            const jsonString = JSON.stringify(data, null, 4); // Format JSON with 4 spaces
-            document.getElementById('jsonData').textContent = jsonString;
-        }
-
-        // Example JSON data
-        const jsonData = {
-            "activeDuration": 100000,
-            "activityLevel": [
-                {
-                    "minutes": 0,
-                    "name": "sedentary"
-                },
-                {
-                    "minutes": 1,
-                    "name": "lightly"
-                },
-                {
-                    "minutes": 0,
-                    "name": "fairly"
-                },
-                {
-                    "minutes": 0,
-                    "name": "very"
-                }
-            ],
-            "activityName": "Walk",
-            "activityTypeId": 90013,
-            "calories": 60,
-            "caloriesLink": "https://api.fitbit.com/1/user/-/activities/calories/date/2024-06-23/2024-06-23/1min/time/12:01/12:02.json",
-            "distance": 20,
-            "distanceUnit": "Kilometer",
-            "duration": 100000,
-            "hasActiveZoneMinutes": false,
-            "lastModified": "2024-06-24T09:23:17.000Z",
-            "logId": 64302832297,
-            "logType": "manual",
-            "manualValuesSpecified": {
-                "calories": true,
-                "distance": true,
-                "steps": false
-            },
-            "originalDuration": 100000,
-            "originalStartTime": "2024-06-23T12:01:01.000+03:00",
-            "pace": 5,
-            "source": {
-                "id": "227G5L",
-                "name": "Web API Explorer",
-                "trackerFeatures": [],
-                "type": "app",
-                "url": "http://swagger.io/swagger-ui/"
-            },
-            "speed": 720,
-            "startTime": "2024-06-23T12:01:01.000+03:00",
-            "steps": 9678
-        };
-
-        // Display the JSON data on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            displayJSON(jsonData);
-        });
-    </script>
+				<li class="border-top my-3"></li>
+				<li class="mb-1">
+					<button class="btn btn-primary">
+						Upload New Data
+					</button>
+				</li>
+			</ul>
+		</div>
+		<div class="mt-5 d-flex justify-content-center align-items-center flex-grow-1">
+			<table class="table table-bordered table-striped w-50">
+				<thead class="thead-dark">
+					<tr>
+						<th>ID</th>
+						<th>Name</th>
+						<th>Email</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>1</td>
+						<td>abc</td>
+						<td>abc@abc.com</td>
+					</tr>
+					<tr>
+						<td>2</td>
+						<td>abc</td>
+						<td>abc@abc.com</td>
+					</tr>
+					<tr>
+						<td>3</td>
+						<td>abc</td>
+						<td>abc@abc.com</td>
+					</tr>
+					<tr>
+						<td>4</td>
+						<td>abc</td>
+						<td>abc@abc.com</td>
+					</tr>
+					<tr>
+						<td>5</td>
+						<td>abc</td>
+						<td>abc@abc.com</td>
+					</tr>
+					<tr>
+						<td>6</td>
+						<td>abc</td>
+						<td>abc@abc.com</td>
+					</tr>
+					<tr>
+						<td>7</td>
+						<td>abc</td>
+						<td>abc@abc.com</td>
+					</tr>
+					<tr>
+						<td>8</td>
+						<td>abc</td>
+						<td>abc@abc.com</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</main>
+	<!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> -->
+	<!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script> -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+		crossorigin="anonymous"></script>
+	<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+	<script src="scripts.js"></script>
 </body>
+
 </html>

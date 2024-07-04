@@ -293,7 +293,7 @@ function generateDataButtons(data) {
     data.forEach((data_date, index) => {
         document.getElementById("data-date-buttons").innerHTML += `
             <li class="mb-1">
-                <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 data-date-button" data-data-date-button-id="${index}">${data_date.startTime}</button>
+                <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 data-date-button" data-data-date-button-id="${index}">${data_date.date}</button>
             </li>
         `;
     });
@@ -319,7 +319,6 @@ function getMyData() {
     fetchRequest(serverURL + 'mydata/', request)
         .then(data => {
             generateDataButtons(data);
-            // fillDataTable(data);
         })
         .catch(error => {
             if (error.status === 403) {

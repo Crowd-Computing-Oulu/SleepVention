@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, time
 from typing import Optional
 
 from pydantic import BaseModel
@@ -38,3 +38,20 @@ class UserProfileResponseSchema(BaseModel):
         self.gender = user_information.gender
         self.height = user_information.height
         self.weight = user_information.weight
+
+
+class FitbitActivityResponseSchema(BaseModel):
+    activityName: str
+    date: date
+    calories: Optional[int] = None
+    activeDuration: Optional[int] = None
+    duration: int
+    elevationGain: Optional[float] = None
+    startTime: time
+    steps: Optional[int] = None
+    averageHeartRate: Optional[int] = None
+    pace: Optional[float] = None
+    speed: Optional[float] = None
+
+    class Config:
+        from_attributes = True

@@ -58,7 +58,7 @@ class FitbitActivitySchema(BaseModel):
     calories: Optional[int] = None
     activeDuration: Optional[int] = None
     duration: int
-    elevationGain: Optional[int] = None
+    elevationGain: Optional[float] = None
     startTime: str
     steps: Optional[int] = None
     averageHeartRate: Optional[int] = None

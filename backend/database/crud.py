@@ -145,7 +145,7 @@ def add_fitbit_activities(db: Session, user_id: int, activities: List[Any]):
             continue  # Skip this activity if it already exists
 
         # Create new activity row if it does not exist
-        new_activity_row = tables.FitbitActivityLogs(**activity)
+        new_activity_row = tables.FitbitActivityLogs(**activity, user_id=user_id)
         db.add(new_activity_row)
         db.commit()
         db.refresh(new_activity_row)

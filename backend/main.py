@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
@@ -130,13 +132,14 @@ async def about_us(
 async def mydata(
         request: Request,
         db: Session = Depends(get_db)
-):
+) -> List[responses.FitbitActivityResponseSchema]:
     user = authentication_utils.get_current_user(request, db)
-    fitbit_token = crud.get_fitbit_token_by_user_id(db, user.id)
-    if not fitbit_token:
-        raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
-
-    return data_utils.update_fitbit_data(db, user.id)
+    data_utils.update_fitbit_data(db, user.id)
+    fitbit_activities = crud.get_fitbit_activities(db, user.id)
+    response = []
+    for activity in fitbit_activities:
+        response.append(responses.FitbitActivityResponseSchema.from_orm(activity))
+    return response
 
 
 @app.get("/fitbit-authenticate")

@@ -153,7 +153,7 @@ class FitbitActivityLogs(Base):
     calories = Column(Integer)
     activeDuration = Column(Integer)
     duration = Column(Integer, nullable=False)
-    elevationGain = Column(Integer)
+    elevationGain = Column(Float)
     startTime = Column(Time, nullable=False)
     steps = Column(Integer)
     averageHeartRate = Column(Integer)
