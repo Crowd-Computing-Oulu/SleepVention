@@ -293,7 +293,7 @@ function generateDataButtons(data) {
     data.forEach((data_date, index) => {
         document.getElementById("data-date-buttons").innerHTML += `
             <li class="mb-1">
-                <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 data-date-button" data-data-date-button-id="${index}">${data_date.date}</button>
+                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded data-date-button" data-data-date-button-id="${index}">${data_date.date}</a></li>
             </li>
         `;
     });
