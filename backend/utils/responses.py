@@ -55,3 +55,13 @@ class FitbitActivityResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class FitbitHeartrateResponseSchema(BaseModel):
+    date: date
+    restingHeartRate: Optional[int] = None
+    dailyRmssd: Optional[float] = None
+    deepRmssd: Optional[float] = None
+
+    class Config:
+        from_attributes = True

@@ -290,19 +290,35 @@ function fillDataTable(data) {
 }
 
 function generateDataButtons(data) {
-    data.forEach((data_date, index) => {
-        document.getElementById("data-date-buttons").innerHTML += `
+    data.activities.forEach((data_date, index) => {
+        document.getElementById("activity-date-buttons").innerHTML += `
             <li class="mb-1">
-                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded data-date-button" data-data-date-button-id="${index}">${data_date.date}</a></li>
+                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded activity-date-button" data-activity-date-button-id="${index}">${data_date.date}</a></li>
             </li>
         `;
     });
 
-    var dataDateButtons = document.querySelectorAll('.data-date-button');
+    data.heartrate.forEach((data_date, index) => {
+        document.getElementById("hr-date-buttons").innerHTML += `
+            <li class="mb-1">
+                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded hr-date-button" data-hr-date-button-id="${index}">${data_date.date}</a></li>
+            </li>
+        `;
+    });
+
+    var dataDateButtons = document.querySelectorAll('.activity-date-button');
     dataDateButtons.forEach(button => {
         button.addEventListener('click', function() {
-            var buttonId = button.dataset.dataDateButtonId;
-            fillDataTable(data[buttonId]);
+            var buttonId = button.dataset.activityDateButtonId;
+            fillDataTable(data.activities[buttonId]);
+        });
+    });
+
+    var dataDateButtons = document.querySelectorAll('.hr-date-button');
+    dataDateButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            var buttonId = button.dataset.hrDateButtonId;
+            fillDataTable(data.heartrate[buttonId]);
         });
     });
 }

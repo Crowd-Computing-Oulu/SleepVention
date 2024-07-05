@@ -52,15 +52,15 @@ class FitbitTokenSchema(BaseModel):
     refresh_token: str
 
 
-class FitbitActivitySchema(BaseModel):
-    logId: int
-    activityName: str
-    calories: Optional[int] = None
-    activeDuration: Optional[int] = None
-    duration: int
-    elevationGain: Optional[float] = None
-    startTime: str
-    steps: Optional[int] = None
-    averageHeartRate: Optional[int] = None
-    pace: Optional[float] = None
-    speed: Optional[float] = None
+# class FitbitActivitySchema(BaseModel):
+#     logId: int
+#     activityName: str
+#     calories: Optional[int] = None
+#     activeDuration: Optional[int] = None
+#     duration: int
+#     elevationGain: Optional[float] = None
+#     startTime: str
+#     steps: Optional[int] = None
+#     averageHeartRate: Optional[int] = None
+#     pace: Optional[float] = None
+#     speed: Optional[float] = None

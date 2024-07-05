@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import List, Any
 
 from sqlalchemy.orm import Session
@@ -151,5 +152,32 @@ def add_fitbit_activities(db: Session, user_id: int, activities: List[Any]):
         db.refresh(new_activity_row)
 
 
+def get_fitbit_heartrate_by_date(db: Session, date_unformatted: str):
+    date_formatted = datetime.strptime(date_unformatted, '%Y-%m-%d').date()
+    return db.query(tables.FitbitHeartRateLogs).filter(tables.FitbitHeartRateLogs.date == date_formatted).first()
+
+
+def add_fitbit_heartrate_logs(db: Session, user_id: int, heartrate_logs: List[Any]):
+    for hr_log in heartrate_logs:
+        if 'restingHeartRate' not in hr_log['value']:
+            continue
+
+        # Check if the log with the same date already exists
+        hr_db_log = get_fitbit_heartrate_by_date(db, hr_log['dateTime'])
+        if hr_db_log:
+            hr_db_log.restingHeartRate = hr_log['value']['restingHeartRate']
+        else:
+            hr_db_log = tables.FitbitHeartRateLogs(**hr_log, user_id=user_id)
+
+        # Saving the changes to the database
+        db.add(hr_db_log)
+        db.commit()
+        db.refresh(hr_db_log)
+
+
 def get_fitbit_activities(db: Session, user_id: int):
-    return db.query(tables.FitbitActivityLogs).all()
+    return db.query(tables.FitbitActivityLogs).filter(tables.FitbitActivityLogs.user_id == user_id).all()
+
+
+def get_fitbit_heartrate_logs(db: Session, user_id: int):
+    return db.query(tables.FitbitHeartRateLogs).filter(tables.FitbitHeartRateLogs.user_id == user_id).all()

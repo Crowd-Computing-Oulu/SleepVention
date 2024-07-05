@@ -62,6 +62,19 @@ def get_fitbit_activities(headers, start_date, fitbit_user_id):
     return response
 
 
+def get_fitbit_heartrate(headers, start_date, fitbit_user_id):
+    fitbit_heartrate_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/activities/heart/date/{start_date}/today.json'
+    response = requests.get(fitbit_heartrate_url, headers=headers)
+    return response
+
+
+def combine_fitbit_responses(activities_response, heartrate_response):
+    return {
+        'activities': activities_response.json()['activities'],
+        'heartrate': heartrate_response.json()['activities-heart']
+    }
+
+
 def get_data_from_fitbit(
         db: Session,
         user_id: int
@@ -86,13 +99,19 @@ def get_data_from_fitbit(
         'Authorization': f'Bearer {fitbit_token_str}',
     }
 
-    # getting data for the last 70 days
-    start_date = date.today() - timedelta(days=70)
+    # Setting the start time for 270 days ago
+    start_date = date.today() - timedelta(days=270)
     start_date_formatted = start_date.strftime('%Y-%m-%d')
+
+    # Getting Fitbit activity data
     activities_response = get_fitbit_activities(headers, start_date_formatted, fitbit_user_id)
 
+    # Getting Fitbit heartrate data
+    hr_response = get_fitbit_heartrate(headers, start_date_formatted, fitbit_user_id)
+    hrjson = hr_response.json()
+
     if activities_response.status_code == 200:
-        return activities_response.json()['activities']
+        return combine_fitbit_responses(activities_response, hr_response)
     elif activities_response.status_code == 401:
         raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
     else:
@@ -100,5 +119,9 @@ def get_data_from_fitbit(
 
 
 def update_fitbit_data(db, user_id):
-    activities = get_data_from_fitbit(db, user_id)
-    crud.add_fitbit_activities(db, user_id, activities)
+    # getting updated data from Fitbit APIs
+    fitbit_data = get_data_from_fitbit(db, user_id)
+
+    # Storing the updated data in database
+    crud.add_fitbit_activities(db, user_id, fitbit_data['activities'])
+    crud.add_fitbit_heartrate_logs(db, user_id, fitbit_data['heartrate'])

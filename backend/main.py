@@ -132,13 +132,23 @@ async def about_us(
 async def mydata(
         request: Request,
         db: Session = Depends(get_db)
-) -> List[responses.FitbitActivityResponseSchema]:
+):
+    # Get current user
     user = authentication_utils.get_current_user(request, db)
+
+    # Update data tables
     data_utils.update_fitbit_data(db, user.id)
+
+    response = {'activities': [], 'heartrate': []}
+
     fitbit_activities = crud.get_fitbit_activities(db, user.id)
-    response = []
     for activity in fitbit_activities:
-        response.append(responses.FitbitActivityResponseSchema.from_orm(activity))
+        response['activities'].append(responses.FitbitActivityResponseSchema.from_orm(activity))
+
+    heartrate_logs = crud.get_fitbit_heartrate_logs(db, user.id)
+    for hr_log in heartrate_logs:
+        response['heartrate'].append(responses.FitbitHeartrateResponseSchema.from_orm(hr_log))
+
     return response
 
 
