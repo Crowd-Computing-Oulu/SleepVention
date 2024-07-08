@@ -92,7 +92,7 @@ class FitbitTokens(Base):
 #     id = Column(Integer, primary_key=True, autoincrement=True)
 #     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 #     last_updated = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
-#     dateOfSleep = Column(Date, nullable=False)
+#     date = Column(Date, nullable=False)  # dateOfSleep
 #     minutesAfterWakeup = Column(Integer, nullable=False)
 #     minutesAsleep = Column(Integer, nullable=False)
 #     minutesAwake = Column(Integer, nullable=False)
@@ -111,7 +111,15 @@ class FitbitTokens(Base):
 #     wake_minutes = Column(Integer, nullable=False)
 #
 #     user = relationship("Users", back_populates="fitbit_sleep_logs")
-#     sleep_levels = relationship("FitbitSleepLevels", back_populates="parent_sleep_log")
+#     # sleep_levels = relationship("FitbitSleepLevels", back_populates="parent_sleep_log")
+#
+#     def __init__(self, **kwargs):
+#         for key, value in kwargs.items():
+#             if key == 'dateOfSleep':
+#                 self.date = datetime.strptime(value, '%Y-%m-%d').date()
+#             else:
+#                 setattr(self, key, value)
+
 #
 #
 # class FitbitSleepLevels(Base):
@@ -183,4 +191,3 @@ class FitbitActivityLogs(Base):
                 self.startTime = time_obj
             else:
                 setattr(self, key, value)
-

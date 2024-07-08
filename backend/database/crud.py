@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from typing import List, Any
 
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from database import tables, schemas
@@ -167,7 +168,23 @@ def add_fitbit_heartrate_logs(db: Session, user_id: int, heartrate_logs: List[An
         if hr_db_log:
             hr_db_log.restingHeartRate = hr_log['value']['restingHeartRate']
         else:
-            hr_db_log = tables.FitbitHeartRateLogs(**hr_log, user_id=user_id)
+            hr_db_log = tables.FitbitHeartRateLogs(**hr_log['value'], dateTime=hr_log['dateTime'], user_id=user_id)
+
+        # Saving the changes to the database
+        db.add(hr_db_log)
+        db.commit()
+        db.refresh(hr_db_log)
+
+
+def add_fitbit_hrv_logs(db: Session, user_id: int, hrv_logs: List[Any]):
+    for hrv_log in hrv_logs:
+        # Check if the log with the same date already exists
+        hr_db_log = get_fitbit_heartrate_by_date(db, hrv_log['dateTime'])
+        if hr_db_log:
+            hr_db_log.dailyRmssd = hrv_log['value']['dailyRmssd']
+            hr_db_log.deepRmssd = hrv_log['value']['deepRmssd']
+        else:
+            hr_db_log = tables.FitbitHeartRateLogs(**hrv_log['value'], dateTime=hrv_log['dateTime'], user_id=user_id)
 
         # Saving the changes to the database
         db.add(hr_db_log)
@@ -176,8 +193,8 @@ def add_fitbit_heartrate_logs(db: Session, user_id: int, heartrate_logs: List[An
 
 
 def get_fitbit_activities(db: Session, user_id: int):
-    return db.query(tables.FitbitActivityLogs).filter(tables.FitbitActivityLogs.user_id == user_id).all()
+    return db.query(tables.FitbitActivityLogs).filter(tables.FitbitActivityLogs.user_id == user_id).order_by(desc(tables.FitbitActivityLogs.date)).all()
 
 
 def get_fitbit_heartrate_logs(db: Session, user_id: int):
-    return db.query(tables.FitbitHeartRateLogs).filter(tables.FitbitHeartRateLogs.user_id == user_id).all()
+    return db.query(tables.FitbitHeartRateLogs).filter(tables.FitbitHeartRateLogs.user_id == user_id).order_by(desc(tables.FitbitHeartRateLogs.date)).all()
