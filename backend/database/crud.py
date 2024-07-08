@@ -192,9 +192,31 @@ def add_fitbit_hrv_logs(db: Session, user_id: int, hrv_logs: List[Any]):
         db.refresh(hr_db_log)
 
 
+def add_fitbit_sleep_logs(db: Session, user_id: int, sleep_logs: List[Any]):
+    for sleep_log in sleep_logs:
+        # Check if the log with the same id already exists
+        existing_log = db.query(tables.FitbitSleepLogs).filter(
+            tables.FitbitSleepLogs.id == sleep_log['logId']).first()
+
+        # Check if the log has already been added to the database
+        if existing_log:
+            continue
+
+        if sleep_log['type'] == 'stages' and sleep_log['isMainSleep']:
+            # Create new db row if it hasn't added to the database
+            new_sleep_log = tables.FitbitSleepLogs(**sleep_log, user_id=user_id)
+            db.add(new_sleep_log)
+            db.commit()
+            db.refresh(new_sleep_log)
+
+
 def get_fitbit_activities(db: Session, user_id: int):
     return db.query(tables.FitbitActivityLogs).filter(tables.FitbitActivityLogs.user_id == user_id).order_by(desc(tables.FitbitActivityLogs.date)).all()
 
 
 def get_fitbit_heartrate_logs(db: Session, user_id: int):
     return db.query(tables.FitbitHeartRateLogs).filter(tables.FitbitHeartRateLogs.user_id == user_id).order_by(desc(tables.FitbitHeartRateLogs.date)).all()
+
+
+def get_fitbit_sleep_logs(db: Session, user_id: int):
+    return db.query(tables.FitbitSleepLogs).filter(tables.FitbitSleepLogs.user_id == user_id).order_by(desc(tables.FitbitSleepLogs.date)).all()

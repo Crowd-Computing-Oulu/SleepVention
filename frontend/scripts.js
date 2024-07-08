@@ -306,6 +306,14 @@ function generateDataButtons(data) {
         `;
     });
 
+    data.sleep.forEach((data_date, index) => {
+        document.getElementById("sleep-date-buttons").innerHTML += `
+            <li class="mb-1">
+                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded sleep-date-button" data-sleep-date-button-id="${index}">${data_date.date}</a></li>
+            </li>
+        `;
+    });
+
     var dataDateButtons = document.querySelectorAll('.activity-date-button');
     dataDateButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -319,6 +327,14 @@ function generateDataButtons(data) {
         button.addEventListener('click', function() {
             var buttonId = button.dataset.hrDateButtonId;
             fillDataTable(data.heartrate[buttonId]);
+        });
+    });
+
+    var dataDateButtons = document.querySelectorAll('.sleep-date-button');
+    dataDateButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            var buttonId = button.dataset.sleepDateButtonId;
+            fillDataTable(data.sleep[buttonId]);
         });
     });
 }

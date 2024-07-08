@@ -139,7 +139,7 @@ async def mydata(
     # Update data tables
     data_utils.update_fitbit_data(db, user.id)
 
-    response = {'activities': [], 'heartrate': []}
+    response = {'activities': [], 'heartrate': [], 'sleep': []}
 
     fitbit_activities = crud.get_fitbit_activities(db, user.id)
     for activity in fitbit_activities:
@@ -148,6 +148,10 @@ async def mydata(
     heartrate_logs = crud.get_fitbit_heartrate_logs(db, user.id)
     for hr_log in heartrate_logs:
         response['heartrate'].append(responses.FitbitHeartrateResponseSchema.from_orm(hr_log))
+
+    sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
+    for sleep_log in sleep_logs:
+        response['sleep'].append(responses.FitbitSleepResponseSchema.from_orm(sleep_log))
 
     return response
 
