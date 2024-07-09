@@ -1,5 +1,5 @@
 from datetime import date, time, datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -67,6 +67,15 @@ class FitbitHeartrateResponseSchema(BaseModel):
         from_attributes = True
 
 
+class FitbitSleepLevelResponseSchema(BaseModel):
+    dateTime: datetime
+    level: str
+    seconds: int
+
+    class Config:
+        from_attributes = True
+
+
 class FitbitSleepResponseSchema(BaseModel):
     date: date  # dateOfSleep
     minutesAfterWakeup: Optional[int] = None
@@ -78,14 +87,16 @@ class FitbitSleepResponseSchema(BaseModel):
     endTime: Optional[datetime] = None
     duration: int
     efficiency: Optional[int] = None
-    deep_count: Optional[int] = None
-    light_count: Optional[int] = None
-    rem_count: Optional[int] = None
-    wake_count: Optional[int] = None
-    deep_minutes: Optional[int] = None
-    light_minutes: Optional[int] = None
-    rem_minutes: Optional[int] = None
-    wake_minutes: Optional[int] = None
+    deep_count: int
+    light_count: int
+    rem_count: int
+    wake_count: int
+    deep_minutes: int
+    light_minutes: int
+    rem_minutes: int
+    wake_minutes: int
+
+    sleep_levels: Optional[List[FitbitSleepLevelResponseSchema]] = []
 
     class Config:
         from_attributes = True

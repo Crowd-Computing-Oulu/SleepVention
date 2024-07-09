@@ -192,6 +192,14 @@ def add_fitbit_hrv_logs(db: Session, user_id: int, hrv_logs: List[Any]):
         db.refresh(hr_db_log)
 
 
+def add_fitbit_sleep_levels(db: Session, user_id: int, sleep_id: int, sleep_levels: List[Any]):
+    for sleep_level in sleep_levels:
+        new_sleep_level = tables.FitbitSleepLevels(**sleep_level, user_id=user_id, sleep_id=sleep_id)
+        db.add(new_sleep_level)
+        db.commit()
+        db.refresh(new_sleep_level)
+
+
 def add_fitbit_sleep_logs(db: Session, user_id: int, sleep_logs: List[Any]):
     for sleep_log in sleep_logs:
         # Check if the log with the same id already exists
@@ -209,6 +217,9 @@ def add_fitbit_sleep_logs(db: Session, user_id: int, sleep_logs: List[Any]):
             db.commit()
             db.refresh(new_sleep_log)
 
+            # Extract sleep levels and add them to their corresponding database table
+            add_fitbit_sleep_levels(db, user_id, sleep_log['logId'], sleep_log['levels']['data'])
+
 
 def get_fitbit_activities(db: Session, user_id: int):
     return db.query(tables.FitbitActivityLogs).filter(tables.FitbitActivityLogs.user_id == user_id).order_by(desc(tables.FitbitActivityLogs.date)).all()
@@ -220,3 +231,7 @@ def get_fitbit_heartrate_logs(db: Session, user_id: int):
 
 def get_fitbit_sleep_logs(db: Session, user_id: int):
     return db.query(tables.FitbitSleepLogs).filter(tables.FitbitSleepLogs.user_id == user_id).order_by(desc(tables.FitbitSleepLogs.date)).all()
+
+
+def get_sleep_levels_by_sleep_id(db: Session, sleep_id: int):
+    return db.query(tables.FitbitSleepLevels).filter(tables.FitbitSleepLevels.sleep_id == sleep_id).all()

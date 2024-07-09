@@ -151,7 +151,14 @@ async def mydata(
 
     sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
     for sleep_log in sleep_logs:
-        response['sleep'].append(responses.FitbitSleepResponseSchema.from_orm(sleep_log))
+        new_sleep_obj = responses.FitbitSleepResponseSchema.from_orm(sleep_log)
+
+        sleep_levels = crud.get_sleep_levels_by_sleep_id(db, sleep_log.id)
+        for sleep_level in sleep_levels:
+            sleep_level_obj = responses.FitbitSleepLevelResponseSchema.from_orm(sleep_level)
+            new_sleep_obj.sleep_levels.append(sleep_level_obj)
+
+        response['sleep'].append(new_sleep_obj)
 
     return response
 
