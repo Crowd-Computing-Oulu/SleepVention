@@ -96,7 +96,5 @@ class FitbitSleepResponseSchema(BaseModel):
     rem_minutes: int
     wake_minutes: int
 
-    sleep_levels: Optional[List[FitbitSleepLevelResponseSchema]] = []
-
     class Config:
         from_attributes = True

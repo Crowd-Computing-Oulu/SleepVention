@@ -312,6 +312,12 @@ function generateDataButtons(data) {
                 <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded sleep-date-button" data-sleep-date-button-id="${index}">${data_date.date}</a></li>
             </li>
         `;
+
+        document.getElementById("levels-date-buttons").innerHTML += `
+            <li class="mb-1">
+                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded levels-date-button" data-levels-date-button-id="${data_date.date}">${data_date.date}</a></li>
+            </li>
+        `;
     });
 
     var dataDateButtons = document.querySelectorAll('.activity-date-button');
@@ -335,6 +341,14 @@ function generateDataButtons(data) {
         button.addEventListener('click', function() {
             var buttonId = button.dataset.sleepDateButtonId;
             fillDataTable(data.sleep[buttonId]);
+        });
+    });
+
+    var dataDateButtons = document.querySelectorAll('.levels-date-button');
+    dataDateButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            var buttonId = button.dataset.levelsDateButtonId;
+            fillDataTable(data.sleep_levels[buttonId]);
         });
     });
 }
