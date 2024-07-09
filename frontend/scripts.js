@@ -285,10 +285,6 @@ function logOut() {
 }
 
 function fillDataTable(data) {
-    // const jsonString = JSON.stringify(data, null, 4); // Format JSON with 4 spaces
-    // document.getElementById('json-data').textContent = jsonString;
-
-    // var tableHtml = `<thead class="thead-dark"><tr> `;
     var tableHtml = `<thead><tr> `;
     for (var column_name in data[0]) {
         tableHtml += `<th>${column_name}</th>`;
@@ -307,6 +303,32 @@ function fillDataTable(data) {
     document.getElementById('data-table').innerHTML = tableHtml;
 }
 
+function fillDataTableVertically(data) {
+    var tableHtml = `
+        <thead>
+            <tr>
+                <th>Parameter Name</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+
+    data.forEach(dataRow => {
+        for (var column_name in dataRow) {
+            tableHtml += `
+                <tr>
+                    <td>${column_name}</td>
+                    <td>${dataRow[column_name]}</td>
+                </tr>
+            `;
+        }
+    });
+    tableHtml += `</tbody>`;
+
+    document.getElementById('data-table').innerHTML = tableHtml;
+}
+
 function generateDataDateButtons(dataLog, data_category) {
     for (var data_date in dataLog) {
         document.getElementById(`${data_category}-date-buttons`).innerHTML += `
@@ -316,11 +338,17 @@ function generateDataDateButtons(dataLog, data_category) {
         `;
     }
 
+    
     var dataDateButtons = document.querySelectorAll(`.${data_category}-date-button`);
     dataDateButtons.forEach(button => {
         button.addEventListener('click', function() {
             var dataDate = button.dataset.date;
-            fillDataTable(dataLog[dataDate]);
+
+            if (data_category === "sleep") {
+                fillDataTableVertically(dataLog[dataDate]);
+            } else {
+                fillDataTable(dataLog[dataDate]);
+            }
         });
     });
 }

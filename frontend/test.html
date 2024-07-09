@@ -3,142 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Data</title>
+    <title>Sample Table</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.2.3/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Ensure the body takes full height */
         body {
-            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f8f9fa;
-            position: sticky;
-            top: 0;
-            z-index: 2;
+        /* Center the table within its container */
+        .table-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align items to the start (top) of the container */
+            padding: 20px; /* Add some padding to make the layout nicer */
         }
     </style>
 </head>
 <body>
-    <div class="mt-5">
-        <h1>My Data</h1>
-        <table class="table table-striped">
-            <thead>
+<main class="d-flex flex-nowrap">
+    <div class="table-container mt-5 flex-grow-1">
+        <table class="table table-bordered table-striped w-50">
+            <thead class="thead-dark">
                 <tr>
-                    <th>Field</th>
-                    <th>Value</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Value</th>
                 </tr>
             </thead>
-            <tbody id="dataTable">
-                <!-- Data rows will be appended here by JavaScript -->
+            <tbody>
+                <tr>
+                    <td>Active Duration</td>
+                    <td>100000</td>
+                </tr>
+                <tr>
+                    <td>Activity Name</td>
+                    <td>Walk</td>
+                </tr>
+                <tr>
+                    <td>Calories</td>
+                    <td>60</td>
+                </tr>
+                <tr>
+                    <td>Distance</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td>Speed</td>
+                    <td>720</td>
+                </tr>
+                <tr>
+                    <td>Steps</td>
+                    <td>9678</td>
+                </tr>
             </tbody>
         </table>
     </div>
+</main>
 
-    <script>
-        function generateTable(data) {
-            const dataTable = document.getElementById('dataTable');
-            dataTable.innerHTML = ''; // Clear any existing rows
-
-            Object.keys(data).forEach(key => {
-                const value = data[key];
-                
-                if (Array.isArray(value)) {
-                    value.forEach((item, index) => {
-                        const row = document.createElement('tr');
-                        const cellKey = document.createElement('td');
-                        const cellValue = document.createElement('td');
-                        cellKey.textContent = `${key} [${index}]`;
-                        cellValue.textContent = JSON.stringify(item, null, 2);
-                        row.appendChild(cellKey);
-                        row.appendChild(cellValue);
-                        dataTable.appendChild(row);
-                    });
-                } else if (typeof value === 'object') {
-                    const row = document.createElement('tr');
-                    const cellKey = document.createElement('td');
-                    const cellValue = document.createElement('td');
-                    cellKey.textContent = key;
-                    cellValue.textContent = JSON.stringify(value, null, 2);
-                    row.appendChild(cellKey);
-                    row.appendChild(cellValue);
-                    dataTable.appendChild(row);
-                } else {
-                    const row = document.createElement('tr');
-                    const cellKey = document.createElement('td');
-                    const cellValue = document.createElement('td');
-                    cellKey.textContent = key;
-                    cellValue.textContent = value;
-                    row.appendChild(cellKey);
-                    row.appendChild(cellValue);
-                    dataTable.appendChild(row);
-                }
-            });
-        }
-
-        // Example JSON data
-        const jsonData = {
-            "activeDuration": 100000,
-            "activityLevel": [
-                {
-                    "minutes": 0,
-                    "name": "sedentary"
-                },
-                {
-                    "minutes": 1,
-                    "name": "lightly"
-                },
-                {
-                    "minutes": 0,
-                    "name": "fairly"
-                },
-                {
-                    "minutes": 0,
-                    "name": "very"
-                }
-            ],
-            "activityName": "Walk",
-            "activityTypeId": 90013,
-            "calories": 60,
-            "caloriesLink": "https://api.fitbit.com/1/user/-/activities/calories/date/2024-06-23/2024-06-23/1min/time/12:01/12:02.json",
-            "distance": 20,
-            "distanceUnit": "Kilometer",
-            "duration": 100000,
-            "hasActiveZoneMinutes": false,
-            "lastModified": "2024-06-24T09:23:17.000Z",
-            "logId": 64302832297,
-            "logType": "manual",
-            "manualValuesSpecified": {
-                "calories": true,
-                "distance": true,
-                "steps": false
-            },
-            "originalDuration": 100000,
-            "originalStartTime": "2024-06-23T12:01:01.000+03:00",
-            "pace": 5,
-            "source": {
-                "id": "227G5L",
-                "name": "Web API Explorer",
-                "trackerFeatures": [],
-                "type": "app",
-                "url": "http://swagger.io/swagger-ui/"
-            },
-            "speed": 720,
-            "startTime": "2024-06-23T12:01:01.000+03:00",
-            "steps": 9678
-        };
-
-        // Generate the table on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            generateTable(jsonData);
-        });
-    </script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
