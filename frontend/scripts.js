@@ -285,72 +285,51 @@ function logOut() {
 }
 
 function fillDataTable(data) {
-    const jsonString = JSON.stringify(data, null, 4); // Format JSON with 4 spaces
-    document.getElementById('json-data').textContent = jsonString;
+    // const jsonString = JSON.stringify(data, null, 4); // Format JSON with 4 spaces
+    // document.getElementById('json-data').textContent = jsonString;
+
+    // var tableHtml = `<thead class="thead-dark"><tr> `;
+    var tableHtml = `<thead><tr> `;
+    for (var column_name in data[0]) {
+        tableHtml += `<th>${column_name}</th>`;
+    }
+    tableHtml += `</tr></thead><tbody>`;
+
+    data.forEach(dataRow => {
+        tableHtml += `<tr>`;
+        for (var column_name in dataRow) {
+            tableHtml += `<td>${dataRow[column_name]}</td>`;
+        }
+        tableHtml += `</tr>`;
+    });
+    tableHtml += `</tbody>`;
+
+    document.getElementById('data-table').innerHTML = tableHtml;
 }
 
-function generateDataButtons(data) {
-    for (var data_date in data.activities) {
-        document.getElementById("activity-date-buttons").innerHTML += `
+function generateDataDateButtons(dataLog, data_category) {
+    for (var data_date in dataLog) {
+        document.getElementById(`${data_category}-date-buttons`).innerHTML += `
             <li class="mb-1">
-                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded activity-date-button" data-activity-date-button-id="${data_date}">${data_date}</a></li>
+                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded ${data_category}-date-button" data-date="${data_date}">${data_date}</a></li>
             </li>
         `;
     }
 
-    data.heartrate.forEach((data_date, index) => {
-        document.getElementById("hr-date-buttons").innerHTML += `
-            <li class="mb-1">
-                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded hr-date-button" data-hr-date-button-id="${index}">${data_date.date}</a></li>
-            </li>
-        `;
-    });
-
-    data.sleep.forEach((data_date, index) => {
-        document.getElementById("sleep-date-buttons").innerHTML += `
-            <li class="mb-1">
-                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded sleep-date-button" data-sleep-date-button-id="${index}">${data_date.date}</a></li>
-            </li>
-        `;
-
-        document.getElementById("levels-date-buttons").innerHTML += `
-            <li class="mb-1">
-                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded levels-date-button" data-levels-date-button-id="${data_date.date}">${data_date.date}</a></li>
-            </li>
-        `;
-    });
-
-    var dataDateButtons = document.querySelectorAll('.activity-date-button');
+    var dataDateButtons = document.querySelectorAll(`.${data_category}-date-button`);
     dataDateButtons.forEach(button => {
         button.addEventListener('click', function() {
-            var buttonId = button.dataset.activityDateButtonId;
-            fillDataTable(data.activities[buttonId]);
+            var dataDate = button.dataset.date;
+            fillDataTable(dataLog[dataDate]);
         });
     });
+}
 
-    var dataDateButtons = document.querySelectorAll('.hr-date-button');
-    dataDateButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            var buttonId = button.dataset.hrDateButtonId;
-            fillDataTable(data.heartrate[buttonId]);
-        });
-    });
-
-    var dataDateButtons = document.querySelectorAll('.sleep-date-button');
-    dataDateButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            var buttonId = button.dataset.sleepDateButtonId;
-            fillDataTable(data.sleep[buttonId]);
-        });
-    });
-
-    var dataDateButtons = document.querySelectorAll('.levels-date-button');
-    dataDateButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            var buttonId = button.dataset.levelsDateButtonId;
-            fillDataTable(data.sleep_levels[buttonId]);
-        });
-    });
+function fillMyDataPage(data) {
+    generateDataDateButtons(data.activities, 'activity');
+    generateDataDateButtons(data.heartrate, 'hr');
+    generateDataDateButtons(data.sleep, 'sleep');
+    generateDataDateButtons(data.sleep_levels, 'levels');
 }
 
 function getMyData() {
@@ -364,7 +343,7 @@ function getMyData() {
 
     fetchRequest(serverURL + 'mydata/', request)
         .then(data => {
-            generateDataButtons(data);
+            fillMyDataPage(data);
         })
         .catch(error => {
             if (error.status === 403) {

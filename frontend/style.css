@@ -10,7 +10,7 @@ html {
 main {
   height: 100vh;
   height: -webkit-fill-available;
-  max-height: 100vh;
+  /* max-height: 100vh; */
   overflow-x: auto;
   overflow-y: hidden;
 }
@@ -106,4 +106,15 @@ main {
 
 .active {
   font-weight: bold;
+}
+
+/* Center the table within its container */
+.table-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Align items to the start (top) of the container */
+}
+/* Center the content of table cells horizontally */
+.table td, .table th {
+  text-align: center;
 }
