@@ -137,13 +137,16 @@ async def mydata(
     user = authentication_utils.get_current_user(request, db)
 
     # Update data tables
-    data_utils.update_fitbit_data(db, user.id)
+    # data_utils.update_fitbit_data(db, user.id)
 
-    response = {'activities': [], 'heartrate': [], 'sleep': [], 'sleep_levels': {}}
+    response = {'activities': {}, 'heartrate': [], 'sleep': [], 'sleep_levels': {}}
 
     fitbit_activities = crud.get_fitbit_activities(db, user.id)
     for activity in fitbit_activities:
-        response['activities'].append(responses.FitbitActivityResponseSchema.from_orm(activity))
+        # Grouping activities based on their date
+        if activity.date not in response['activities']:
+            response['activities'][activity.date] = []
+        response['activities'][activity.date].append(responses.FitbitActivityResponseSchema.from_orm(activity))
 
     heartrate_logs = crud.get_fitbit_heartrate_logs(db, user.id)
     for hr_log in heartrate_logs:

@@ -290,13 +290,13 @@ function fillDataTable(data) {
 }
 
 function generateDataButtons(data) {
-    data.activities.forEach((data_date, index) => {
+    for (var data_date in data.activities) {
         document.getElementById("activity-date-buttons").innerHTML += `
             <li class="mb-1">
-                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded activity-date-button" data-activity-date-button-id="${index}">${data_date.date}</a></li>
+                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded activity-date-button" data-activity-date-button-id="${data_date}">${data_date}</a></li>
             </li>
         `;
-    });
+    }
 
     data.heartrate.forEach((data_date, index) => {
         document.getElementById("hr-date-buttons").innerHTML += `
