@@ -235,3 +235,10 @@ def get_fitbit_sleep_logs(db: Session, user_id: int):
 
 def get_sleep_levels_by_sleep_id(db: Session, sleep_id: int):
     return db.query(tables.FitbitSleepLevels).filter(tables.FitbitSleepLevels.sleep_id == sleep_id).all()
+
+
+def add_data_file(db: Session, user_id: int, data: schemas.DataFileUploadSchema):
+    new_db_row = tables.UserDataFiles(**data.dict(), user_id=user_id)
+    db.add(new_db_row)
+    db.commit()
+    db.refresh(new_db_row)

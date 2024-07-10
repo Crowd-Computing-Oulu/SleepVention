@@ -86,17 +86,22 @@
 						<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="levels-date-buttons"></ul>
 					</div>
 				</li>
+				<li class="mb-1">
+					<button class="btn btn-toggle no-before d-inline-flex align-items-center rounded border-0" id="uplaod-button">
+						Upload New Data
+					</button>
+				</li>
 			</ul>
 		</div>
-		<div class="table-container mt-5 flex-grow-1">
-			<table class="table table-bordered table-striped w-50" id="data-table">
-			</table>
+		<div class="table-container mt-5 flex-grow-1" id="data-content">
 		</div>
 	</main>
 	<script>
 		window.addEventListener("load", function() {
             getMyData();
         });
+
+		document.getElementById("uplaod-button").addEventListener("click", function() { generateUploadButton(); });
 	</script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"

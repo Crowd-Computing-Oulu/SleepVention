@@ -285,7 +285,10 @@ function logOut() {
 }
 
 function fillDataTable(data) {
-    var tableHtml = `<thead><tr> `;
+    var tableHtml = `
+		<table class="table table-bordered table-striped w-50" id="data-table">
+        <thead><tr>
+    `;
     for (var column_name in data[0]) {
         tableHtml += `<th>${column_name}</th>`;
     }
@@ -298,9 +301,9 @@ function fillDataTable(data) {
         }
         tableHtml += `</tr>`;
     });
-    tableHtml += `</tbody>`;
+    tableHtml += `</tbody></table>`;
 
-    document.getElementById('data-table').innerHTML = tableHtml;
+    document.getElementById('data-content').innerHTML = tableHtml;
 }
 
 function fillDataTableVertically(data) {
@@ -381,4 +384,43 @@ function getMyData() {
                 handleResponseError(error);
             }
         });
+}
+
+function uploadFile() {
+    const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const file_content = e.target.result;
+
+                    request = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'token': localStorage.getItem("token")
+                        },
+                        body: JSON.stringify({ file_name: file.name, file_content: file_content })
+                    }
+
+                    fetchRequest(serverURL + 'data_file/', request)
+                        .then(data => {
+                            alert('File uploaded successfully');
+                        })
+                        .catch(error => {
+                            alertError(error);
+                        });
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Please select a file');
+            }
+}
+
+function generateUploadButton() {
+    document.getElementById("data-content").innerHTML = `
+        <input style="max-width: 400px" class="form-control form-control me-3" id="fileInput" type="file">
+        <button class="btn btn-success" onclick="uploadFile()">Upload</button>
+    `;
 }

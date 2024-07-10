@@ -178,3 +178,15 @@ async def fitbit_authenticate(
     fitbit_token = data_utils.get_fitbit_token(fitbit_code)
     crud.add_fitbit_token(db, user.id, fitbit_token.access_token, fitbit_token.refresh_token)
     return Response(status_code=200)
+
+
+@app.post("/data_file/")
+async def upload_file(
+        request: Request,
+        data: schemas.DataFileUploadSchema,
+        db: Session = Depends(get_db)
+):
+    # Get current user
+    user = authentication_utils.get_current_user(request, db)
+    print(data.file_name, data.file_content)
+    crud.add_data_file(db, user.id, data)
