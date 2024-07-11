@@ -1,6 +1,7 @@
 const serverURL = "http://127.0.0.1:8000/";
 const userSpecificPages = ["mydata.html", "mystudies.html", "profile.html", "edit_profile.html"];
 const MAX_STR_LENGTH = 2000;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;  // 10 MB
 
 async function fetchRequest(url, request) {
     const response = await fetch(url, request);
@@ -442,6 +443,11 @@ function uploadFile() {
             const file = fileInput.files[0];
 
             if (file) {
+                if (file.size > MAX_FILE_SIZE) {
+                    alert('File size exceeds 10 MB. Please choose a smaller file.');
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const file_content = e.target.result;
@@ -471,7 +477,7 @@ function uploadFile() {
 
 function generateUploadButton() {
     document.getElementById("data-content").innerHTML = `
-        <input style="max-width: 400px" class="form-control form-control me-3" id="fileInput" type="file">
+        <input style="max-width: 400px" class="form-control form-control me-3" id="fileInput" type="file" accept=".txt, .json">
         <button class="btn btn-success" onclick="uploadFile()">Upload</button>
     `;
 }
