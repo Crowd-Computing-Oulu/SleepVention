@@ -1,5 +1,6 @@
 const serverURL = "http://127.0.0.1:8000/";
 const userSpecificPages = ["mydata.html", "mystudies.html", "profile.html", "edit_profile.html"];
+const MAX_STR_LENGTH = 2000;
 
 async function fetchRequest(url, request) {
     const response = await fetch(url, request);
@@ -332,6 +333,32 @@ function fillDataTableVertically(data) {
     document.getElementById('data-table').innerHTML = tableHtml;
 }
 
+function trimStringToMaxLength(str) {
+    return str.length > MAX_STR_LENGTH ? str.slice(0, MAX_STR_LENGTH) + '...' : str;
+}
+
+function trimJsonToMaxLength(str) {
+    return str.length > (MAX_STR_LENGTH / 2) ? str.slice(0, MAX_STR_LENGTH / 2) + '\n.\n.\n.' : str;
+}
+
+function fillDataText(data) {
+    content = trimStringToMaxLength(data.file_content)
+    document.getElementById('data-content').innerHTML = `
+        <p style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; width: 80%;">
+            ${content}
+        </p>
+    `;
+}
+
+function fillDataJson(data) {
+    content = JSON.stringify(JSON.parse(data.file_content), null, 4);
+    document.getElementById('data-content').innerHTML = `
+        <pre id="json-content" style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; width: 80%;"><code>
+        </code></pre>
+    `;
+    document.getElementById('json-content').innerText = trimJsonToMaxLength(content);
+}
+
 function generateDataDateButtons(dataLog, data_category) {
     for (var data_date in dataLog) {
         document.getElementById(`${data_category}-date-buttons`).innerHTML += `
@@ -356,11 +383,35 @@ function generateDataDateButtons(dataLog, data_category) {
     });
 }
 
+function generateFilesButtons(dataFiles) {
+    dataFiles.forEach((dataFile, index) => {
+        document.getElementById('files-buttons').innerHTML += `
+            <li class="mb-1">
+                <li><a href="#" class="link-dark d-inline-flex text-decoration-none rounded file-name-button" data-file-button-id="${index}">${dataFile.file_name}</a></li>
+            </li>
+        `;
+    });
+
+
+    var dataFileButtons = document.querySelectorAll('.file-name-button');
+    dataFileButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            var dataFileId = button.dataset.fileButtonId;
+            if (dataFiles[dataFileId].file_name.endsWith(".json")) {
+                fillDataJson(dataFiles[dataFileId]);
+            } else {
+                fillDataText(dataFiles[dataFileId]);
+            }
+        });
+    });
+}
+
 function fillMyDataPage(data) {
     generateDataDateButtons(data.activities, 'activity');
     generateDataDateButtons(data.heartrate, 'hr');
     generateDataDateButtons(data.sleep, 'sleep');
     generateDataDateButtons(data.sleep_levels, 'levels');
+    generateFilesButtons(data.files)
 }
 
 function getMyData() {

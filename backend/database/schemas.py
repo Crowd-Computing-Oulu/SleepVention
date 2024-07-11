@@ -55,3 +55,6 @@ class FitbitTokenSchema(BaseModel):
 class DataFileUploadSchema(BaseModel):
     file_name: str
     file_content: str
+
+    class Config:
+        from_attributes = True

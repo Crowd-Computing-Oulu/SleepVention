@@ -242,3 +242,7 @@ def add_data_file(db: Session, user_id: int, data: schemas.DataFileUploadSchema)
     db.add(new_db_row)
     db.commit()
     db.refresh(new_db_row)
+
+
+def get_data_files(db: Session, user_id: int):
+    return db.query(tables.UserDataFiles).filter(tables.UserDataFiles.user_id == user_id).all()

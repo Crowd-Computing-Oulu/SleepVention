@@ -139,8 +139,9 @@ async def mydata(
     # Update data tables
     # data_utils.update_fitbit_data(db, user.id)
 
-    response = {'activities': {}, 'heartrate': {}, 'sleep': {}, 'sleep_levels': {}}
+    response = {'activities': {}, 'heartrate': {}, 'sleep': {}, 'sleep_levels': {}, 'files': []}
 
+    # Getting activity data from database
     fitbit_activities = crud.get_fitbit_activities(db, user.id)
     for activity in fitbit_activities:
         # Grouping activities based on their date
@@ -148,10 +149,12 @@ async def mydata(
             response['activities'][activity.date] = []
         response['activities'][activity.date].append(responses.FitbitActivityResponseSchema.from_orm(activity))
 
+    # Getting heartrate data from database
     heartrate_logs = crud.get_fitbit_heartrate_logs(db, user.id)
     for hr_log in heartrate_logs:
         response['heartrate'][hr_log.date] = [responses.FitbitHeartrateResponseSchema.from_orm(hr_log)]
 
+    # Getting sleep data from database
     sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
     for sleep_log in sleep_logs:
         new_sleep_obj = responses.FitbitSleepResponseSchema.from_orm(sleep_log)
@@ -163,6 +166,11 @@ async def mydata(
             response['sleep_levels'][sleep_log.date].append(sleep_level_obj)
 
         response['sleep'][sleep_log.date] = [new_sleep_obj]
+
+    # Getting user uploaded data files from database
+    data_files = crud.get_data_files(db, user.id)
+    for f in data_files:
+        response['files'].append(schemas.DataFileUploadSchema.from_orm(f))
 
     return response
 
