@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import re
 from sqlalchemy import Column, String, Boolean, Float, ForeignKey, Date, Integer, DateTime, func, Time, Text
 from sqlalchemy.orm import relationship
@@ -29,6 +29,7 @@ class Users(Base):
     fitbit_activity_logs = relationship("FitbitActivityLogs", back_populates="user")
     fitbit_user_id = relationship("FitbitUserId", back_populates="user")
     uploaded_data_files = relationship("UserDataFiles", back_populates="user")
+    fitbit_last_updates = relationship("FitbitLastUpdates", back_populates="user")
 
 
 class Passwords(Base):
@@ -220,6 +221,25 @@ class FitbitActivityLogs(Base):
             else:
                 setattr(self, key, value)
 
+
+class FitbitLastUpdates(Base):
+    __tablename__ = 'fitbit_last_updates'
+
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    activity = Column(Date)
+    heart_rate = Column(Date)
+    hrv = Column(Date)
+    sleep = Column(Date)
+
+    user = relationship("Users", back_populates="fitbit_last_updates")
+
+    def __init__(self, user_id):
+        self.user_id = user_id
+        self.activity = date.today() - timedelta(days=30)
+        self.heart_rate = date.today() - timedelta(days=30)
+        self.hrv = date.today() - timedelta(days=30)
+        self.sleep = date.today() - timedelta(days=30)
+            
 
 class UserDataFiles(Base):
     __tablename__ = 'user_data_files'

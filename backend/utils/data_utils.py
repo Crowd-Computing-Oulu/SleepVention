@@ -1,11 +1,9 @@
-from typing import List
+from datetime import date, timedelta, datetime
 
 import requests
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-
 from database import crud, schemas
-from datetime import date, timedelta
 
 FITBIT_CLIENT_ID = '23PDRW'
 FITBIT_CLIENT_SECRET = '5cff99a1510ed622f0abee34f0e68997'
@@ -52,27 +50,38 @@ def refresh_fitbit_token(fitbit_token) -> schemas.FitbitTokenSchema:
         raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
 
 
+def format_date_to_str(date_obj):
+    return date_obj.strftime('%Y-%m-%d')
+
+
 def get_fitbit_activities(headers, start_date, fitbit_user_id):
     fitbit_activities_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/activities/list.json?'
     fitbit_activities_url += f'afterDate={start_date}'
     fitbit_activities_url += '&sort=asc'
-    fitbit_activities_url += '&limit=10'  # The limit should be changed to 100
+    fitbit_activities_url += '&limit=100'
     fitbit_activities_url += '&offset=0'
     response = requests.get(fitbit_activities_url, headers=headers)
     return response
 
 
 def get_fitbit_heartrate(headers, start_date, fitbit_user_id):
+    # Be careful that the maximum range is 1 year
     fitbit_heartrate_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/activities/heart/date/{start_date}/today.json'
     response = requests.get(fitbit_heartrate_url, headers=headers)
     return response
 
 
-def get_fitbit_hrv(headers, start_date, fitbit_user_id):
-    # fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/hrv/date/{start_date}/today.json'
+def get_fitbit_hrv(headers, start_date, fitbit_user_id, db, user_id):
+    # Be careful that the maximum range is 30 days
+    if date.today() - timedelta(days=30) > datetime.strptime(start_date, '%Y-%m-%d').date():
+        end_date = datetime.strptime(start_date, '%Y-%m-%d').date() + timedelta(days=30)
+        end_date_str = format_date_to_str(end_date)
+        fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/hrv/date/{start_date}/{end_date_str}.json'
 
-    # The following line is for testing purpose, it should be replaced by the above line
-    fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/hrv/date/{start_date}/2023-10-30.json'
+        crud.save_fitbit_last_update(db, user_id, end_date_str, 'hrv')
+    else:
+        fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/hrv/date/{start_date}/today.json'
+        crud.save_fitbit_last_update(db, user_id, 'today', 'hrv')
     response = requests.get(fitbit_hrv_url, headers=headers)
     return response
 
@@ -81,7 +90,7 @@ def get_fitbit_sleep(headers, start_date, fitbit_user_id):
     fitbit_sleep_url = Fitbit_BASE_URL + f'/1.2/user/{fitbit_user_id}/sleep/list.json?'
     fitbit_sleep_url += f'afterDate={start_date}'
     fitbit_sleep_url += '&sort=asc'
-    fitbit_sleep_url += '&limit=10'  # The limit should be changed to 100
+    fitbit_sleep_url += '&limit=100'
     fitbit_sleep_url += '&offset=0'
     response = requests.get(fitbit_sleep_url, headers=headers)
     return response
@@ -98,7 +107,8 @@ def combine_fitbit_responses(activities_response, heartrate_response, hrv_respon
 
 def get_data_from_fitbit(
         db: Session,
-        user_id: int
+        user_id: int,
+        last_updates
 ):
     # Getting fitbit user ID
     fitbit_user_id = crud.get_fitbit_user_id(db, user_id)
@@ -120,25 +130,22 @@ def get_data_from_fitbit(
         'Authorization': f'Bearer {fitbit_token_str}'
     }
 
-    # Setting the start time for 30 days ago
-    # start_date = date.today() - timedelta(days=30)
-    # start_date_formatted = start_date.strftime('%Y-%m-%d')
-
-    # I changed the dates for testing purpose
-    start_date_formatted = '2023-10-10'
-
     # Getting Fitbit activity data
-    activities_response = get_fitbit_activities(headers, start_date_formatted, fitbit_user_id)
+    activity_start_date = format_date_to_str(last_updates.activity)
+    activities_response = get_fitbit_activities(headers, activity_start_date, fitbit_user_id)
 
     # Getting Fitbit heartrate data
-    hr_response = get_fitbit_heartrate(headers, start_date_formatted, fitbit_user_id)
+    heartrate_start_date = format_date_to_str(last_updates.heart_rate)
+    hr_response = get_fitbit_heartrate(headers, heartrate_start_date, fitbit_user_id)
 
     # Getting Fitbit heartrate variability data
-    hrv_response = get_fitbit_hrv(headers, start_date_formatted, fitbit_user_id)
+    hrv_start_date = format_date_to_str(last_updates.hrv)
+    hrv_response = get_fitbit_hrv(headers, hrv_start_date, fitbit_user_id, db, user_id)
+    hj = hrv_response.json()
 
     # Getting Fitbit sleep data
-    sleep_response = get_fitbit_sleep(headers, start_date_formatted, fitbit_user_id)
-    sjson = sleep_response.json()
+    sleep_start_date = format_date_to_str(last_updates.sleep)
+    sleep_response = get_fitbit_sleep(headers, sleep_start_date, fitbit_user_id)
 
     # Since all the requests are to the same domain, we only check one of them
     # to see if there is an access problem
@@ -151,8 +158,11 @@ def get_data_from_fitbit(
 
 
 def update_fitbit_data(db, user_id):
+    last_updates = crud.get_fitbit_last_updates(db, user_id)
+    print(last_updates.sleep, last_updates.activity, last_updates.hrv, last_updates.heart_rate)
+
     # getting updated data from Fitbit APIs
-    fitbit_data = get_data_from_fitbit(db, user_id)
+    fitbit_data = get_data_from_fitbit(db, user_id, last_updates)
 
     # Storing the updated data in database
     crud.add_fitbit_activities(db, user_id, fitbit_data['activities'])

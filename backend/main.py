@@ -137,7 +137,7 @@ async def mydata(
     user = authentication_utils.get_current_user(request, db)
 
     # Update data tables
-    # data_utils.update_fitbit_data(db, user.id)
+    data_utils.update_fitbit_data(db, user.id)
 
     response = {'activities': {}, 'heartrate': {}, 'sleep': {}, 'sleep_levels': {}, 'files': []}
 

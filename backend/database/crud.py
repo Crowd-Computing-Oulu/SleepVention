@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from typing import List, Any
-
+import re
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
@@ -139,6 +139,34 @@ def get_fitbit_user_id(db: Session, user_id: int):
     return '5VYD4S'
 
 
+def save_fitbit_last_update(db: Session, user_id: int, new_date: str, category: str):
+    last_updates = db.query(tables.FitbitLastUpdates).filter(tables.FitbitLastUpdates.user_id == user_id).first()
+
+    new_date_obj = None
+    if new_date == 'today':
+        new_date_obj = date.today()
+    elif category == 'activity':
+        datetime_match = re.match(r"(\d{4}-\d{2}-\d{2}T)(\d{2}:\d{2}:\d{2})", new_date)
+        date_part, _ = datetime_match.groups()
+        new_date_obj = datetime.strptime(date_part, '%Y-%m-%dT').date()
+    else:
+        new_date_obj = datetime.strptime(new_date, '%Y-%m-%d').date()
+
+    if category == 'activity':
+        last_updates.activity = new_date_obj
+    elif category == 'heartrate':
+        last_updates.heart_rate = new_date_obj
+    elif category == 'hrv':
+        last_updates.hrv = new_date_obj
+    elif category == 'sleep':
+        last_updates.sleep = new_date_obj
+
+    # Saving the changes to the database
+    db.add(last_updates)
+    db.commit()
+    db.refresh(last_updates)
+
+
 def add_fitbit_activities(db: Session, user_id: int, activities: List[Any]):
     for activity in activities:
         # Check if the activity with the same logId already exists
@@ -151,6 +179,12 @@ def add_fitbit_activities(db: Session, user_id: int, activities: List[Any]):
         db.add(new_activity_row)
         db.commit()
         db.refresh(new_activity_row)
+
+    # Saving the last update
+    if len(activities) == 100:
+        save_fitbit_last_update(db, user_id, activities[99]['startTime'], 'activity')
+    else:
+        save_fitbit_last_update(db, user_id, 'today', 'activity')
 
 
 def get_fitbit_heartrate_by_date(db: Session, date_unformatted: str):
@@ -174,6 +208,9 @@ def add_fitbit_heartrate_logs(db: Session, user_id: int, heartrate_logs: List[An
         db.add(hr_db_log)
         db.commit()
         db.refresh(hr_db_log)
+
+    # Assuming we are not getting data older than 1 year
+    save_fitbit_last_update(db, user_id, 'today', 'heartrate')
 
 
 def add_fitbit_hrv_logs(db: Session, user_id: int, hrv_logs: List[Any]):
@@ -220,6 +257,12 @@ def add_fitbit_sleep_logs(db: Session, user_id: int, sleep_logs: List[Any]):
             # Extract sleep levels and add them to their corresponding database table
             add_fitbit_sleep_levels(db, user_id, sleep_log['logId'], sleep_log['levels']['data'])
 
+    # Saving the last update
+    if len(sleep_logs) == 100:
+        save_fitbit_last_update(db, user_id, sleep_logs[99]['dateOfSleep'], 'sleep')
+    else:
+        save_fitbit_last_update(db, user_id, 'today', 'sleep')
+
 
 def get_fitbit_activities(db: Session, user_id: int):
     return db.query(tables.FitbitActivityLogs).filter(tables.FitbitActivityLogs.user_id == user_id).order_by(desc(tables.FitbitActivityLogs.date)).all()
@@ -246,3 +289,16 @@ def add_data_file(db: Session, user_id: int, data: schemas.DataFileUploadSchema)
 
 def get_data_files(db: Session, user_id: int):
     return db.query(tables.UserDataFiles).filter(tables.UserDataFiles.user_id == user_id).all()
+
+
+def get_fitbit_last_updates(db: Session, user_id: int):
+    last_updates = db.query(tables.FitbitLastUpdates).filter(tables.FitbitLastUpdates.user_id == user_id).first()
+
+    # Create a new object to save last updates of fitbit in the database if it already doesn't exist
+    if not last_updates:
+        last_updates = tables.FitbitLastUpdates(user_id=user_id)
+        db.add(last_updates)
+        db.commit()
+        db.refresh(last_updates)
+
+    return last_updates
