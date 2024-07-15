@@ -481,3 +481,8 @@ function generateUploadButton() {
         <button class="btn btn-success" onclick="uploadFile()">Upload</button>
     `;
 }
+
+function reloadPage() {
+    location.reload();
+    alert('The information has been refreshed');
+}

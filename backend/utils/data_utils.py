@@ -159,7 +159,6 @@ def get_data_from_fitbit(
 
 def update_fitbit_data(db, user_id):
     last_updates = crud.get_fitbit_last_updates(db, user_id)
-    print(last_updates.sleep, last_updates.activity, last_updates.hrv, last_updates.heart_rate)
 
     # getting updated data from Fitbit APIs
     fitbit_data = get_data_from_fitbit(db, user_id, last_updates)
