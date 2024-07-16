@@ -121,3 +121,7 @@ main {
 .table td, .table th {
   text-align: center;
 }
+
+.inside-nav {
+  color: black;
+}

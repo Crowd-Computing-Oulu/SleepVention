@@ -486,3 +486,41 @@ function reloadPage() {
     location.reload();
     alert('The information has been refreshed');
 }
+
+function getOwnStudies() {
+    var studieshtml = '';
+    for (let i = 0; i < 5; i++) {
+        studieshtml += `
+            <div class="col-md-4 mb-5">
+				<div class="card">
+					<img src="logo.webp" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">Stydy ${i}</h5>
+						<p class="card-text">The description of the study...</p>
+						<button class="btn btn-primary"">View</button>
+					<button class=" btn btn-danger"">Delete</button>
+					</div>
+				</div>
+			</div>
+        `;
+    }
+    document.getElementById('studies-container').innerHTML = studieshtml;
+}
+
+function getParticipatedStudies() {
+    // TODO
+}
+
+function goToOwnStudies() {
+    const navButtons = document.querySelectorAll('#studies-nav .nav-item button');
+    navButtons[0].className = 'inside-nav nav-link active';
+    navButtons[1].className = 'inside-nav nav-link';
+    getOwnStudies();
+}
+
+function goToParticipatedStudies() {
+    const navButtons = document.querySelectorAll('#studies-nav .nav-item button');
+    navButtons[0].className = 'inside-nav nav-link';
+    navButtons[1].className = 'inside-nav nav-link active';
+    getParticipatedStudies();
+}

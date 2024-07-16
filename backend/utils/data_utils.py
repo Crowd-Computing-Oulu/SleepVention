@@ -149,9 +149,9 @@ def get_data_from_fitbit(
 
     # Since all the requests are to the same domain, we only check one of them
     # to see if there is an access problem
-    if activities_response.status_code == 200:
+    if sleep_response.status_code == 200:
         return combine_fitbit_responses(activities_response, hr_response, hrv_response, sleep_response)
-    elif activities_response.status_code == 401:
+    elif sleep_response.status_code == 401:
         raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
     else:
         raise HTTPException(status_code=activities_response.status_code, detail=activities_response.text)
