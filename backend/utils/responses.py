@@ -98,3 +98,12 @@ class FitbitSleepResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class DataPrivacyResponseSchema(BaseModel):
+    activity: bool
+    heart_rate: bool
+    sleep: bool
+
+    class Config:
+        from_attributes = True

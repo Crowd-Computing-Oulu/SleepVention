@@ -302,3 +302,32 @@ def get_fitbit_last_updates(db: Session, user_id: int):
         db.refresh(last_updates)
 
     return last_updates
+
+
+def get_data_privacy_settings(db: Session, user_id: int):
+    data_privacy_settings = db.query(tables.DataPrivacySettings).filter(tables.DataPrivacySettings.user_id == user_id).first()
+
+    # Create a new row in the database for data privacy settings if it already doesn't exist
+    if not data_privacy_settings:
+        data_privacy_settings = tables.DataPrivacySettings(user_id=user_id)
+        db.add(data_privacy_settings)
+        db.commit()
+        db.refresh(data_privacy_settings)
+
+    return data_privacy_settings
+
+
+def edit_data_privacy_settings(db: Session, user_id: int, data: schemas.EditingDataPrivacySchema):
+    data_privacy_settings = get_data_privacy_settings(db, user_id)
+    if data.data_category == 'activity':
+        data_privacy_settings.activity = not data_privacy_settings.activity
+    elif data.data_category == 'heart_rate':
+        data_privacy_settings.heart_rate = not data_privacy_settings.heart_rate
+    else:
+        data_privacy_settings.sleep = not data_privacy_settings.sleep
+
+    db.add(data_privacy_settings)
+    db.commit()
+    db.refresh(data_privacy_settings)
+
+    return data_privacy_settings

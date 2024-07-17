@@ -198,3 +198,30 @@ async def upload_file(
     user = authentication_utils.get_current_user(request, db)
     print(data.file_name, data.file_content)
     crud.add_data_file(db, user.id, data)
+
+
+@app.get("/data_privacy/")
+async def data_privacy(
+        request: Request,
+        db: Session = Depends(get_db)
+) -> responses.DataPrivacyResponseSchema:
+    # Get current user
+    user = authentication_utils.get_current_user(request, db)
+
+    data_privacy_db = crud.get_data_privacy_settings(db, user.id)
+    response = responses.DataPrivacyResponseSchema.from_orm(data_privacy_db)
+    return response
+
+
+@app.put("/data_privacy/")
+async def edit_data_privacy(
+        request: Request,
+        data: schemas.EditingDataPrivacySchema,
+        db: Session = Depends(get_db)
+) -> responses.DataPrivacyResponseSchema:
+    # Get current user
+    user = authentication_utils.get_current_user(request, db)
+
+    new_data_privacy = crud.edit_data_privacy_settings(db, user.id, data)
+    response = responses.DataPrivacyResponseSchema.from_orm(new_data_privacy)
+    return response

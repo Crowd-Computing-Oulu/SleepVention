@@ -526,8 +526,30 @@ function goToParticipatedStudies() {
     getParticipatedStudies();
 }
 
-function generateDataSettings() {
-    document.getElementById('data-content').innerHTML = `
+function submitEdittedDataPrivacy(editingCategory, newValue) {
+    var request = {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+            "data_category": editingCategory
+        })
+    };
+
+    fetchRequest(serverURL + 'data_privacy/', request)
+        .then(data => {
+            alert(`${editingCategory} data visibility has changed to "${newValue}"`);
+            getDataSettings();
+        })
+        .catch((response) => {
+            alertError(response);
+        });
+}
+
+function generateDataSettings(data) {
+    dataHTML = `
         <table class="table table-bordered table-striped w-50">
 				<thead>
 					<tr>
@@ -536,14 +558,51 @@ function generateDataSettings() {
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>Sleep</td>
-						<td style="position: relative;">
-							<span class="position-absolute top-50 start-50 translate-middle">Public</span>
-							<button class="btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y me-3">change</button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
     `;
+
+    for (var dataCategory in data) {
+        dataPrivacy = data[dataCategory] ? 'Public' : 'Private';
+
+        dataHTML += `
+            <tr>
+                <td>${dataCategory}</td>
+                <td style="position: relative; min-width: 100px;">
+                    <span class="position-absolute top-50 start-50 translate-middle">${dataPrivacy}</span>
+                    <button class="btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y me-3 edit-data-privacy-button" data-category="${dataCategory}">
+                        change
+                    </button>
+                </td>
+            </tr>
+        `;
+    }
+
+    dataHTML += `</tbody></table>`
+
+    document.getElementById('data-content').innerHTML = dataHTML;
+
+    var dataFileButtons = document.querySelectorAll('.edit-data-privacy-button');
+    dataFileButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            var EditedDataCategory = button.dataset.category;
+            submitEdittedDataPrivacy(EditedDataCategory, (data[EditedDataCategory] ? 'Public' : 'Private'));
+        });
+    });
+}
+
+function getDataSettings() {
+    var request = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+
+    fetchRequest(serverURL + 'data_privacy/', request)
+        .then(data => {
+            generateDataSettings(data);
+        })
+        .catch(error => {
+            handleResponseError(error);
+        });
 }

@@ -30,6 +30,7 @@ class Users(Base):
     fitbit_user_id = relationship("FitbitUserId", back_populates="user")
     uploaded_data_files = relationship("UserDataFiles", back_populates="user")
     fitbit_last_updates = relationship("FitbitLastUpdates", back_populates="user")
+    data_privacy_settings = relationship("DataPrivacySettings", back_populates="user")
 
 
 class Passwords(Base):
@@ -250,3 +251,15 @@ class UserDataFiles(Base):
     file_content = Column(Text, nullable=False)
 
     user = relationship("Users", back_populates="uploaded_data_files")
+
+
+class DataPrivacySettings(Base):
+    __tablename__ = 'data_privacy_settings'
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+
+    # True means public and false is private
+    activity = Column(Boolean, default=False)
+    heart_rate = Column(Boolean, default=False)
+    sleep = Column(Boolean, default=False)
+
+    user = relationship("Users", back_populates="data_privacy_settings")

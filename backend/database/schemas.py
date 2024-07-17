@@ -58,3 +58,7 @@ class DataFileUploadSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class EditingDataPrivacySchema(BaseModel):
+    data_category: str
