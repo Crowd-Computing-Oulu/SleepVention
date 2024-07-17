@@ -310,6 +310,7 @@ function fillDataTable(data) {
 
 function fillDataTableVertically(data) {
     var tableHtml = `
+		<table class="table table-bordered table-striped w-50" id="data-table">
         <thead>
             <tr>
                 <th>Parameter Name</th>
@@ -329,9 +330,9 @@ function fillDataTableVertically(data) {
             `;
         }
     });
-    tableHtml += `</tbody>`;
+    tableHtml += `</tbody></table>`;
 
-    document.getElementById('data-table').innerHTML = tableHtml;
+    document.getElementById('data-content').innerHTML = tableHtml;
 }
 
 function trimStringToMaxLength(str) {
@@ -523,4 +524,26 @@ function goToParticipatedStudies() {
     navButtons[0].className = 'inside-nav nav-link';
     navButtons[1].className = 'inside-nav nav-link active';
     getParticipatedStudies();
+}
+
+function generateDataSettings() {
+    document.getElementById('data-content').innerHTML = `
+        <table class="table table-bordered table-striped w-50">
+				<thead>
+					<tr>
+						<th>Data</th>
+						<th>Privacy</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Sleep</td>
+						<td style="position: relative;">
+							<span class="position-absolute top-50 start-50 translate-middle">Public</span>
+							<button class="btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y me-3">change</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+    `;
 }
