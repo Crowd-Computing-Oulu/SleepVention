@@ -3,6 +3,11 @@ const userSpecificPages = ["mydata.html", "mystudies.html", "profile.html", "edi
 const MAX_STR_LENGTH = 2000;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;  // 10 MB
 
+const own_study_image_links = [
+    'https://d2jx2rerrg6sh3.cloudfront.net/images/Article_Images/ImageForArticle_22725_16560784761286902.jpg',
+    'https://sjhemleymarketing.com/wp-content/uploads/2022/02/iStock-127384315411.jpg'
+]
+
 async function fetchRequest(url, request) {
     const response = await fetch(url, request);
     if (response.ok) {
@@ -488,43 +493,50 @@ function reloadPage() {
     alert('The information has been refreshed');
 }
 
-function getOwnStudies() {
+function generateOwnStudies(studies) {
     var studieshtml = '';
-    for (let i = 0; i < 1; i++) {
+    studies.forEach ((study, index) => {
         studieshtml += `
             <div class="col-md-4 mt-5">
 				<div class="card">
-					<img src="https://www.hypersomniafoundation.org/wp-content/uploads/2024/01/iStock-1358653596-brain-waves-1024x784.jpg" class="card-img-top" alt="image">
+					<img src="${own_study_image_links[index]}" class="card-img-top" alt="image">
 					<div class="card-body">
-						<h5 class="card-title">Effects of Various Activities on Sleep</h5>
-						<p class="card-text">The description of the study comes here...</p>
+						<h5 class="card-title">${study.name}</h5>
+						<p class="card-text">${study.description}</p>
 						<button class="btn btn-outline-primary"">View</button>
-					<button class=" btn btn-danger"">Remove</button>
-					</div>
-				</div>
-			</div>
-            <div class="col-md-4 mt-5">
-				<div class="card">
-					<img src="https://amerisleep.com/blog/wp-content/uploads/2020/01/What_is_a_Sleep_Study_and_How_Does_it_Work-01-scaled.jpg" class="card-img-top" alt="image">
-					<div class="card-body">
-						<h5 class="card-title">Diagnosing Daytime Multiple Sleep Latency Test</h5>
-						<p class="card-text">The description of the study comes here...</p>
-						<button class="btn btn-outline-primary"">View</button>
-					<button class=" btn btn-danger"">Remove</button>
+					    <button class=" btn btn-danger"">Remove</button>
 					</div>
 				</div>
 			</div>
         `;
-    }
+    });
     document.getElementById('studies-container').innerHTML = studieshtml;
 
     createStudyButton = document.getElementById('create-study-button')
     createStudyButton.innerHTML = `
-        <button class="btn btn-success mt-4 mb-5">Create New Study</button>
+        <button class="btn btn-success mt-4 mb-4">Create New Study</button>
     `;
     createStudyButton.addEventListener('click', function() {
         window.location.href = 'create_study.html';
     });
+}
+
+function getOwnStudies() {
+    var request = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+
+    fetchRequest(serverURL + 'own_studies/', request)
+        .then(data => {
+            generateOwnStudies(data);
+        })
+        .catch(error => {
+            handleResponseError(error);
+        });
 }
 
 function getParticipatedStudies() {
@@ -536,7 +548,7 @@ function getParticipatedStudies() {
 						<h5 class="card-title">Sleep Research into ME/CFS</h5>
 						<p class="card-text">The description comes here...</p>
 						<button class="btn btn-outline-primary"">View</button>
-					<button class=" btn btn-danger"">Leave</button>
+					    <button class=" btn btn-danger"">Leave</button>
 					</div>
 				</div>
 			</div>
@@ -547,7 +559,7 @@ function getParticipatedStudies() {
 						<h5 class="card-title">Sleep Research for Energy</h5>
 						<p class="card-text">The description comes here...</p>
 						<button class="btn btn-outline-primary"">View</button>
-					<button class=" btn btn-danger"">Leave</button>
+					    <button class=" btn btn-danger"">Leave</button>
 					</div>
 				</div>
 			</div>
@@ -558,7 +570,7 @@ function getParticipatedStudies() {
 						<h5 class="card-title">EEG Sleep Research</h5>
 						<p class="card-text">The description comes here...</p>
 						<button class="btn btn-outline-primary"">View</button>
-					<button class=" btn btn-danger"">Leave</button>
+					    <button class=" btn btn-danger"">Leave</button>
 					</div>
 				</div>
 			</div>
@@ -668,7 +680,7 @@ function getCreateStudyForm() {
             name: document.getElementById("name").value,
             description: document.getElementById("description").value,
             type: document.getElementById("type").value,
-            consent_link: document.getElementById("consent-link").value,
+            consent_form_link: document.getElementById("consent-link").value,
         })
     );
 
@@ -687,7 +699,7 @@ function submitNewStudy() {
         body: JSON.stringify(studyForm)
     };
 
-    fetchRequest(serverURL + 'create_study/', request)
+    fetchRequest(serverURL + 'study/', request)
         .then(data => {
             alert('The study has been created successfully');
             window.location.href = "mystudies.html";

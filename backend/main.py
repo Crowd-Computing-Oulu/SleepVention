@@ -225,3 +225,29 @@ async def edit_data_privacy(
     new_data_privacy = crud.edit_data_privacy_settings(db, user.id, data)
     response = responses.DataPrivacyResponseSchema.from_orm(new_data_privacy)
     return response
+
+
+@app.post("/study/")
+async def create_study(
+        request: Request,
+        data: schemas.StudySchema,
+        db: Session = Depends(get_db)
+):
+    user = authentication_utils.get_current_user(request, db)
+
+    crud.add_study(db, user.id, data)
+
+
+@app.get("/own_studies/")
+async def get_study(
+        request: Request,
+        db: Session = Depends(get_db)
+) -> list[schemas.StudySchema]:
+    user = authentication_utils.get_current_user(request, db)
+
+    response = []
+    studies = crud.get_own_studies(db, user.id)
+    for study in studies:
+        response.append(schemas.StudySchema.from_orm(study))
+
+    return response

@@ -31,6 +31,7 @@ class Users(Base):
     uploaded_data_files = relationship("UserDataFiles", back_populates="user")
     fitbit_last_updates = relationship("FitbitLastUpdates", back_populates="user")
     data_privacy_settings = relationship("DataPrivacySettings", back_populates="user")
+    studies = relationship("Studies", back_populates="user")
 
 
 class Passwords(Base):
@@ -276,3 +277,5 @@ class Studies(Base):
     description = Column(Text, nullable=False)
     type = Column(String(255), nullable=False)
     consent_form_link = Column(String(255), nullable=False)
+
+    user = relationship("Users", back_populates="studies")

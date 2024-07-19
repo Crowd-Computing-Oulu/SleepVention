@@ -331,3 +331,14 @@ def edit_data_privacy_settings(db: Session, user_id: int, data: schemas.EditingD
     db.refresh(data_privacy_settings)
 
     return data_privacy_settings
+
+
+def add_study(db: Session, user_id: int, data: schemas.StudySchema):
+    new_db_row = tables.Studies(**data.dict(), user_id=user_id)
+    db.add(new_db_row)
+    db.commit()
+    db.refresh(new_db_row)
+
+
+def get_own_studies(db: Session, user_id: int):
+    return db.query(tables.Studies).filter(tables.Studies.user_id == user_id).all()

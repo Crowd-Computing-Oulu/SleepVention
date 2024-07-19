@@ -62,3 +62,13 @@ class DataFileUploadSchema(BaseModel):
 
 class EditingDataPrivacySchema(BaseModel):
     data_category: str
+
+
+class StudySchema(BaseModel):
+    name: str
+    description: str
+    type: str
+    consent_form_link: str
+
+    class Config:
+        from_attributes = True
