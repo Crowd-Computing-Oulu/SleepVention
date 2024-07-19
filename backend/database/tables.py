@@ -255,6 +255,7 @@ class UserDataFiles(Base):
 
 class DataPrivacySettings(Base):
     __tablename__ = 'data_privacy_settings'
+
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
 
     # True means public and false is private
@@ -263,3 +264,15 @@ class DataPrivacySettings(Base):
     sleep = Column(Boolean, default=False)
 
     user = relationship("Users", back_populates="data_privacy_settings")
+
+
+class Studies(Base):
+    __tablename__ = 'studies'
+
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=False)
+    type = Column(String(255), nullable=False)
+    consent_form_link = Column(String(255), nullable=False)

@@ -288,7 +288,7 @@ function logOut() {
 
 function fillDataTable(data) {
     var tableHtml = `
-		<table class="table table-bordered table-striped w-50" id="data-table">
+		<table class="table table-hover w-50" id="data-table">
         <thead><tr>
     `;
     for (var column_name in data[0]) {
@@ -310,7 +310,7 @@ function fillDataTable(data) {
 
 function fillDataTableVertically(data) {
     var tableHtml = `
-		<table class="table table-bordered table-striped w-50" id="data-table">
+		<table class="table table-hover w-50" id="data-table">
         <thead>
             <tr>
                 <th>Parameter Name</th>
@@ -490,26 +490,83 @@ function reloadPage() {
 
 function getOwnStudies() {
     var studieshtml = '';
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 1; i++) {
         studieshtml += `
-            <div class="col-md-4 mb-5">
+            <div class="col-md-4 mt-5">
 				<div class="card">
-					<img src="logo.webp" class="card-img-top" alt="image">
+					<img src="https://www.hypersomniafoundation.org/wp-content/uploads/2024/01/iStock-1358653596-brain-waves-1024x784.jpg" class="card-img-top" alt="image">
 					<div class="card-body">
-						<h5 class="card-title">Stydy ${i}</h5>
-						<p class="card-text">The description of the study...</p>
-						<button class="btn btn-primary"">View</button>
-					<button class=" btn btn-danger"">Delete</button>
+						<h5 class="card-title">Effects of Various Activities on Sleep</h5>
+						<p class="card-text">The description of the study comes here...</p>
+						<button class="btn btn-outline-primary"">View</button>
+					<button class=" btn btn-danger"">Remove</button>
+					</div>
+				</div>
+			</div>
+            <div class="col-md-4 mt-5">
+				<div class="card">
+					<img src="https://amerisleep.com/blog/wp-content/uploads/2020/01/What_is_a_Sleep_Study_and_How_Does_it_Work-01-scaled.jpg" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">Diagnosing Daytime Multiple Sleep Latency Test</h5>
+						<p class="card-text">The description of the study comes here...</p>
+						<button class="btn btn-outline-primary"">View</button>
+					<button class=" btn btn-danger"">Remove</button>
 					</div>
 				</div>
 			</div>
         `;
     }
     document.getElementById('studies-container').innerHTML = studieshtml;
+
+    createStudyButton = document.getElementById('create-study-button')
+    createStudyButton.innerHTML = `
+        <button class="btn btn-success mt-4 mb-5">Create New Study</button>
+    `;
+    createStudyButton.addEventListener('click', function() {
+        window.location.href = 'create_study.html';
+    });
 }
 
 function getParticipatedStudies() {
-    // TODO
+    var studieshtml = `
+            <div class="col-md-4 mt-5">
+				<div class="card">
+					<img src="https://www.mecfs.de/wp-content/uploads/2022/06/Research-Foundation-Header.jpg" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">Sleep Research into ME/CFS</h5>
+						<p class="card-text">The description comes here...</p>
+						<button class="btn btn-outline-primary"">View</button>
+					<button class=" btn btn-danger"">Leave</button>
+					</div>
+				</div>
+			</div>
+            <div class="col-md-4 mt-5">
+				<div class="card">
+					<img src="https://www.bruker.com/en/landingpages/bbio/mr-for-battery-research/battery-research-probes-li-ion-technologies/_jcr_content/teaserImage.coreimg.jpeg/1697635985708/adobestock-605065614.jpeg" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">Sleep Research for Energy</h5>
+						<p class="card-text">The description comes here...</p>
+						<button class="btn btn-outline-primary"">View</button>
+					<button class=" btn btn-danger"">Leave</button>
+					</div>
+				</div>
+			</div>
+            <div class="col-md-4 mt-5">
+				<div class="card">
+					<img src="https://brainvision.com/wp-content/uploads/2020/05/Brain-Vision-EEG-Sleep-Research-wText.png" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">EEG Sleep Research</h5>
+						<p class="card-text">The description comes here...</p>
+						<button class="btn btn-outline-primary"">View</button>
+					<button class=" btn btn-danger"">Leave</button>
+					</div>
+				</div>
+			</div>
+        `;
+
+    document.getElementById('studies-container').innerHTML = studieshtml;
+
+    document.getElementById('create-study-button').innerHTML = '';
 }
 
 function goToOwnStudies() {
@@ -526,7 +583,7 @@ function goToParticipatedStudies() {
     getParticipatedStudies();
 }
 
-function submitEdittedDataPrivacy(editingCategory, newValue) {
+function submitEdittedDataPrivacy(editingCategory) {
     var request = {
         method: 'PUT',
         headers: {
@@ -540,7 +597,6 @@ function submitEdittedDataPrivacy(editingCategory, newValue) {
 
     fetchRequest(serverURL + 'data_privacy/', request)
         .then(data => {
-            alert(`${editingCategory} data visibility has changed to "${newValue}"`);
             getDataSettings();
         })
         .catch((response) => {
@@ -550,27 +606,24 @@ function submitEdittedDataPrivacy(editingCategory, newValue) {
 
 function generateDataSettings(data) {
     dataHTML = `
-        <table class="table table-bordered table-striped w-50">
+        <table class="table table-striped w-50">
 				<thead>
 					<tr>
 						<th>Data</th>
-						<th>Privacy</th>
+						<th>Public</th>
 					</tr>
 				</thead>
 				<tbody>
     `;
 
     for (var dataCategory in data) {
-        dataPrivacy = data[dataCategory] ? 'Public' : 'Private';
-
         dataHTML += `
             <tr>
                 <td>${dataCategory}</td>
-                <td style="position: relative; min-width: 100px;">
-                    <span class="position-absolute top-50 start-50 translate-middle">${dataPrivacy}</span>
-                    <button class="btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y me-3 edit-data-privacy-button" data-category="${dataCategory}">
-                        change
-                    </button>
+                <td>
+                    <span class="form-switch">
+                        <input class="form-check-input data-public-switch" type="checkbox" role="switch" data-category="${dataCategory}">
+                    </span>
                 </td>
             </tr>
         `;
@@ -580,11 +633,13 @@ function generateDataSettings(data) {
 
     document.getElementById('data-content').innerHTML = dataHTML;
 
-    var dataFileButtons = document.querySelectorAll('.edit-data-privacy-button');
-    dataFileButtons.forEach(button => {
+    var switchButtons = document.querySelectorAll('.data-public-switch');
+    switchButtons.forEach(button => {
+        button.checked = data[button.dataset.category];
+
         button.addEventListener('click', function() {
             var EditedDataCategory = button.dataset.category;
-            submitEdittedDataPrivacy(EditedDataCategory, (data[EditedDataCategory] ? 'Public' : 'Private'));
+            submitEdittedDataPrivacy(EditedDataCategory);
         });
     });
 }
@@ -604,5 +659,40 @@ function getDataSettings() {
         })
         .catch(error => {
             handleResponseError(error);
+        });
+}
+
+function getCreateStudyForm() {
+    const studyForm = Object.fromEntries(
+        Object.entries({
+            name: document.getElementById("name").value,
+            description: document.getElementById("description").value,
+            type: document.getElementById("type").value,
+            consent_link: document.getElementById("consent-link").value,
+        })
+    );
+
+    return studyForm;
+}
+
+function submitNewStudy() {
+    const studyForm = getCreateStudyForm();
+
+    var request = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        },
+        body: JSON.stringify(studyForm)
+    };
+
+    fetchRequest(serverURL + 'create_study/', request)
+        .then(data => {
+            alert('The study has been created successfully');
+            window.location.href = "mystudies.html";
+        })
+        .catch((response) => {
+            alertError(response);
         });
 }
