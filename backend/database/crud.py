@@ -346,3 +346,12 @@ def get_own_studies(db: Session, user_id: int):
 
 def get_study_by_id(db: Session, study_id: int):
     return db.query(tables.Studies).filter(tables.Studies.id == study_id).first()
+
+
+def delete_study(db: Session, study_id: int):
+    study = get_study_by_id(db, study_id)
+    if not study:
+        return False
+    db.delete(study)
+    db.commit()
+    return True

@@ -268,3 +268,14 @@ async def get_study(
     response = responses.StudyResponseSchema.from_orm(retrieved_study)
     response.participants_number = len(retrieved_study.participants)
     return response
+
+
+@app.delete("/study/{study_id}")
+async def delete_study(
+        request: Request,
+        study_id: int,
+        db: Session = Depends(get_db)
+):
+    user = authentication_utils.get_current_user(request, db)
+    crud.delete_study(db, study_id)
+    return {"detail": "Study deleted successfully"}

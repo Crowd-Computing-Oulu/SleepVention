@@ -510,7 +510,7 @@ function generateOwnStudies(studies) {
 						<h5 class="card-title">${study.name}</h5>
 						<p class="card-text">${description}</p>
 						<button class="btn btn-outline-primary" onclick="window.location.href = 'study.html?studyId=${study.id}';">View</button>
-					    <button class="btn btn-danger">Remove</button>
+					    <button class="btn btn-danger" onclick="deleteStudy(${study.id});">Remove</button>
 					</div>
 				</div>
 			</div>
@@ -520,7 +520,7 @@ function generateOwnStudies(studies) {
 
     createStudyButton = document.getElementById('create-study-button')
     createStudyButton.innerHTML = `
-        <a class="btn btn-success mt-4 mb-4" href="create_study.html">Create New Study</a>
+        <a class="btn btn-success mt-5 mb-5" href="create_study.html">Create New Study</a>
     `;
 }
 
@@ -741,6 +741,25 @@ function getStudy(studyId) {
     fetchRequest(serverURL + 'study/' + studyId + '/', request)
         .then(data => {
             generateStudyHtml(data);
+        })
+        .catch((response) => {
+            alertError(response);
+        });
+}
+
+function deleteStudy(studyId) {
+    var request = {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+    
+    fetchRequest(serverURL + 'study/' + studyId + '/', request)
+        .then(data => {
+            alert("The study got removed successfully");
+            location.reload();
         })
         .catch((response) => {
             alertError(response);
