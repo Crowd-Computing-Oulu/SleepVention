@@ -342,3 +342,7 @@ def add_study(db: Session, user_id: int, data: schemas.StudySchema):
 
 def get_own_studies(db: Session, user_id: int):
     return db.query(tables.Studies).filter(tables.Studies.user_id == user_id).all()
+
+
+def get_study_by_id(db: Session, study_id: int):
+    return db.query(tables.Studies).filter(tables.Studies.id == study_id).first()

@@ -1,11 +1,16 @@
 const serverURL = "http://127.0.0.1:8000/";
 const userSpecificPages = ["mydata.html", "mystudies.html", "profile.html", "edit_profile.html"];
+const MAX_STR_CARD_LENGTH = 100;
 const MAX_STR_LENGTH = 2000;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;  // 10 MB
 
 const own_study_image_links = [
     'https://d2jx2rerrg6sh3.cloudfront.net/images/Article_Images/ImageForArticle_22725_16560784761286902.jpg',
-    'https://sjhemleymarketing.com/wp-content/uploads/2022/02/iStock-127384315411.jpg'
+    'https://sjhemleymarketing.com/wp-content/uploads/2022/02/iStock-127384315411.jpg', 
+    'https://www.cio.com/wp-content/uploads/2023/05/analyze_inspect_examine_find_research_data_charts_graphs_magnifying_glass_thinkstock_493572720-100724455-orig.jpeg?quality=50&strip=all',
+    'https://riskonnect.com/wp-content/uploads/2022/08/attainoperationalresiliencecoverimage.jpg',
+    'https://media.licdn.com/dms/image/C4E12AQE6YMoY7GKFpg/article-cover_image-shrink_720_1280/0/1520200002383?e=2147483647&v=beta&t=LSUUdpxXHBt666exiOhkdqRx_g_RDa7Y8B-UelSImnk',
+    'https://e0.pxfuel.com/wallpapers/436/116/desktop-wallpaper-risk-risk-rain-risk-management.jpg'
 ]
 
 async function fetchRequest(url, request) {
@@ -340,8 +345,8 @@ function fillDataTableVertically(data) {
     document.getElementById('data-content').innerHTML = tableHtml;
 }
 
-function trimStringToMaxLength(str) {
-    return str.length > MAX_STR_LENGTH ? str.slice(0, MAX_STR_LENGTH) + '...' : str;
+function trimStringToMaxLength(str, maxLen) {
+    return str.length > maxLen ? str.slice(0, maxLen) + '...' : str;
 }
 
 function trimJsonToMaxLength(str) {
@@ -349,7 +354,7 @@ function trimJsonToMaxLength(str) {
 }
 
 function fillDataText(data) {
-    content = trimStringToMaxLength(data.file_content)
+    content = trimStringToMaxLength(data.file_content, MAX_STR_LENGTH)
     document.getElementById('data-content').innerHTML = `
         <p style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; width: 80%;">
             ${content}
@@ -496,15 +501,16 @@ function reloadPage() {
 function generateOwnStudies(studies) {
     var studieshtml = '';
     studies.forEach ((study, index) => {
+        description = trimStringToMaxLength(study.description, MAX_STR_CARD_LENGTH);
         studieshtml += `
             <div class="col-md-4 mt-5">
 				<div class="card">
 					<img src="${own_study_image_links[index]}" class="card-img-top" alt="image">
 					<div class="card-body">
 						<h5 class="card-title">${study.name}</h5>
-						<p class="card-text">${study.description}</p>
-						<button class="btn btn-outline-primary"">View</button>
-					    <button class=" btn btn-danger"">Remove</button>
+						<p class="card-text">${description}</p>
+						<button class="btn btn-outline-primary" onclick="window.location.href = 'study.html?studyId=${study.id}';">View</button>
+					    <button class="btn btn-danger">Remove</button>
 					</div>
 				</div>
 			</div>
@@ -514,11 +520,8 @@ function generateOwnStudies(studies) {
 
     createStudyButton = document.getElementById('create-study-button')
     createStudyButton.innerHTML = `
-        <button class="btn btn-success mt-4 mb-4">Create New Study</button>
+        <a class="btn btn-success mt-4 mb-4" href="create_study.html">Create New Study</a>
     `;
-    createStudyButton.addEventListener('click', function() {
-        window.location.href = 'create_study.html';
-    });
 }
 
 function getOwnStudies() {
@@ -703,6 +706,41 @@ function submitNewStudy() {
         .then(data => {
             alert('The study has been created successfully');
             window.location.href = "mystudies.html";
+        })
+        .catch((response) => {
+            alertError(response);
+        });
+}
+
+function generateStudyHtml(study) {
+    const formattedDesc = study.description.replace(/\n/g, '<br>')
+    document.getElementById("study-info").innerHTML = `
+        <h1>${study.name}</h1>
+        <br>
+        <p>${formattedDesc}</p>
+    `;
+
+    document.getElementById("study-side").innerHTML = `
+        <h5 class="mt-5">This study was started at:</h5>
+        <div>${study.start_date}</div><br><br>
+        <h5>Total number of participans:</h5>
+        <div>${study.participants_number}</div><br><br>
+        <button class="btn btn-primary mt-3">Invite a User</button>
+    `;
+}
+
+function getStudy(studyId) {
+    var request = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+
+    fetchRequest(serverURL + 'study/' + studyId + '/', request)
+        .then(data => {
+            generateStudyHtml(data);
         })
         .catch((response) => {
             alertError(response);

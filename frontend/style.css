@@ -131,3 +131,9 @@ main {
   height: 15vw;
   object-fit: cover;
 }
+
+@media (min-width: 1024px) {
+  .content-container {
+      width: 100%; /* 100% of the viewport width */
+  }
+}

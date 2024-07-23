@@ -107,3 +107,16 @@ class DataPrivacyResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class StudyResponseSchema(BaseModel):
+    id: int
+    start_date: date
+    name: str
+    description: str
+    type: str
+    consent_form_link: str
+    participants_number: Optional[int] = 0
+
+    class Config:
+        from_attributes = True

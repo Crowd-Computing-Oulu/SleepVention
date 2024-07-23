@@ -1,8 +1,15 @@
 from datetime import datetime, date, timedelta
 import re
-from sqlalchemy import Column, String, Boolean, Float, ForeignKey, Date, Integer, DateTime, func, Time, Text
+from sqlalchemy import Column, String, Boolean, Float, ForeignKey, Date, Integer, DateTime, func, Time, Text, Table
 from sqlalchemy.orm import relationship
 from database.init import Base
+
+
+study_participants = Table(
+    'study_participants', Base.metadata,
+    Column('study_id', Integer, ForeignKey('studies.id'), primary_key=True),
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+)
 
 
 class Users(Base):
@@ -31,7 +38,8 @@ class Users(Base):
     uploaded_data_files = relationship("UserDataFiles", back_populates="user")
     fitbit_last_updates = relationship("FitbitLastUpdates", back_populates="user")
     data_privacy_settings = relationship("DataPrivacySettings", back_populates="user")
-    studies = relationship("Studies", back_populates="user")
+    own_studies = relationship("Studies", back_populates="creator")
+    participated_studies = relationship("Studies", secondary=study_participants, back_populates="participants")
 
 
 class Passwords(Base):
@@ -273,9 +281,11 @@ class Studies(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    start_date = Column(Date, default=func.current_date(), nullable=False)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     type = Column(String(255), nullable=False)
     consent_form_link = Column(String(255), nullable=False)
 
-    user = relationship("Users", back_populates="studies")
+    creator = relationship("Users", back_populates="own_studies")
+    participants = relationship("Users", secondary=study_participants, back_populates="participated_studies")

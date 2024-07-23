@@ -239,15 +239,32 @@ async def create_study(
 
 
 @app.get("/own_studies/")
-async def get_study(
+async def get_own_studies(
         request: Request,
         db: Session = Depends(get_db)
-) -> list[schemas.StudySchema]:
+) -> list[responses.StudyResponseSchema]:
     user = authentication_utils.get_current_user(request, db)
 
     response = []
     studies = crud.get_own_studies(db, user.id)
     for study in studies:
-        response.append(schemas.StudySchema.from_orm(study))
+        response.append(responses.StudyResponseSchema.from_orm(study))
 
+    return response
+
+
+@app.get("/study/{study_id}")
+async def get_study(
+        study_id: int,
+        request: Request,
+        db: Session = Depends(get_db)
+) -> responses.StudyResponseSchema:
+    user = authentication_utils.get_current_user(request, db)
+
+    retrieved_study = crud.get_study_by_id(db, study_id)
+    if not retrieved_study:
+        raise HTTPException(status_code=404, detail="Study not found")
+
+    response = responses.StudyResponseSchema.from_orm(retrieved_study)
+    response.participants_number = len(retrieved_study.participants)
     return response
