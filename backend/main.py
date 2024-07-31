@@ -253,7 +253,7 @@ async def get_own_studies(
     return response
 
 
-@app.get("/study/{study_id}")
+@app.get("/study/{study_id}/")
 async def get_study(
         study_id: int,
         request: Request,
@@ -270,7 +270,7 @@ async def get_study(
     return response
 
 
-@app.delete("/study/{study_id}")
+@app.delete("/study/{study_id}/")
 async def delete_study(
         request: Request,
         study_id: int,
@@ -279,3 +279,29 @@ async def delete_study(
     user = authentication_utils.get_current_user(request, db)
     crud.delete_study(db, study_id)
     return {"detail": "Study deleted successfully"}
+
+
+@app.post("/study/{study_id}/invite/")
+async def invite_to_study(
+        request: Request,
+        study_id: int,
+        data: schemas.StudyInvitationSchema,
+        db: Session = Depends(get_db)
+):
+    user = authentication_utils.get_current_user(request, db)
+
+    invited_user = crud.get_user_by_invitation(db, data)
+    # Checking if a user with that information exists in the database
+    if not invited_user:
+        raise HTTPException(status_code=404, detail="The user with the provided username/email was not found")
+
+    # Checking if the user is already participating in the study
+    if crud.check_participant_in_study(db, invited_user.id, study_id):
+        raise HTTPException(status_code=409, detail="The invited user is already in this study")
+
+    invitation = crud.add_study_invitation(db, invited_user.id, study_id)
+    # Checking if the user is already invited to the study
+    if not invitation:
+        raise HTTPException(status_code=409, detail="An invitation has already been sent to this user")
+
+    return {"detail": "Invitation sent to the user"}

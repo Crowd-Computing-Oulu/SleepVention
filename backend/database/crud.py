@@ -355,3 +355,26 @@ def delete_study(db: Session, study_id: int):
     db.delete(study)
     db.commit()
     return True
+
+
+def add_study_invitation(db: Session, user_id: int, study_id: int):
+    existing_invitation = db.query(tables.StudyInvitations).filter(tables.StudyInvitations.invited_user_id == user_id).first()
+    if existing_invitation:
+        return False
+    new_invitation = tables.StudyInvitations(invited_user_id=user_id, study_id=study_id)
+    db.add(new_invitation)
+    db.commit()
+    db.refresh(new_invitation)
+    return new_invitation
+
+
+def check_participant_in_study(db: Session, user_id: int, study_id: int):
+    count = db.query(tables.study_participants).filter_by(user_id=user_id, study_id=study_id).count()
+    return count > 0
+
+
+def get_user_by_invitation(db: Session, invitation: schemas.StudyInvitationSchema):
+    if invitation.username:
+        return db.query(tables.Users).filter(tables.Users.username == invitation.username).first()
+    else:
+        return db.query(tables.Users).filter(tables.Users.email == invitation.email).first()

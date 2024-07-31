@@ -72,3 +72,8 @@ class StudySchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class StudyInvitationSchema(BaseModel):
+    email: Optional[str] = None
+    username: Optional[str] = None

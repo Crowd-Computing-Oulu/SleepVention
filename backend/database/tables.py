@@ -40,6 +40,7 @@ class Users(Base):
     data_privacy_settings = relationship("DataPrivacySettings", back_populates="user")
     own_studies = relationship("Studies", back_populates="creator")
     participated_studies = relationship("Studies", secondary=study_participants, back_populates="participants")
+    invitations = relationship("StudyInvitations", back_populates="invited_user")
 
 
 class Passwords(Base):
@@ -289,3 +290,17 @@ class Studies(Base):
 
     creator = relationship("Users", back_populates="own_studies")
     participants = relationship("Users", secondary=study_participants, back_populates="participated_studies")
+    invitations = relationship("StudyInvitations", back_populates="study")
+
+
+class StudyInvitations(Base):
+    __tablename__ = 'study_invitations'
+
+    invited_user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    study_id = Column(Integer, ForeignKey('studies.id'), nullable=False)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    invitation_time = Column(DateTime, default=func.now(), nullable=False)
+
+    invited_user = relationship("Users", back_populates="invitations")
+    study = relationship("Studies", back_populates="invitations")

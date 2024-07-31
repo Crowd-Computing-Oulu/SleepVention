@@ -36,6 +36,12 @@ function handleResponseError(error) {
     }
 }
 
+function getUrlParam(urlParam) {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    return urlParams.get(urlParam);
+}
+
 function verifyRegisterInfor(username, email, password) {
     // Check if username is more than 3 characters
     if (username.length <= 3) {
@@ -488,7 +494,7 @@ function uploadFile() {
 
 function generateUploadButton() {
     document.getElementById("data-content").innerHTML = `
-        <input style="max-width: 400px" class="form-control form-control me-3" id="fileInput" type="file" accept=".txt, .json">
+        <input style="max-width: 400px" class="form-control me-3" id="fileInput" type="file" accept=".txt, .json">
         <button class="btn btn-success" onclick="uploadFile()">Upload</button>
     `;
 }
@@ -500,6 +506,7 @@ function reloadPage() {
 
 function generateOwnStudies(studies) {
     var studieshtml = '';
+    // TODO: study_id should be in the url path not as query parameter
     studies.forEach ((study, index) => {
         description = trimStringToMaxLength(study.description, MAX_STR_CARD_LENGTH);
         studieshtml += `
@@ -713,6 +720,16 @@ function submitNewStudy() {
 }
 
 function generateStudyHtml(study) {
+
+    document.getElementById("top-navbar").innerHTML = `
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="mystudies.html">Own Studies</a></li>
+                <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
+            </ol>
+        </nav>
+    `;
+
     const formattedDesc = study.description.replace(/\n/g, '<br>')
     document.getElementById("study-info").innerHTML = `
         <h1>${study.name}</h1>
@@ -725,11 +742,11 @@ function generateStudyHtml(study) {
         <div>${study.start_date}</div><br><br>
         <h5>Total number of participans:</h5>
         <div>${study.participants_number}</div><br><br>
-        <button class="btn btn-primary mt-3">Invite a User</button>
+        <button class="btn btn-primary mt-3" onclick="window.location.href = 'invite_user.html?studyId=${study.id}';">Invite a User</button>
     `;
 }
 
-function getStudy(studyId) {
+function getStudy(studyId, called_from) {
     var request = {
         method: 'GET',
         headers: {
@@ -740,7 +757,11 @@ function getStudy(studyId) {
 
     fetchRequest(serverURL + 'study/' + studyId + '/', request)
         .then(data => {
-            generateStudyHtml(data);
+            if (called_from === 'study') {
+                generateStudyHtml(data);
+            } else {
+                generateInviteNavbarHtml(data.id, data.name);
+            }
         })
         .catch((response) => {
             alertError(response);
@@ -764,4 +785,78 @@ function deleteStudy(studyId) {
         .catch((response) => {
             alertError(response);
         });
+}
+
+function submitUserInvitation() {
+
+    emailInput = document.getElementById("email") ? document.getElementById('email').value : null;
+    usernameInput = document.getElementById("username") ? document.getElementById('username').value : null;
+
+    // Check if the input (email or username) is not empty
+    if (!emailInput && !usernameInput) {
+        alert("The input cannot be empty");
+        return;
+    }
+
+    var request = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+            // "invited_by_username": isUsername,
+            "email": emailInput,
+            "username": usernameInput
+        })
+    };
+
+    studyId = getUrlParam('studyId');
+    fetchRequest(serverURL + `study/${studyId}/invite/`, request)
+        .then(data => {
+            alert('Invitation sent');
+            // TODO: study_id should be in the url path not as query parameter
+            window.location.href = `study.html?studyId=${studyId}`;
+        })
+        .catch(error => {
+            alertError(error);
+        });
+
+}
+
+function generateHtmlInviteUsername() {
+    document.getElementById("invite-user-form").innerHTML = `
+        <div class="col-auto mt-3">
+            <input type="text" class="form-control" id="username" style="min-width:285px;" placeholder="Enter the user's username">
+        </div>
+        <div class="col-auto mt-3 mb-4">
+            <button type="submit" class="btn btn-primary btn-block">Invite</button>
+        </div>
+        <p class="text-center">Don't have their username? <a href="#" onclick="generateHtmlInviteEmail();">Invite by email</a></p>
+    `;
+}
+
+function generateHtmlInviteEmail() {
+    document.getElementById("invite-user-form").innerHTML = `
+        <div class="col-auto mt-3">
+            <input type="text" class="form-control" id="email" style="min-width:285px;" placeholder="Enter the user's email">
+        </div>
+        <div class="col-auto mt-3 mb-4">
+            <button type="submit" class="btn btn-primary btn-block">Invite</button>
+        </div>
+        <p class="text-center">Don't have their email? <a href="#" onclick="generateHtmlInviteUsername();">Invite by username</a></p>
+    `;
+}
+
+function generateInviteNavbarHtml(studyId, studyName) {
+
+    document.getElementById("top-navbar").innerHTML = `
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="mystudies.html">Own Studies</a></li>
+                <li class="breadcrumb-item" aria-current="page"><a href="study.html?studyId=${studyId}">${studyName}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Invite User</li>
+            </ol>
+        </nav>
+    `;
 }
