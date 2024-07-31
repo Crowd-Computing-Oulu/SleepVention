@@ -134,7 +134,7 @@ function generateProfileHtml(profileInfo) {
         <p class="card-text">Weight: ${profileInfo.weight}</p>
     `;
 
-    // localStorage.setItem("username", restaurantInfo.id);
+    document.querySelector('.messages-container').style.display = 'none';
 }
 
 
@@ -859,4 +859,15 @@ function generateInviteNavbarHtml(studyId, studyName) {
             </ol>
         </nav>
     `;
+}
+
+function toggleMessagesDisplay() {
+    var messagesContainer = document.querySelector('.messages-container');
+    if (messagesContainer) {
+        if (messagesContainer.style.display === 'none') {
+            messagesContainer.style.display = 'block';
+        } else {
+            messagesContainer.style.display = 'none';
+        }
+    }
 }

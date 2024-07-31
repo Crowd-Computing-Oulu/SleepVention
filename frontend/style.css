@@ -69,10 +69,18 @@ main {
 .info-container {
   background-color: #f8f9fa;
   /* Light gray background color */
-  max-width: 500px;
-  margin: 30px;
+  /* max-width: 500px; */
+  /* margin: 30px; */
   padding: 20px;
   border-radius: 10px;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+  /* Box shadow for container */
+}
+
+.messages-container {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px 0 10px 10px;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
   /* Box shadow for container */
 }
@@ -134,6 +142,40 @@ main {
 
 @media (min-width: 1024px) {
   .content-container {
-      width: 100%; /* 100% of the viewport width */
+    width: 100%; /* 100% of the viewport width */
   }
+}
+
+.badge-notification {
+  position: absolute;
+  top: 1;
+  left: -7px;
+  transform: translate(50%, -50%);
+  font-size: 0.7rem;
+  padding: 0.2em 0.4em;
+}
+
+.badge-messages {
+  position: absolute;
+  top: 2px;
+  left: -17px;
+  transform: translate(50%, -50%);
+  font-size: 0.7rem;
+  padding: 0.2em 0.4em;
+}
+
+.notification-icon {
+  position: fixed;
+  top: 80px; /* Adjust this value as needed */
+  right: 20px;
+  font-size: 1.5rem;
+  color: #dc3545;
+}
+
+.list-group-item {
+  background-color: #f8f9fa;
+}
+
+.list-group-item:hover {
+  background-color: white;
 }
