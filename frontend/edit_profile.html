@@ -38,8 +38,9 @@
                     <a class="nav-link" href="about_us.html">About Us</a>
                 </li>
 				<li class="nav-item">
-					<a class="nav-link" href="profile.html">
+					<a class="nav-link position-relative" href="profile.html">
 						<img src="profile.png" style="height: 30px;">
+						<span class="badge bg-danger badge-notification"></span>
 					</a>
 				</li>
 			</ul>
@@ -80,6 +81,7 @@
     <script>
         window.addEventListener("load", function() {
             getProfile('edit page');
+            getMessages();
         });
 
         document.getElementById("editProfileForm").addEventListener("submit", function(event) {

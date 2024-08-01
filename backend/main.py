@@ -9,7 +9,7 @@ from database.init import get_db, Base, engine
 from database import schemas, crud
 from sqlalchemy.orm import Session
 
-from utils import responses, password_utils, authentication_utils, data_utils
+from utils import responses, password_utils, authentication_utils, data_utils, study_utils
 
 FITBIT_AUTHORIZATION_URL = 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23PDRW&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=lMNXGvUcuN9QrksqDqnUpS4YaUhIWzaTNH3KJEpV_jA&code_challenge_method=S256&state='
 
@@ -267,6 +267,10 @@ async def get_study(
 
     response = responses.StudyResponseSchema.from_orm(retrieved_study)
     response.participants_number = len(retrieved_study.participants)
+    user_role = study_utils.get_user_study_relation(db, retrieved_study, user)
+    if retrieved_study.type == 'private' and user_role == 'visitor':
+        raise HTTPException(status_code=403, detail="You don't have access to this study")
+    response.user_relation = user_role
     return response
 
 
@@ -305,3 +309,44 @@ async def invite_to_study(
         raise HTTPException(status_code=409, detail="An invitation has already been sent to this user")
 
     return {"detail": "Invitation sent to the user"}
+
+
+@app.get("/invitations/")
+async def get_invitations(
+        request: Request,
+        db: Session = Depends(get_db)
+) -> list[responses.StudyResponseSchema]:
+    user = authentication_utils.get_current_user(request, db)
+
+    invitations = crud.get_user_invitations(db, user.id)
+    response = []
+    for invitation in invitations:
+        invited_study = responses.StudyResponseSchema.from_orm(invitation.study)
+        invited_study.participants_number = len(invitation.study.participants)
+        response.append(invited_study)
+
+    return response
+
+
+@app.delete("/invitation/{study_id}/")
+async def delete_invitation(
+        request: Request,
+        study_id: int,
+        db: Session = Depends(get_db)
+):
+    user = authentication_utils.get_current_user(request, db)
+    crud.delete_invitation(db, user.id, study_id)
+    return {"detail": "Invitation was deleted successfully"}
+
+
+@app.put("/invitation/{study_id}/")
+async def accept_invitation(
+        request: Request,
+        study_id: int,
+        db: Session = Depends(get_db)
+):
+    user = authentication_utils.get_current_user(request, db)
+    db_result = crud.accept_invitation(db, user.id, study_id)
+    if not db_result:
+        raise HTTPException(status_code=409, detail="Invitation is already accepted")
+    return {"detail": "Invitation was accepted successfully"}

@@ -13,6 +13,11 @@ const own_study_image_links = [
     'https://e0.pxfuel.com/wallpapers/436/116/desktop-wallpaper-risk-risk-rain-risk-management.jpg'
 ]
 
+const participated_study_image_links = [
+    'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.fiercepharma.com%2Fpharma%2Ffda-car-t-safety-under-microscope-researchers-adverse-events-record-bcma-therapies&psig=AOvVaw2Crw9GG2i8hV8baGapIoip&ust=1722633413593000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCKDoqNfb1IcDFQAAAAAdAAAAABAU',
+    'https://www.google.com/url?sa=i&url=https%3A%2F%2Fservintegrales.com.co%2F%3Fu%3Dthe-ultimate-product-research-amazon-guide-helium-10-3-hh-kDgvN0tA&psig=AOvVaw2Crw9GG2i8hV8baGapIoip&ust=1722633413593000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqGAoTCKDoqNfb1IcDFQAAAAAdAAAAABDJAQ'
+]
+
 async function fetchRequest(url, request) {
     const response = await fetch(url, request);
     if (response.ok) {
@@ -40,6 +45,10 @@ function getUrlParam(urlParam) {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     return urlParams.get(urlParam);
+}
+
+function setNotificationsBadge(studyInvitations) {
+    document.getElementsByClassName('badge-notification')[0].innerHTML = studyInvitations.length > 0 ? studyInvitations.length : "";
 }
 
 function verifyRegisterInfor(username, email, password) {
@@ -134,7 +143,11 @@ function generateProfileHtml(profileInfo) {
         <p class="card-text">Weight: ${profileInfo.weight}</p>
     `;
 
-    document.querySelector('.messages-container').style.display = 'none';
+    if (window.location.hash === '#messages') {
+        messagesContainer.style.display = 'block';
+    } else {
+        document.querySelector('.messages-container').style.display = 'none';
+    }
 }
 
 
@@ -721,20 +734,16 @@ function submitNewStudy() {
 
 function generateStudyHtml(study) {
 
-    document.getElementById("top-navbar").innerHTML = `
-        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="mystudies.html">Own Studies</a></li>
-                <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
-            </ol>
-        </nav>
-    `;
 
     const formattedDesc = study.description.replace(/\n/g, '<br>')
     document.getElementById("study-info").innerHTML = `
         <h1>${study.name}</h1>
         <br>
         <p>${formattedDesc}</p>
+        <br>
+        <h5>Consent form:</h5>
+        <a href="${study.consent_form_link}" target="_blank">${study.consent_form_link}</a>
+        <br><br>
     `;
 
     document.getElementById("study-side").innerHTML = `
@@ -742,8 +751,60 @@ function generateStudyHtml(study) {
         <div>${study.start_date}</div><br><br>
         <h5>Total number of participans:</h5>
         <div>${study.participants_number}</div><br><br>
-        <button class="btn btn-primary mt-3" onclick="window.location.href = 'invite_user.html?studyId=${study.id}';">Invite a User</button>
     `;
+
+    // If the user is the creator of the study, add the invite button and edit button to the page
+    if (study.user_relation === 'creator') {
+        document.getElementById("top-navbar").innerHTML = `
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="mystudies.html">Own Studies</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
+                </ol>
+            </nav>
+        `;
+
+        document.getElementById("study-side").innerHTML += `
+            <button class="btn btn-primary mt-3" onclick="window.location.href = 'invite_user.html?studyId=${study.id}';">Invite a User</button>
+        `;
+
+        document.getElementById("study-info").innerHTML += `
+            <br>
+            <button id="edit-study" class="btn btn-primary mb-5">Edit Information</button>
+        `;
+    }
+
+    // If the user is invited to the study, add the accept and reject button to the page
+    if (study.user_relation === 'invited') {
+        document.getElementById("top-navbar").innerHTML = `
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="profile.html">Profile</a></li>
+                    <li class="breadcrumb-item"><a href="profile.html#messages">Messages</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
+                </ol>
+            </nav>
+        `;
+
+        document.getElementById("study-info").innerHTML += `
+            <br>
+            <input class="form-check-input" type="checkbox" value="" id="consent-checkbox" onclick="toggleAcceptButton();">
+            <label class="form-check-label" for="consent-checkbox">
+                I have read the consent form and agree to its conditons.
+            </label>
+            <br><br>
+            <button class="btn btn-success mb-5 disabled" id="accept-button" onclick="acceptInvitation(${study.id});">Accept</button>
+            <button class="btn btn-danger mb-5" onclick="rejectInvitation(${study.id}, 'study page');">Reject</button>
+        `;
+    }
+
+    // If the user is a participant in the study, add the leave button to the page
+    if (study.user_relation === 'participant') {
+        document.getElementById("study-info").innerHTML += `
+            <br>
+            <button class="btn btn-danger mb-5">Leave</button>
+        `;
+    }
 }
 
 function getStudy(studyId, called_from) {
@@ -764,7 +825,7 @@ function getStudy(studyId, called_from) {
             }
         })
         .catch((response) => {
-            alertError(response);
+            handleResponseError(response);
         });
 }
 
@@ -870,4 +931,102 @@ function toggleMessagesDisplay() {
             messagesContainer.style.display = 'none';
         }
     }
+}
+
+function getMessages(calledFrom = 'default') {
+    var request = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+
+    fetchRequest(serverURL + 'invitations/', request)
+        .then(data => {
+            if (calledFrom === 'profile page') {
+                generateMessagesHtml(data);
+                
+            } else {
+                setNotificationsBadge(data);
+            }
+        })
+        .catch(error => {
+            if (calledFrom === 'profile page') {
+                handleResponseError(error);
+            }
+        });
+}
+
+function generateMessagesHtml(studyInvitations) {
+    document.getElementsByClassName('badge-messages')[0].innerHTML = studyInvitations.length > 0 ? studyInvitations.length : "";
+    document.getElementsByClassName('badge-notification')[0].innerHTML = studyInvitations.length > 0 ? "..." : "";
+
+    messagesHtml = `<ul class="list-group">`;
+
+    studyInvitations.forEach(study => {
+        studyDesc = trimStringToMaxLength(study.description, MAX_STR_CARD_LENGTH);
+        messagesHtml += `
+            <li class="list-group-item p-3">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-3">Invited to the study:<br>"${study.name}"</h5>
+                    <small class="mt-1">3 days ago</small>
+                </div>
+                <p class="mb-3">${studyDesc}...</p>
+                <a class="btn btn-primary btn-sm" href="study.html?studyId=${study.id}">View more</a>
+                <button class="btn btn-danger btn-sm" onclick="rejectInvitation(${study.id}, 'messages');">Reject</button>
+            </li>
+        `;
+    });
+
+    messagesHtml += '</ul>'
+
+    document.getElementById("messages-container").innerHTML = messagesHtml;
+
+}
+
+function rejectInvitation(studyId, calledFrom) {
+    var request = {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+    
+    fetchRequest(serverURL + 'invitation/' + studyId + '/', request)
+        .then(data => {
+            if (calledFrom === 'messages') {
+                getMessages('profile page');
+            } else {
+                alert('the invitation was rejected successfully');
+                window.location.href = 'profile.html#messages';
+            }
+        })
+        .catch((response) => {
+            alertError(response);
+        });
+}
+
+function acceptInvitation(studyId) {
+    var request = {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+    
+    fetchRequest(serverURL + 'invitation/' + studyId + '/', request)
+        .then(data => {
+            alert('the invitation was accepted successfully');
+            window.location.href = 'profile.html#messages';
+        })
+        .catch((response) => {
+            alertError(response);
+        });
+}
+
+function toggleAcceptButton() {
+    document.getElementById('accept-button').classList.toggle("disabled");
 }

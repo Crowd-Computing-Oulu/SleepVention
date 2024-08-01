@@ -378,3 +378,39 @@ def get_user_by_invitation(db: Session, invitation: schemas.StudyInvitationSchem
         return db.query(tables.Users).filter(tables.Users.username == invitation.username).first()
     else:
         return db.query(tables.Users).filter(tables.Users.email == invitation.email).first()
+
+
+def get_user_invitations(db: Session, user_id):
+    return db.query(tables.StudyInvitations).filter_by(invited_user_id=user_id).all()
+
+
+def get_invitation_by_user_and_study(db: Session, user_id, study_id):
+    return db.query(tables.StudyInvitations).filter_by(study_id=study_id, invited_user_id=user_id).first()
+
+
+def delete_invitation(db: Session, user_id: int, study_id: int):
+    invitation = get_invitation_by_user_and_study(db, user_id, study_id)
+    # If the invitation exists, delete it
+    if invitation:
+        db.delete(invitation)
+        db.commit()
+        return True
+    else:
+        return False
+
+
+def accept_invitation(db: Session, user_id: int, study_id: int):
+    # Check if the participant is already in the study
+    existing_participant = db.query(tables.study_participants).filter_by(study_id=study_id, user_id=user_id).first()
+
+    if existing_participant:
+        return False
+
+    # Add the participant to the study
+    new_participant = tables.study_participants.insert().values(study_id=study_id, user_id=user_id)
+    db.execute(new_participant)
+    db.commit()
+
+    # Remove the invitation
+    delete_invitation(db, user_id, study_id)
+    return True
