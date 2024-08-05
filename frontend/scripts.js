@@ -14,8 +14,7 @@ const own_study_image_links = [
 ]
 
 const participated_study_image_links = [
-    'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.fiercepharma.com%2Fpharma%2Ffda-car-t-safety-under-microscope-researchers-adverse-events-record-bcma-therapies&psig=AOvVaw2Crw9GG2i8hV8baGapIoip&ust=1722633413593000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCKDoqNfb1IcDFQAAAAAdAAAAABAU',
-    'https://www.google.com/url?sa=i&url=https%3A%2F%2Fservintegrales.com.co%2F%3Fu%3Dthe-ultimate-product-research-amazon-guide-helium-10-3-hh-kDgvN0tA&psig=AOvVaw2Crw9GG2i8hV8baGapIoip&ust=1722633413593000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqGAoTCKDoqNfb1IcDFQAAAAAdAAAAABDJAQ'
+    'https://24slides.com/presentbetter/content/images/wordpress/2020/10/null-6.png'
 ]
 
 async function fetchRequest(url, request) {
@@ -562,46 +561,46 @@ function getOwnStudies() {
         });
 }
 
-function getParticipatedStudies() {
-    var studieshtml = `
+function generateParticipatedStudies(studies) {
+    var studieshtml = '';
+    // TODO: study_id should be in the url path not as query parameter
+    studies.forEach ((study, index) => {
+        description = trimStringToMaxLength(study.description, MAX_STR_CARD_LENGTH);
+        studieshtml += `
             <div class="col-md-4 mt-5">
 				<div class="card">
-					<img src="https://www.mecfs.de/wp-content/uploads/2022/06/Research-Foundation-Header.jpg" class="card-img-top" alt="image">
+					<img src="${participated_study_image_links[index]}" class="card-img-top" alt="image">
 					<div class="card-body">
-						<h5 class="card-title">Sleep Research into ME/CFS</h5>
-						<p class="card-text">The description comes here...</p>
-						<button class="btn btn-outline-primary"">View</button>
-					    <button class=" btn btn-danger"">Leave</button>
-					</div>
-				</div>
-			</div>
-            <div class="col-md-4 mt-5">
-				<div class="card">
-					<img src="https://www.bruker.com/en/landingpages/bbio/mr-for-battery-research/battery-research-probes-li-ion-technologies/_jcr_content/teaserImage.coreimg.jpeg/1697635985708/adobestock-605065614.jpeg" class="card-img-top" alt="image">
-					<div class="card-body">
-						<h5 class="card-title">Sleep Research for Energy</h5>
-						<p class="card-text">The description comes here...</p>
-						<button class="btn btn-outline-primary"">View</button>
-					    <button class=" btn btn-danger"">Leave</button>
-					</div>
-				</div>
-			</div>
-            <div class="col-md-4 mt-5">
-				<div class="card">
-					<img src="https://brainvision.com/wp-content/uploads/2020/05/Brain-Vision-EEG-Sleep-Research-wText.png" class="card-img-top" alt="image">
-					<div class="card-body">
-						<h5 class="card-title">EEG Sleep Research</h5>
-						<p class="card-text">The description comes here...</p>
-						<button class="btn btn-outline-primary"">View</button>
-					    <button class=" btn btn-danger"">Leave</button>
+						<h5 class="card-title">${study.name}</h5>
+						<p class="card-text">${description}</p>
+						<button class="btn btn-outline-primary" onclick="window.location.href = 'study.html?studyId=${study.id}';">View</button>
+					    <button class="btn btn-danger" onclick="">Leave</button>
 					</div>
 				</div>
 			</div>
         `;
-
+    });
     document.getElementById('studies-container').innerHTML = studieshtml;
 
     document.getElementById('create-study-button').innerHTML = '';
+}
+
+function getParticipatedStudies() {
+    var request = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+
+    fetchRequest(serverURL + 'participated_studies/', request)
+        .then(data => {
+            generateParticipatedStudies(data);
+        })
+        .catch(error => {
+            handleResponseError(error);
+        });
 }
 
 function goToOwnStudies() {
@@ -800,6 +799,15 @@ function generateStudyHtml(study) {
 
     // If the user is a participant in the study, add the leave button to the page
     if (study.user_relation === 'participant') {
+        document.getElementById("top-navbar").innerHTML = `
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="mystudies.html#participated">Participated Studies</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
+                </ol>
+            </nav>
+        `;
+
         document.getElementById("study-info").innerHTML += `
             <br>
             <button class="btn btn-danger mb-5">Leave</button>

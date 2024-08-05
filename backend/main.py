@@ -253,6 +253,21 @@ async def get_own_studies(
     return response
 
 
+@app.get("/participated_studies/")
+async def get_participated_studies(
+        request: Request,
+        db: Session = Depends(get_db)
+) -> list[responses.StudyResponseSchema]:
+    user = authentication_utils.get_current_user(request, db)
+
+    response = []
+    studies = user.participated_studies
+    for study in studies:
+        response.append(responses.StudyResponseSchema.from_orm(study))
+
+    return response
+
+
 @app.get("/study/{study_id}/")
 async def get_study(
         study_id: int,
