@@ -56,11 +56,36 @@ function sendNewMessage() {
 
     if (!newMessage) return;
 
+    // TODO: sending the message to the backend server
+
     var messagesContainer = $('.messages');
 
     messagesContainer.append([
         '<li class="self"><p>',
             newMessage,
+        '</p></li>'
+    ].join(''));
+
+    userInput.html('');
+    userInput.focus();
+
+    messagesContainer.finish().animate({
+        scrollTop: messagesContainer.prop("scrollHeight")
+    }, 250);
+
+    getMessageResponse();
+}
+
+function getMessageResponse() {
+    // TODO: getting the response from the server
+    response = `I'm just a demo. Is there anything else I can help you with?`;
+
+    var messagesContainer = $('.messages');
+
+    messagesContainer.append([
+        '<li class="other">',
+        '<img src="../images/robot-icon.png" alt="Other Avatar"><p>',
+        response,
         '</p></li>'
     ].join(''));
 

@@ -35,7 +35,7 @@
 }
 
 .floating-chat.expand {
-    margin-top: 60px; /* Adjust the padding to match the height of the fixed navbar */
+    margin-top: 62px; /* Adjust the padding to match the height of the fixed navbar */
     background: -moz-linear-gradient(-45deg, #F4F4F4 0, #F4F4F4 25%, #fdfaf4 50%, #e7ebef 75%, #e7ebef 100%);
     background: -webkit-linear-gradient(-45deg, #F4F4F4 0, #F4F4F4 25%, #fdfaf4 50%, #e7ebef 75%, #e7ebef 100%);
     width: 300px; /* Adjusted width for sidebar */

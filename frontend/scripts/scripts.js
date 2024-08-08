@@ -764,7 +764,13 @@ function generateStudyHtml(study) {
         `;
 
         document.getElementById("study-side").innerHTML += `
-            <button class="btn btn-primary mt-3" onclick="window.location.href = 'invite_user.html?studyId=${study.id}';">Invite a User</button>
+            <h5>Get participants data:</h5>
+            <button class="btn btn-primary mt-3" onclick="getParticipantsData(${study.id});">Download all</button><br><br><br><br>
+        `;
+
+        document.getElementById("study-side").innerHTML += `
+            <h5>Invite new users:</h5>
+            <button class="btn btn-primary mt-3" onclick="window.location.href = 'invite_user.html?studyId=${study.id}';">Invite</button>
         `;
 
         document.getElementById("study-info").innerHTML += `
@@ -1037,4 +1043,31 @@ function acceptInvitation(studyId) {
 
 function toggleAcceptButton() {
     document.getElementById('accept-button').classList.toggle("disabled");
+}
+
+function getParticipantsData(studyId) {
+    var request = {
+        method: 'GET',
+        headers: {
+            'token': localStorage.getItem("token")
+        }
+    };
+    
+    fetch(serverURL + 'study/' + studyId + '/data/csv/', request)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Server is not responding');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'data.zip');
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        })
+        .catch(error => console.error('Error downloading the file:', error));
 }

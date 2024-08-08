@@ -2,14 +2,14 @@ from typing import List
 
 from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 
 from database.init import get_db, Base, engine
 from database import schemas, crud
 from sqlalchemy.orm import Session
 
-from utils import responses, password_utils, authentication_utils, data_utils, study_utils
+from utils import responses, password_utils, authentication_utils, data_utils, study_utils, file_utils
 
 FITBIT_AUTHORIZATION_URL = 'https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23PDRW&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=lMNXGvUcuN9QrksqDqnUpS4YaUhIWzaTNH3KJEpV_jA&code_challenge_method=S256&state='
 
@@ -365,3 +365,40 @@ async def accept_invitation(
     if not db_result:
         raise HTTPException(status_code=409, detail="Invitation is already accepted")
     return {"detail": "Invitation was accepted successfully"}
+
+
+@app.get("/study/{study_id}/data/csv/")
+async def get_study_data_csv(
+        request: Request,
+        study_id: int,
+        db: Session = Depends(get_db)
+):
+    user = authentication_utils.get_current_user(request, db)
+
+    activities = crud.get_fitbit_activities(db, user.id)
+    activities_csv = file_utils.query_to_csv(activities)
+
+    heartrate_logs = crud.get_fitbit_heartrate_logs(db, user.id)
+    hr_csv = file_utils.query_to_csv(heartrate_logs)
+
+    sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
+    sleep_logs_csv = file_utils.query_to_csv(sleep_logs)
+
+    sleep_levels = crud.get_sleep_levels_by_user_id(db, user.id)
+    sleep_levels_csv = file_utils.query_to_csv(sleep_levels)
+
+    response_zip_file = file_utils.create_zip_from_csvs(
+        {
+            'activities.csv': activities_csv,
+            'heartrate.csv': hr_csv,
+            'sleep.csv': sleep_logs_csv,
+            'sleep_levels.csv': sleep_levels_csv
+        }
+    )
+
+    # Return the ZIP file as a response
+    return StreamingResponse(
+        response_zip_file,
+        media_type="application/x-zip-compressed",
+        headers={"Content-Disposition": "attachment; filename=data.zip"}
+    )
