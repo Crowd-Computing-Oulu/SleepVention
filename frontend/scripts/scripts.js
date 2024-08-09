@@ -14,6 +14,11 @@ const own_study_image_links = [
 ]
 
 const participated_study_image_links = [
+    'https://media.istockphoto.com/id/2057007459/photo/supply-chain-and-logistic-network-global-business-on-the-virtual-screen-interface.webp?b=1&s=170667a&w=0&k=20&c=uGxlIZKsZK_ou4oicEPc2sjHd8NILqFZZ-3R53emrJk=',
+    'https://media.istockphoto.com/id/1327568875/photo/healthcare-business-graph-data-and-growth-insurance-healthcare-doctor-analyzing-medical-of.webp?b=1&s=170667a&w=0&k=20&c=SQRQXgL6Hg6vXE8F1xzu0hHP3VYVlN2BVv7v7OHrJkA=',
+    'https://t4.ftcdn.net/jpg/01/19/86/99/360_F_119869915_J8JDrHZhiyXU4DaOsfXlu46m6zqdWuyg.jpg',
+    'https://st2.depositphotos.com/1720162/8410/i/450/depositphotos_84109172-stock-photo-business-concept-for-market-research.jpg',
+    'https://images.unsplash.com/photo-1501290741922-b56c0d0884af?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YWNhZGVtaWMlMjByZXNlYXJjaHxlbnwwfHwwfHx8MA%3D%3D',
     'https://24slides.com/presentbetter/content/images/wordpress/2020/10/null-6.png'
 ]
 
@@ -615,6 +620,98 @@ function goToParticipatedStudies() {
     navButtons[0].className = 'inside-nav nav-link';
     navButtons[1].className = 'inside-nav nav-link active';
     getParticipatedStudies();
+}
+
+function getPublicStudies() {
+    const navButtons = document.querySelectorAll('#studies-nav .nav-item button');
+    navButtons[0].className = 'inside-nav nav-link active';
+    navButtons[1].className = 'inside-nav nav-link';
+
+    var request = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    fetchRequest(serverURL + 'studies/public/', request)
+        .then(data => {
+            generatePublicStudies(data);
+        })
+        .catch(error => {
+            alertError(error);
+        });
+}
+
+function generatePublicStudies(studies) {
+    var studieshtml = '';
+    // TODO: study_id should be in the url path not as query parameter
+    studies.forEach ((study, index) => {
+        description = trimStringToMaxLength(study.description, MAX_STR_CARD_LENGTH);
+        studieshtml += `
+            <div class="col-md-4 mt-5">
+				<div class="card">
+					<img src="${participated_study_image_links[index]}" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">${study.name}</h5>
+						<p class="card-text">${description}</p>
+						<button class="btn btn-outline-primary" onclick="window.location.href = 'study.html?studyId=${study.id}';">View more</button>
+					</div>
+				</div>
+			</div>
+        `;
+    });
+    document.getElementById('studies-container').innerHTML = studieshtml;
+}
+
+function getPublicUserData() {
+    const navButtons = document.querySelectorAll('#studies-nav .nav-item button');
+    navButtons[0].className = 'inside-nav nav-link';
+    navButtons[1].className = 'inside-nav nav-link active';
+
+    var studieshtml = `
+            <div class="col-md-4 mt-5">
+				<div class="card">
+					<img src="../images/profile.avif" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">User1</h5>
+						<p class="card-text">...</p>
+						<button class="btn btn-outline-primary">View data</button>
+					</div>
+				</div>
+			</div>
+            <div class="col-md-4 mt-5">
+				<div class="card">
+					<img src="../images/profile.avif" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">User2</h5>
+						<p class="card-text">...</p>
+						<button class="btn btn-outline-primary">View data</button>
+					</div>
+				</div>
+			</div>
+            <div class="col-md-4 mt-5">
+				<div class="card">
+					<img src="../images/profile.avif" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">User3</h5>
+						<p class="card-text">...</p>
+						<button class="btn btn-outline-primary">View data</button>
+					</div>
+				</div>
+			</div>
+            <div class="col-md-4 mt-5">
+				<div class="card">
+					<img src="../images/profile.avif" class="card-img-top" alt="image">
+					<div class="card-body">
+						<h5 class="card-title">User4</h5>
+						<p class="card-text">...</p>
+						<button class="btn btn-outline-primary">View data</button>
+					</div>
+				</div>
+			</div>
+        `;
+    document.getElementById('studies-container').innerHTML = studieshtml;
 }
 
 function submitEdittedDataPrivacy(editingCategory) {

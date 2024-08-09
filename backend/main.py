@@ -402,3 +402,16 @@ async def get_study_data_csv(
         media_type="application/x-zip-compressed",
         headers={"Content-Disposition": "attachment; filename=data.zip"}
     )
+
+
+@app.get("/studies/public/")
+async def get_public_studies(
+        db: Session = Depends(get_db)
+) -> list[responses.StudyResponseSchema]:
+    public_studies = crud.get_public_studies(db)
+    print(len(public_studies))
+    response = []
+    for study in public_studies:
+        response.append(responses.StudyResponseSchema.from_orm(study))
+
+    return response

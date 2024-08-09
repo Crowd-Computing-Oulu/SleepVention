@@ -285,7 +285,7 @@ class Studies(Base):
     start_date = Column(Date, default=func.current_date(), nullable=False)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
-    type = Column(String(255), nullable=False)  # Can be 'public' or 'private'
+    type = Column(String(255), nullable=False)  # Can be 'Public' or 'Private'
     consent_form_link = Column(String(255), nullable=False)
 
     creator = relationship("Users", back_populates="own_studies")

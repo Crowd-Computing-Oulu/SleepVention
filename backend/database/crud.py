@@ -418,3 +418,7 @@ def accept_invitation(db: Session, user_id: int, study_id: int):
     # Remove the invitation
     delete_invitation(db, user_id, study_id)
     return True
+
+
+def get_public_studies(db: Session):
+    return db.query(tables.Studies).filter_by(type='Public').all()
