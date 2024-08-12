@@ -415,3 +415,4 @@ async def get_public_studies(
         response.append(responses.StudyResponseSchema.from_orm(study))
 
     return response
+

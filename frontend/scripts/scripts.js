@@ -1,4 +1,4 @@
-const serverURL = "http://127.0.0.1:8000/";
+const serverURL = "http://86.50.169.103/";
 const userSpecificPages = ["mydata.html", "mystudies.html", "profile.html", "edit_profile.html"];
 const MAX_STR_CARD_LENGTH = 100;
 const MAX_STR_LENGTH = 2000;

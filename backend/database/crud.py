@@ -362,7 +362,7 @@ def delete_study(db: Session, study_id: int):
 
 
 def add_study_invitation(db: Session, user_id: int, study_id: int):
-    existing_invitation = db.query(tables.StudyInvitations).filter(tables.StudyInvitations.invited_user_id == user_id).first()
+    existing_invitation = db.query(tables.StudyInvitations).filter_by(invited_user_id=user_id, study_id=study_id).first()
     if existing_invitation:
         return False
     new_invitation = tables.StudyInvitations(invited_user_id=user_id, study_id=study_id)
