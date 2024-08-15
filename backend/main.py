@@ -1,8 +1,8 @@
-from typing import List
-
+from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
 from database.init import get_db, Base, engine
@@ -21,6 +21,84 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+# Mount the 'css' directory to serve CSS files
+app.mount("/css", StaticFiles(directory="frontend/css"), name="css")
+
+# Mount the 'images' directory to serve image files
+app.mount("/images", StaticFiles(directory="frontend/images"), name="images")
+
+# Mount the 'scripts' directory to serve JavaScript files
+app.mount("/scripts", StaticFiles(directory="frontend/scripts"), name="scripts")
+
+# Set up Jinja2 templates directory for HTML files
+templates = Jinja2Templates(directory="frontend/html")
+
+
+# Serve the main HTML file
+@app.get("/", response_class=HTMLResponse)
+async def get_root_html(request: Request):
+    return templates.TemplateResponse("homepage.html", {"request": request})
+
+
+@app.get("/homepage/", response_class=HTMLResponse)
+async def get_homepage_html(request: Request):
+    return templates.TemplateResponse("homepage.html", {"request": request})
+
+
+@app.get("/about_us/", response_class=HTMLResponse)
+async def get_about_us_html(request: Request):
+    return templates.TemplateResponse("about_us.html", {"request": request})
+
+
+@app.get("/create_study/", response_class=HTMLResponse)
+async def get_create_study_html(request: Request):
+    return templates.TemplateResponse("create_study.html", {"request": request})
+
+
+@app.get("/edit_profile/", response_class=HTMLResponse)
+async def get_edit_profile_html(request: Request):
+    return templates.TemplateResponse("edit_profile.html", {"request": request})
+
+
+@app.get("/explore/", response_class=HTMLResponse)
+async def get_explore_html(request: Request):
+    return templates.TemplateResponse("explore.html", {"request": request})
+
+
+@app.get("/invite_user/", response_class=HTMLResponse)
+async def get_invite_user_html(request: Request):
+    return templates.TemplateResponse("invite_user.html", {"request": request})
+
+
+@app.get("/login/", response_class=HTMLResponse)
+async def get_login_html(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
+@app.get("/mydata/", response_class=HTMLResponse)
+async def get_mydata_html(request: Request):
+    return templates.TemplateResponse("mydata.html", {"request": request})
+
+
+@app.get("/mystudies/", response_class=HTMLResponse)
+async def get_mystudies_html(request: Request):
+    return templates.TemplateResponse("mystudies.html", {"request": request})
+
+
+@app.get("/profile/", response_class=HTMLResponse)
+async def get_profile_html(request: Request):
+    return templates.TemplateResponse("profile.html", {"request": request})
+
+
+@app.get("/register/", response_class=HTMLResponse)
+async def get_register_html(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
+
+
+@app.get("/study/", response_class=HTMLResponse)
+async def get_study_html(request: Request):
+    return templates.TemplateResponse("study.html", {"request": request})
 
 
 @app.on_event("startup")
@@ -65,7 +143,7 @@ async def login(
     raise HTTPException(status_code=400, detail="Invalid credentials")
 
 
-@app.get("/profile/")
+@app.get("/get_profile/")
 async def get_profile(
         request: Request,
         db: Session = Depends(get_db)
@@ -92,7 +170,7 @@ async def edit_profile(
     return response
 
 
-@app.get("/home/")
+@app.get("/get_home/")
 async def home(
         request: Request,
         db: Session = Depends(get_db)
@@ -104,7 +182,7 @@ async def home(
         return "Not authorized"
 
 
-@app.get("/explore/")
+@app.get("/get_explore/")
 async def explore(
         request: Request,
         db: Session = Depends(get_db)
@@ -116,7 +194,7 @@ async def explore(
         return "Not authorized"
 
 
-@app.get("/about-us/")
+@app.get("/get_about_us/")
 async def about_us(
         request: Request,
         db: Session = Depends(get_db)
@@ -128,7 +206,7 @@ async def about_us(
         return "Not authorized"
 
 
-@app.get("/mydata/")
+@app.get("/get_mydata/")
 async def mydata(
         request: Request,
         db: Session = Depends(get_db)
@@ -200,7 +278,7 @@ async def upload_file(
     crud.add_data_file(db, user.id, data)
 
 
-@app.get("/data_privacy/")
+@app.get("/get_data_privacy/")
 async def data_privacy(
         request: Request,
         db: Session = Depends(get_db)
@@ -238,7 +316,7 @@ async def create_study(
     crud.add_study(db, user.id, data)
 
 
-@app.get("/own_studies/")
+@app.get("/get_own_studies/")
 async def get_own_studies(
         request: Request,
         db: Session = Depends(get_db)
@@ -253,7 +331,7 @@ async def get_own_studies(
     return response
 
 
-@app.get("/participated_studies/")
+@app.get("/get_participated_studies/")
 async def get_participated_studies(
         request: Request,
         db: Session = Depends(get_db)
@@ -268,7 +346,7 @@ async def get_participated_studies(
     return response
 
 
-@app.get("/study/{study_id}/")
+@app.get("/get_study/{study_id}/")
 async def get_study(
         study_id: int,
         request: Request,
@@ -326,7 +404,7 @@ async def invite_to_study(
     return {"detail": "Invitation sent to the user"}
 
 
-@app.get("/invitations/")
+@app.get("/get_invitations/")
 async def get_invitations(
         request: Request,
         db: Session = Depends(get_db)
@@ -367,7 +445,7 @@ async def accept_invitation(
     return {"detail": "Invitation was accepted successfully"}
 
 
-@app.get("/study/{study_id}/data/csv/")
+@app.get("/get_study/{study_id}/data/csv/")
 async def get_study_data_csv(
         request: Request,
         study_id: int,
@@ -404,7 +482,7 @@ async def get_study_data_csv(
     )
 
 
-@app.get("/studies/public/")
+@app.get("/get_studies/public/")
 async def get_public_studies(
         db: Session = Depends(get_db)
 ) -> list[responses.StudyResponseSchema]:

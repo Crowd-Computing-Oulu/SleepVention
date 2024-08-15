@@ -9,7 +9,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg ps-3 navbar-light bg-light fixed-top">
-        <a class="navbar-brand" href="homepage.html">
+        <a class="navbar-brand" href="/homepage">
             <img src="../images/logo.png" alt="Logo" style="height: 30px" />
         </a>
         <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,13 +18,13 @@
         <div class="collapse navbar-collapse d-flex justify-content-between" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="mydata.html">My Data</a>
+                    <a class="nav-link" href="/mydata">My Data</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="mystudies.html">My Studies</a>
+                    <a class="nav-link" href="/mystudies">My Studies</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="explore.html">Explore</a>
+                    <a class="nav-link" href="/explore">Explore</a>
                 </li>
             </ul>
             <ul class="navbar-nav d-flex justify-content-between">
@@ -32,10 +32,10 @@
                     <button class="btn btn-link nav-link" id="logout-button" onclick="logOut();">Log Out</button>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="about_us.html">About Us</a>
+                    <a class="nav-link" href="/about_us">About Us</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link position-relative" href="profile.html">
+                    <a class="nav-link position-relative" href="/profile">
                         <img src="../images/profile.png" style="height: 30px;">
 						<span class="badge bg-danger badge-notification"></span>
                     </a>
@@ -84,7 +84,7 @@
             getMessages('profile page');
         });
         
-        document.getElementById("editProfile").addEventListener("click", function() { window.location.href = "edit_profile.html"; });
+        document.getElementById("editProfile").addEventListener("click", function() { window.location.href = "/edit_profile"; });
     </script>
 </body>
 </html>

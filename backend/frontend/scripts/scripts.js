@@ -1,4 +1,4 @@
-const serverURL = "http://86.50.169.103/";
+const serverURL = "http://86.50.169.129/";
 const userSpecificPages = ["mydata.html", "mystudies.html", "profile.html", "edit_profile.html"];
 const MAX_STR_CARD_LENGTH = 100;
 const MAX_STR_LENGTH = 2000;
@@ -39,7 +39,7 @@ function alertError(response) {
 function handleResponseError(error) {
     if (error.status === 401) {
         // Handle unathorized error
-        window.location.href = "login.html";
+        window.location.href = "/login";
     } else {
         alertError(error);
     }
@@ -101,7 +101,7 @@ function submitRegister() {
     fetchRequest(serverURL + 'register/', request)
         .then(data => {
             localStorage.setItem("token", data.token);
-            window.location.href = "profile.html";
+            window.location.href = "/profile";
         })
         .catch(error => {
             alertError(error);
@@ -125,7 +125,7 @@ function submitLogin() {
     fetchRequest(serverURL + 'login/', request)
         .then(data => {
             localStorage.setItem("token", data.token);
-            window.location.href = "homepage.html";
+            window.location.href = "/homepage";
         })
         .catch(error => {
             alertError(error);
@@ -164,7 +164,7 @@ function getProfile(page) {
         }
     };
 
-    fetchRequest(serverURL + 'profile/', request)
+    fetchRequest(serverURL + 'get_profile/', request)
         .then(data => {
             if (page === "profile page") {
                 generateProfileHtml(data);
@@ -217,7 +217,7 @@ function submitProfile() {
     fetchRequest(serverURL + 'profile/', request)
         .then(data => {
             alert('The information submitted.');
-            window.location.href = "profile.html";
+            window.location.href = "/profile";
         })
         .catch((response) => {
             alertError(response);
@@ -234,7 +234,7 @@ function reconfigureNavbar() {
     profileNavItem.style.display = "none";
 
     var loginNavItem = document.getElementById("navbar-login");
-    loginNavItem.innerHTML = '<a class="nav-link" href="login.html">Log In</a>';
+    loginNavItem.innerHTML = '<a class="nav-link" href="/login">Log In</a>';
 }
 
 function getHomepage() {
@@ -247,7 +247,7 @@ function getHomepage() {
         }
     };
 
-    fetchRequest(serverURL + 'home/', request)
+    fetchRequest(serverURL + 'get_home/', request)
         .then(data => {
             if (data === "Not authorized") {
                 reconfigureNavbar();
@@ -268,7 +268,7 @@ function getExplore() {
         }
     };
 
-    fetchRequest(serverURL + 'explore/', request)
+    fetchRequest(serverURL + 'get_explore/', request)
         .then(data => {
             if (data === "Not authorized") {
                 reconfigureNavbar();
@@ -289,7 +289,7 @@ function getAboutUs() {
         }
     };
 
-    fetchRequest(serverURL + 'about-us/', request)
+    fetchRequest(serverURL + 'get_about_us/', request)
         .then(data => {
             if (data === "Not authorized") {
                 reconfigureNavbar();
@@ -313,7 +313,7 @@ function logOut() {
     
     const currentPage = getCurrentPage();
     if (userSpecificPages.includes(currentPage)) {
-        window.location.href = "homepage.html";
+        window.location.href = "/homepage";
     } else {
         window.location.reload();
     }
@@ -458,7 +458,7 @@ function getMyData() {
         }
     };
 
-    fetchRequest(serverURL + 'mydata/', request)
+    fetchRequest(serverURL + 'get_mydata/', request)
         .then(data => {
             fillMyDataPage(data);
         })
@@ -533,7 +533,7 @@ function generateOwnStudies(studies) {
 					<div class="card-body">
 						<h5 class="card-title">${study.name}</h5>
 						<p class="card-text">${description}</p>
-						<button class="btn btn-outline-primary" onclick="window.location.href = 'study.html?studyId=${study.id}';">View</button>
+						<button class="btn btn-outline-primary" onclick="window.location.href = '/study?studyId=${study.id}';">View</button>
 					    <button class="btn btn-danger" onclick="deleteStudy(${study.id});">Remove</button>
 					</div>
 				</div>
@@ -544,7 +544,7 @@ function generateOwnStudies(studies) {
 
     createStudyButton = document.getElementById('create-study-button')
     createStudyButton.innerHTML = `
-        <a class="btn btn-success mt-5 mb-5" href="create_study.html">Create New Study</a>
+        <a class="btn btn-success mt-5 mb-5" href="/create_study">Create New Study</a>
     `;
 }
 
@@ -557,7 +557,7 @@ function getOwnStudies() {
         }
     };
 
-    fetchRequest(serverURL + 'own_studies/', request)
+    fetchRequest(serverURL + 'get_own_studies/', request)
         .then(data => {
             generateOwnStudies(data);
         })
@@ -578,7 +578,7 @@ function generateParticipatedStudies(studies) {
 					<div class="card-body">
 						<h5 class="card-title">${study.name}</h5>
 						<p class="card-text">${description}</p>
-						<button class="btn btn-outline-primary" onclick="window.location.href = 'study.html?studyId=${study.id}';">View</button>
+						<button class="btn btn-outline-primary" onclick="window.location.href = '/study?studyId=${study.id}';">View</button>
 					    <button class="btn btn-danger" onclick="">Leave</button>
 					</div>
 				</div>
@@ -599,7 +599,7 @@ function getParticipatedStudies() {
         }
     };
 
-    fetchRequest(serverURL + 'participated_studies/', request)
+    fetchRequest(serverURL + 'get_participated_studies/', request)
         .then(data => {
             generateParticipatedStudies(data);
         })
@@ -634,7 +634,7 @@ function getPublicStudies() {
         }
     };
 
-    fetchRequest(serverURL + 'studies/public/', request)
+    fetchRequest(serverURL + 'get_studies/public/', request)
         .then(data => {
             generatePublicStudies(data);
         })
@@ -655,7 +655,7 @@ function generatePublicStudies(studies) {
 					<div class="card-body">
 						<h5 class="card-title">${study.name}</h5>
 						<p class="card-text">${description}</p>
-						<button class="btn btn-outline-primary" onclick="window.location.href = 'study.html?studyId=${study.id}';">View more</button>
+						<button class="btn btn-outline-primary" onclick="window.location.href = '/study?studyId=${study.id}';">View more</button>
 					</div>
 				</div>
 			</div>
@@ -784,7 +784,7 @@ function getDataSettings() {
         }
     };
 
-    fetchRequest(serverURL + 'data_privacy/', request)
+    fetchRequest(serverURL + 'get_data_privacy/', request)
         .then(data => {
             generateDataSettings(data);
         })
@@ -821,7 +821,7 @@ function submitNewStudy() {
     fetchRequest(serverURL + 'study/', request)
         .then(data => {
             alert('The study has been created successfully');
-            window.location.href = "mystudies.html";
+            window.location.href = "/mystudies";
         })
         .catch((response) => {
             alertError(response);
@@ -854,7 +854,7 @@ function generateStudyHtml(study) {
         document.getElementById("top-navbar").innerHTML = `
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="mystudies.html">Own Studies</a></li>
+                    <li class="breadcrumb-item"><a href="/mystudies">Own Studies</a></li>
                     <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
                 </ol>
             </nav>
@@ -867,7 +867,7 @@ function generateStudyHtml(study) {
 
         document.getElementById("study-side").innerHTML += `
             <h5>Invite new users:</h5>
-            <button class="btn btn-primary mt-3" onclick="window.location.href = 'invite_user.html?studyId=${study.id}';">Invite</button>
+            <button class="btn btn-primary mt-3" onclick="window.location.href = '/invite_user?studyId=${study.id}';">Invite</button>
         `;
 
         document.getElementById("study-info").innerHTML += `
@@ -881,8 +881,8 @@ function generateStudyHtml(study) {
         document.getElementById("top-navbar").innerHTML = `
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="profile.html">Profile</a></li>
-                    <li class="breadcrumb-item"><a href="profile.html#messages">Messages</a></li>
+                    <li class="breadcrumb-item"><a href="/profile">Profile</a></li>
+                    <li class="breadcrumb-item"><a href="/profile#messages">Messages</a></li>
                     <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
                 </ol>
             </nav>
@@ -905,7 +905,7 @@ function generateStudyHtml(study) {
         document.getElementById("top-navbar").innerHTML = `
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="mystudies.html#participated">Participated Studies</a></li>
+                    <li class="breadcrumb-item"><a href="/mystudies#participated">Participated Studies</a></li>
                     <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
                 </ol>
             </nav>
@@ -927,7 +927,7 @@ function getStudy(studyId, called_from) {
         }
     };
 
-    fetchRequest(serverURL + 'study/' + studyId + '/', request)
+    fetchRequest(serverURL + 'get_study/' + studyId + '/', request)
         .then(data => {
             if (called_from === 'study') {
                 generateStudyHtml(data);
@@ -936,7 +936,7 @@ function getStudy(studyId, called_from) {
             }
         })
         .catch((response) => {
-            handleResponseError(response);
+            alertError(response);
         });
 }
 
@@ -988,7 +988,7 @@ function submitUserInvitation() {
         .then(data => {
             alert('Invitation sent');
             // TODO: study_id should be in the url path not as query parameter
-            window.location.href = `study.html?studyId=${studyId}`;
+            window.location.href = `/study?studyId=${studyId}`;
         })
         .catch(error => {
             alertError(error);
@@ -1025,8 +1025,8 @@ function generateInviteNavbarHtml(studyId, studyName) {
     document.getElementById("top-navbar").innerHTML = `
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="mystudies.html">Own Studies</a></li>
-                <li class="breadcrumb-item" aria-current="page"><a href="study.html?studyId=${studyId}">${studyName}</a></li>
+                <li class="breadcrumb-item"><a href="/mystudies">Own Studies</a></li>
+                <li class="breadcrumb-item" aria-current="page"><a href="/study?studyId=${studyId}">${studyName}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Invite User</li>
             </ol>
         </nav>
@@ -1053,7 +1053,7 @@ function getMessages(calledFrom = 'default') {
         }
     };
 
-    fetchRequest(serverURL + 'invitations/', request)
+    fetchRequest(serverURL + 'get_invitations/', request)
         .then(data => {
             if (calledFrom === 'profile page') {
                 generateMessagesHtml(data);
@@ -1084,7 +1084,7 @@ function generateMessagesHtml(studyInvitations) {
                     <small class="mt-1">3 days ago</small>
                 </div>
                 <p class="mb-3">${studyDesc}...</p>
-                <a class="btn btn-primary btn-sm" href="study.html?studyId=${study.id}">View more</a>
+                <a class="btn btn-primary btn-sm" href="/study?studyId=${study.id}">View more</a>
                 <button class="btn btn-danger btn-sm" onclick="rejectInvitation(${study.id}, 'messages');">Reject</button>
             </li>
         `;
@@ -1111,7 +1111,7 @@ function rejectInvitation(studyId, calledFrom) {
                 getMessages('profile page');
             } else {
                 alert('the invitation was rejected successfully');
-                window.location.href = 'profile.html#messages';
+                window.location.href = '/profile#messages';
             }
         })
         .catch((response) => {
@@ -1131,7 +1131,7 @@ function acceptInvitation(studyId) {
     fetchRequest(serverURL + 'invitation/' + studyId + '/', request)
         .then(data => {
             alert('the invitation was accepted successfully');
-            window.location.href = 'profile.html#messages';
+            window.location.href = '/profile#messages';
         })
         .catch((response) => {
             alertError(response);
@@ -1150,7 +1150,7 @@ function getParticipantsData(studyId) {
         }
     };
     
-    fetch(serverURL + 'study/' + studyId + '/data/csv/', request)
+    fetch(serverURL + 'get_study/' + studyId + '/data/csv/', request)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Server is not responding');
