@@ -23,16 +23,16 @@ app.add_middleware(
 )
 
 # Mount the 'css' directory to serve CSS files
-app.mount("/css", StaticFiles(directory="frontend/css"), name="css")
+app.mount("/css", StaticFiles(directory="../frontend/css"), name="css")
 
 # Mount the 'images' directory to serve image files
-app.mount("/images", StaticFiles(directory="frontend/images"), name="images")
+app.mount("/images", StaticFiles(directory="../frontend/images"), name="images")
 
 # Mount the 'scripts' directory to serve JavaScript files
-app.mount("/scripts", StaticFiles(directory="frontend/scripts"), name="scripts")
+app.mount("/scripts", StaticFiles(directory="../frontend/scripts"), name="scripts")
 
 # Set up Jinja2 templates directory for HTML files
-templates = Jinja2Templates(directory="frontend/html")
+templates = Jinja2Templates(directory="../frontend/html")
 
 
 # Serve the main HTML file

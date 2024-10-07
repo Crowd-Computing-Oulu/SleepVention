@@ -1,6 +1,7 @@
-const serverURL = "http://86.50.169.129/";
+const serverURL = "http://127.0.0.1:8000/";
 const userSpecificPages = ["mydata.html", "mystudies.html", "profile.html", "edit_profile.html"];
-const MAX_STR_CARD_LENGTH = 100;
+const MAX_STR_Title_LENGTH = 70;
+const MAX_STR_CARD_LENGTH = 190;
 const MAX_STR_LENGTH = 2000;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;  // 10 MB
 
@@ -525,13 +526,14 @@ function generateOwnStudies(studies) {
     var studieshtml = '';
     // TODO: study_id should be in the url path not as query parameter
     studies.forEach ((study, index) => {
+        title = trimStringToMaxLength(study.name, MAX_STR_Title_LENGTH);
         description = trimStringToMaxLength(study.description, MAX_STR_CARD_LENGTH);
         studieshtml += `
             <div class="col-md-4 mt-5">
 				<div class="card">
 					<img src="${own_study_image_links[index]}" class="card-img-top" alt="image">
 					<div class="card-body">
-						<h5 class="card-title">${study.name}</h5>
+						<h5 class="card-title">${title}</h5>
 						<p class="card-text">${description}</p>
 						<button class="btn btn-outline-primary" onclick="window.location.href = '/study?studyId=${study.id}';">View</button>
 					    <button class="btn btn-danger" onclick="deleteStudy(${study.id});">Remove</button>
@@ -570,13 +572,14 @@ function generateParticipatedStudies(studies) {
     var studieshtml = '';
     // TODO: study_id should be in the url path not as query parameter
     studies.forEach ((study, index) => {
+        title = trimStringToMaxLength(study.name, MAX_STR_Title_LENGTH);
         description = trimStringToMaxLength(study.description, MAX_STR_CARD_LENGTH);
         studieshtml += `
             <div class="col-md-4 mt-5">
 				<div class="card">
 					<img src="${participated_study_image_links[index]}" class="card-img-top" alt="image">
 					<div class="card-body">
-						<h5 class="card-title">${study.name}</h5>
+						<h5 class="card-title">${title}</h5>
 						<p class="card-text">${description}</p>
 						<button class="btn btn-outline-primary" onclick="window.location.href = '/study?studyId=${study.id}';">View</button>
 					    <button class="btn btn-danger" onclick="">Leave</button>
@@ -646,14 +649,15 @@ function getPublicStudies() {
 function generatePublicStudies(studies) {
     var studieshtml = '';
     // TODO: study_id should be in the url path not as query parameter
-    studies.forEach ((study, index) => {
+    studies.slice().reverse().forEach ((study, index) => {
+        title = trimStringToMaxLength(study.name, MAX_STR_Title_LENGTH);
         description = trimStringToMaxLength(study.description, MAX_STR_CARD_LENGTH);
         studieshtml += `
             <div class="col-md-4 mt-5">
 				<div class="card">
 					<img src="${participated_study_image_links[index]}" class="card-img-top" alt="image">
 					<div class="card-body">
-						<h5 class="card-title">${study.name}</h5>
+						<h5 class="card-title">${title}</h5>
 						<p class="card-text">${description}</p>
 						<button class="btn btn-outline-primary" onclick="window.location.href = '/study?studyId=${study.id}';">View more</button>
 					</div>
@@ -848,6 +852,7 @@ function generateStudyHtml(study) {
         <h5>Total number of participans:</h5>
         <div>${study.participants_number}</div><br><br>
     `;
+    title = trimStringToMaxLength(study.name, 30);
 
     // If the user is the creator of the study, add the invite button and edit button to the page
     if (study.user_relation === 'creator') {
@@ -855,7 +860,7 @@ function generateStudyHtml(study) {
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/mystudies">Own Studies</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
+                    <li class="breadcrumb-item active" aria-current="page">${title}</li>
                 </ol>
             </nav>
         `;
@@ -883,7 +888,7 @@ function generateStudyHtml(study) {
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/profile">Profile</a></li>
                     <li class="breadcrumb-item"><a href="/profile#messages">Messages</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
+                    <li class="breadcrumb-item active" aria-current="page">${title}</li>
                 </ol>
             </nav>
         `;
@@ -906,7 +911,7 @@ function generateStudyHtml(study) {
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/mystudies#participated">Participated Studies</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">${study.name}</li>
+                    <li class="breadcrumb-item active" aria-current="page">${title}</li>
                 </ol>
             </nav>
         `;
@@ -1021,12 +1026,13 @@ function generateHtmlInviteEmail() {
 }
 
 function generateInviteNavbarHtml(studyId, studyName) {
+    title = trimStringToMaxLength(studyName, 30);
 
     document.getElementById("top-navbar").innerHTML = `
         <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/mystudies">Own Studies</a></li>
-                <li class="breadcrumb-item" aria-current="page"><a href="/study?studyId=${studyId}">${studyName}</a></li>
+                <li class="breadcrumb-item" aria-current="page"><a href="/study?studyId=${studyId}">${title}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Invite User</li>
             </ol>
         </nav>
