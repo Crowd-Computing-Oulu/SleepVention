@@ -1,5 +1,5 @@
 const serverURL = "http://127.0.0.1:8000/";
-const userSpecificPages = ["mydata.html", "mystudies.html", "profile.html", "edit_profile.html"];
+const publicPages = ["about_us.html", "explore.html", "homepage.html", "study.html"];
 const MAX_STR_Title_LENGTH = 70;
 const MAX_STR_CARD_LENGTH = 190;
 const MAX_STR_LENGTH = 2000;
@@ -313,10 +313,10 @@ function logOut() {
     alert("Loging out was successful");
     
     const currentPage = getCurrentPage();
-    if (userSpecificPages.includes(currentPage)) {
-        window.location.href = "/homepage";
-    } else {
+    if (publicPages.includes(currentPage)) {
         window.location.reload();
+    } else {
+        window.location.href = "/homepage";
     }
 }
 

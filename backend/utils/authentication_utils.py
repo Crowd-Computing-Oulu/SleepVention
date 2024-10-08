@@ -30,3 +30,11 @@ def get_current_user_by_token(token_str: str, db):
 def get_current_user(request: Request, db):
     token_str = get_token(request)
     return get_current_user_by_token(token_str, db)
+
+
+def check_study_creator(user_id: int, study_id: int, db):
+    study = crud.get_study_by_id(db, study_id)
+    if not study:
+        raise HTTPException(status_code=404, detail='Study not found')
+
+    return study.user_id == user_id

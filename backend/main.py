@@ -453,26 +453,38 @@ async def get_study_data_csv(
 ):
     user = authentication_utils.get_current_user(request, db)
 
-    activities = crud.get_fitbit_activities(db, user.id)
-    activities_csv = file_utils.query_to_csv(activities)
+    creator_access_to_study = authentication_utils.check_study_creator(user.id, study_id, db)
+    if not creator_access_to_study:
+        raise HTTPException(status_code=403, detail="You don't have access to this data")
 
-    heartrate_logs = crud.get_fitbit_heartrate_logs(db, user.id)
-    hr_csv = file_utils.query_to_csv(heartrate_logs)
+    study = crud.get_study_by_id(db, study_id)
+    participants_data = {}
+    for i, participant in enumerate(study.participants):
+        activities = crud.get_fitbit_activities(db, participant.id)
+        activities_csv = file_utils.query_to_csv(activities)
 
-    sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
-    sleep_logs_csv = file_utils.query_to_csv(sleep_logs)
+        heartrate_logs = crud.get_fitbit_heartrate_logs(db, participant.id)
+        hr_csv = file_utils.query_to_csv(heartrate_logs)
 
-    sleep_levels = crud.get_sleep_levels_by_user_id(db, user.id)
-    sleep_levels_csv = file_utils.query_to_csv(sleep_levels)
+        sleep_logs = crud.get_fitbit_sleep_logs(db, participant.id)
+        sleep_logs_csv = file_utils.query_to_csv(sleep_logs)
 
-    response_zip_file = file_utils.create_zip_from_csvs(
-        {
-            'activities.csv': activities_csv,
-            'heartrate.csv': hr_csv,
-            'sleep.csv': sleep_logs_csv,
-            'sleep_levels.csv': sleep_levels_csv
-        }
-    )
+        sleep_levels = crud.get_sleep_levels_by_user_id(db, participant.id)
+        sleep_levels_csv = file_utils.query_to_csv(sleep_levels)
+
+        participant_zip_file = file_utils.create_zip_from_csvs(
+            {
+                'activities.csv': activities_csv,
+                'heartrate.csv': hr_csv,
+                'sleep.csv': sleep_logs_csv,
+                'sleep_levels.csv': sleep_levels_csv
+            }
+        )
+
+        file_name = 'user' + str(i+1) + '.zip'
+        participants_data[file_name] = participant_zip_file
+
+    response_zip_file = file_utils.create_zip_from_csvs(participants_data)
 
     # Return the ZIP file as a response
     return StreamingResponse(
@@ -487,7 +499,6 @@ async def get_public_studies(
         db: Session = Depends(get_db)
 ) -> list[responses.StudyResponseSchema]:
     public_studies = crud.get_public_studies(db)
-    print(len(public_studies))
     response = []
     for study in public_studies:
         response.append(responses.StudyResponseSchema.from_orm(study))
