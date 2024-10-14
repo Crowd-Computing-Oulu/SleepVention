@@ -16,3 +16,15 @@ def get_user_study_relation(db, study, user):
 
     # If the user is none of the above, it is just a visitor
     return 'visitor'
+
+
+def remove_related_studies_from_study_list(all_studies, user):
+    for study in list(all_studies):
+        for own_study in user.own_studies:
+            if study.id == own_study.id:
+                all_studies.remove(study)
+        for participated_study in user.participated_studies:
+            if study.id == participated_study.id:
+                all_studies.remove(study)
+
+    return all_studies

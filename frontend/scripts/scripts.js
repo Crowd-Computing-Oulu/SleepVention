@@ -633,7 +633,8 @@ function getPublicStudies() {
     var request = {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
         }
     };
 
@@ -665,6 +666,7 @@ function generatePublicStudies(studies) {
 			</div>
         `;
     });
+    studieshtml += '<div class="mt-5"></div>'
     document.getElementById('studies-container').innerHTML = studieshtml;
 }
 

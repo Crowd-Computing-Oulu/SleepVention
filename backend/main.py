@@ -496,9 +496,17 @@ async def get_study_data_csv(
 
 @app.get("/get_studies/public/")
 async def get_public_studies(
+        request: Request,
         db: Session = Depends(get_db)
 ) -> list[responses.StudyResponseSchema]:
+
     public_studies = crud.get_public_studies(db)
+
+    try:
+        user = authentication_utils.get_current_user(request, db)
+        public_studies = study_utils.remove_related_studies_from_study_list(public_studies, user)
+    except:
+        pass
     response = []
     for study in public_studies:
         response.append(responses.StudyResponseSchema.from_orm(study))
