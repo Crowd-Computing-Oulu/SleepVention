@@ -23,11 +23,16 @@
                 <select id="timePeriodSelector" class="form-select">
                     <option value="week">Last Week</option>
                     <option value="month">Monthly</option>
+                    <option value="year">Yearly</option>
                 </select>
             </div>
             <div class="col-md-4" id="monthSelectorContainer" style="display: none;">
                 <label for="monthSelector" class="form-label">Select Month:</label>
                 <input type="month" id="monthSelector" class="form-control">
+            </div>
+            <div class="col-md-4" id="yearSelectorContainer" style="display: none;">
+                <label for="yearSelector" class="form-label">Select Year:</label>
+                <input type="number" id="yearSelector" class="form-control" min="2000" max="2100" value="2024">
             </div>
         </div>
 
@@ -118,59 +123,109 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Prepare monthly data
     function prepareMonthlyData(data, selectedMonth) {
-    const labels = [];
-    const deepHours = [];
-    const lightHours = [];
-    const remHours = [];
-    const wakeHours = [];
-    const asleepHours = [];
+        const labels = [];
+        const deepHours = [];
+        const lightHours = [];
+        const remHours = [];
+        const wakeHours = [];
+        const asleepHours = [];
 
-    // Generate a Date object for the first and last day of the selected month
-    const [year, month] = selectedMonth.split("-");
-    const daysInMonth = new Date(year, month, 0).getDate(); // Gets the last date of the month
+        // Generate a Date object for the first and last day of the selected month
+        const [year, month] = selectedMonth.split("-");
+        const daysInMonth = new Date(year, month, 0).getDate(); // Gets the last date of the month
 
-    // Create an object to quickly access data entries by date
-    const dataMap = {};
-    data.forEach(entry => {
-        const entryDate = new Date(entry.date).toISOString().split("T")[0];
-        dataMap[entryDate] = entry;
-    });
+        // Create an object to quickly access data entries by date
+        const dataMap = {};
+        data.forEach(entry => {
+            const entryDate = new Date(entry.date).toISOString().split("T")[0];
+            dataMap[entryDate] = entry;
+        });
 
-    // Loop over all days in the selected month
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dayString = day.toString().padStart(2, '0');
-        const fullDate = `${selectedMonth}-${dayString}`;
+        // Loop over all days in the selected month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayString = day.toString().padStart(2, '0');
+            const fullDate = `${selectedMonth}-${dayString}`;
 
-        // Add the day label (e.g., "Day 1", "Day 2", etc.)
-        labels.push(`Day ${day}`);
+            // Add the day label (e.g., "Day 1", "Day 2", etc.)
+            labels.push(`Day ${day}`);
 
-        // Check if data exists for this date
-        if (dataMap[fullDate]) {
-            const entry = dataMap[fullDate];
-            deepHours.push(convertToHours(entry.deep_minutes));
-            lightHours.push(convertToHours(entry.light_minutes));
-            remHours.push(convertToHours(entry.rem_minutes));
-            wakeHours.push(convertToHours(entry.wake_minutes));
-            asleepHours.push(convertToHours(entry.minutesAsleep));
-        } else {
-            // If there's no data for this date, push `null` to leave the chart bar/point empty
-            deepHours.push(null);
-            lightHours.push(null);
-            remHours.push(null);
-            wakeHours.push(null);
-            asleepHours.push(null);
+            // Check if data exists for this date
+            if (dataMap[fullDate]) {
+                const entry = dataMap[fullDate];
+                deepHours.push(convertToHours(entry.deep_minutes));
+                lightHours.push(convertToHours(entry.light_minutes));
+                remHours.push(convertToHours(entry.rem_minutes));
+                wakeHours.push(convertToHours(entry.wake_minutes));
+                asleepHours.push(convertToHours(entry.minutesAsleep));
+            } else {
+                // If there's no data for this date, push `null` to leave the chart bar/point empty
+                deepHours.push(null);
+                lightHours.push(null);
+                remHours.push(null);
+                wakeHours.push(null);
+                asleepHours.push(null);
+            }
         }
+
+        return { labels, deepHours, lightHours, remHours, wakeHours, asleepHours };
     }
 
-    return { labels, deepHours, lightHours, remHours, wakeHours, asleepHours };
-}
+    // Prepare yearly data
+    function prepareYearlyData(data, selectedYear) {
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        
+        const labels = monthNames;
+        const deepHours = Array(12).fill(0);
+        const lightHours = Array(12).fill(0);
+        const remHours = Array(12).fill(0);
+        const wakeHours = Array(12).fill(0);
+        const asleepHours = Array(12).fill(0);
+        const count = Array(12).fill(0);
 
+        data.forEach(entry => {
+            const date = new Date(entry.date);
+            const year = date.getFullYear();
+            const month = date.getMonth(); // 0 = January, 11 = December
+
+            if (year === parseInt(selectedYear, 10)) {
+                deepHours[month] += parseFloat(convertToHours(entry.deep_minutes));
+                lightHours[month] += parseFloat(convertToHours(entry.light_minutes));
+                remHours[month] += parseFloat(convertToHours(entry.rem_minutes));
+                wakeHours[month] += parseFloat(convertToHours(entry.wake_minutes));
+                asleepHours[month] += parseFloat(convertToHours(entry.minutesAsleep));
+                count[month] += 1;
+            }
+        });
+
+        // Calculate average for each month
+        for (let i = 0; i < 12; i++) {
+            if (count[i] > 0) {
+                deepHours[i] = (deepHours[i] / count[i]).toFixed(2);
+                lightHours[i] = (lightHours[i] / count[i]).toFixed(2);
+                remHours[i] = (remHours[i] / count[i]).toFixed(2);
+                wakeHours[i] = (wakeHours[i] / count[i]).toFixed(2);
+                asleepHours[i] = (asleepHours[i] / count[i]).toFixed(2);
+            } else {
+                // Keep data empty if no records for the month
+                deepHours[i] = null;
+                lightHours[i] = null;
+                remHours[i] = null;
+                wakeHours[i] = null;
+                asleepHours[i] = null;
+            }
+        }
+
+        return { labels, deepHours, lightHours, remHours, wakeHours, asleepHours };
+    }
 
     const ctx = document.getElementById('sleepChart').getContext('2d');
     let sleepChart;
     let chartVisibility;
 
-    function createChart(type, labels, deepData, lightData, remData, wakeData, asleepData, visibility) {
+    function createChart(type, labels, deepData, lightData, remData, wakeData, asleepData, visibility, isAverage=false) {
         const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
         const down = (ctx, value) => ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined;
 
@@ -184,7 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Total Sleep',
+                        label: isAverage ? 'Average Sleep' : 'Total Sleep',
                         data: asleepData,
                         backgroundColor: 'rgba(54, 162, 235, 0.6)',
                         borderColor: 'rgba(54, 162, 235, 1)',
@@ -198,7 +253,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         spanGaps: true
                     },
                     {
-                        label: 'Deep Sleep',
+                        label: isAverage ? 'Average Deep Sleep' : 'Deep Sleep',
                         data: deepData,
                         backgroundColor: 'rgba(75, 192, 192, 0.6)',
                         borderColor: 'rgba(75, 192, 192, 1)',
@@ -212,7 +267,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         spanGaps: true
                     },
                     {
-                        label: 'Light Sleep',
+                        label: isAverage ? 'Average Light Sleep' : 'Light Sleep',
                         data: lightData,
                         backgroundColor: 'rgba(153, 102, 255, 0.6)',
                         borderColor: 'rgba(153, 102, 255, 1)',
@@ -226,7 +281,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         spanGaps: true
                     },
                     {
-                        label: 'REM Sleep',
+                        label: isAverage ? 'Average REM Sleep' : 'REM Sleep',
                         data: remData,
                         backgroundColor: 'rgba(255, 206, 86, 0.6)',
                         borderColor: 'rgba(255, 206, 86, 1)',
@@ -240,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         spanGaps: true
                     },
                     {
-                        label: 'Awake Time',
+                        label: isAverage ? 'Average Awake Time' : 'Awake Time',
                         data: wakeData,
                         backgroundColor: 'rgba(255, 99, 132, 0.6)',
                         borderColor: 'rgba(255, 99, 132, 1)',
@@ -328,13 +383,14 @@ document.addEventListener("DOMContentLoaded", function () {
         getCurrentVisibility()
     );
 
-    // Switch between weekly and monthly data
+    // Switch between weekly, monthly, and yearly data
     document.getElementById("timePeriodSelector").addEventListener("change", function (event) {
         const type = document.getElementById("chartTypeSelector").value;
         const visibility = getCurrentVisibility();
+        document.getElementById("monthSelectorContainer").style.display = "none";
+        document.getElementById("yearSelectorContainer").style.display = "none";
 
         if (event.target.value === "week") {
-            document.getElementById("monthSelectorContainer").style.display = "none";
             const weeklyChartData = prepareWeeklyData(weeklyData);
             createChart(
                 type,
@@ -360,6 +416,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 monthlyChartData.asleepHours,
                 visibility
             );
+        } else if (event.target.value === "year") {
+            document.getElementById("yearSelectorContainer").style.display = "block";
+            const selectedYear = document.getElementById("yearSelector").value;
+            const yearlyChartData = prepareYearlyData(monthlyData, selectedYear);
+            createChart(
+                type,
+                yearlyChartData.labels,
+                yearlyChartData.deepHours,
+                yearlyChartData.lightHours,
+                yearlyChartData.remHours,
+                yearlyChartData.wakeHours,
+                yearlyChartData.asleepHours,
+                visibility,
+                true
+            );
         }
     });
 
@@ -378,6 +449,26 @@ document.addEventListener("DOMContentLoaded", function () {
             monthlyChartData.wakeHours,
             monthlyChartData.asleepHours,
             visibility
+        );
+    });
+
+    // Handle year selection change
+    document.getElementById("yearSelector").addEventListener("change", function () {
+        const selectedYear = this.value;
+        const type = document.getElementById("chartTypeSelector").value;
+        const visibility = getCurrentVisibility();
+
+        const yearlyChartData = prepareYearlyData(monthlyData, selectedYear);
+        createChart(
+            type,
+            yearlyChartData.labels,
+            yearlyChartData.deepHours,
+            yearlyChartData.lightHours,
+            yearlyChartData.remHours,
+            yearlyChartData.wakeHours,
+            yearlyChartData.asleepHours,
+            visibility,
+            true
         );
     });
 
@@ -411,7 +502,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 monthlyChartData.asleepHours,
                 visibility
             );
-        }
+        } else if (period === "year") {
+                    const selectedYear = document.getElementById("yearSelector").value;
+                    const yearlyChartData = prepareYearlyData(monthlyData, selectedYear);
+                    createChart(
+                        type,
+                        yearlyChartData.labels,
+                        yearlyChartData.deepHours,
+                        yearlyChartData.lightHours,
+                        yearlyChartData.remHours,
+                        yearlyChartData.wakeHours,
+                        yearlyChartData.asleepHours,
+                        visibility,
+                        true
+                    );
+                }
     });
 
     // Function to initialize the month selector with the current month as default
