@@ -188,8 +188,16 @@ async def explore(
         db: Session = Depends(get_db)
 ):
     try:
-        current_user = authentication_utils.get_current_user(request, db)
-        return "Authorized"
+        user = authentication_utils.get_current_user(request, db)
+        response = []
+
+        # Getting sleep data from database
+        sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
+        for sleep_log in sleep_logs:
+            response.append(responses.FitbitSleepResponseSchema.from_orm(sleep_log))
+
+        return response
+
     except:
         return "Not authorized"
 

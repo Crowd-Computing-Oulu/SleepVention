@@ -1,5 +1,5 @@
 const serverURL = "http://127.0.0.1:8000/";
-const publicPages = ["about_us.html", "explore.html", "homepage.html", "study.html"];
+const publicPages = ["about_us.html", "homepage.html", "study.html"];
 const MAX_STR_Title_LENGTH = 70;
 const MAX_STR_CARD_LENGTH = 190;
 const MAX_STR_LENGTH = 2000;
@@ -273,10 +273,12 @@ function getExplore() {
         .then(data => {
             if (data === "Not authorized") {
                 reconfigureNavbar();
+            } else {
+                createCharts(data);
             }
         })
         .catch(error => {
-            alertError(error);
+            alert(error);
         });
 }
 
