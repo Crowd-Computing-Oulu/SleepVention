@@ -3,7 +3,10 @@ from datetime import date, timedelta, datetime
 import requests
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from database import crud, schemas
+from database import crud, schemas, tables
+import json
+
+from utils import password_utils
 
 FITBIT_CLIENT_ID = '23PDRW'
 FITBIT_CLIENT_SECRET = '5cff99a1510ed622f0abee34f0e68997'
@@ -168,3 +171,36 @@ def update_fitbit_data(db, user_id):
     crud.add_fitbit_heartrate_logs(db, user_id, fitbit_data['heartrate'])
     crud.add_fitbit_hrv_logs(db, user_id, fitbit_data['hrv'])
     crud.add_fitbit_sleep_logs(db, user_id, fitbit_data['sleep'])
+
+
+def read_sleep_data_and_insert(json_file_path: str, session: Session):
+    # Step 1: Read the JSON file
+    with open(json_file_path, 'r', encoding='utf-8') as file:
+        sleep_data = json.load(file)
+
+    # Step 3: Iterate over the JSON data to extract information
+    user_count = 5
+    for id1, nested_data in sleep_data.items():
+        for id2, sleep_info in nested_data.items():
+            # Extract date and sleep information
+            for date, sleep_data in sleep_info.items():
+                sleep_details = sleep_data.get("sleep", None)
+
+                if sleep_details:
+                    # Create a new user
+                    username = f"User{user_count}"
+                    email = f"abc{user_count}@gmail.com"
+                    new_user = tables.Users(username=username, email=email)
+                    session.add(new_user)
+                    session.commit()  # Commit to get the user's ID
+                    user_id = new_user.id
+
+                    encrypted_password = password_utils.encrypt_password('111')
+                    crud.set_user_password(session, user_id, encrypted_password)
+                    crud.add_user_information(session, user_id)
+
+                    crud.add_fitbit_sleep_logs(session, user_id, [sleep_details])
+
+                    # Increment the user count for unique username
+                    user_count += 1
+

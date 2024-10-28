@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 
 from database import tables, schemas
 
-
 def get_user_by_email(db: Session, email: str):
     """
         Retrieves a user by email.
@@ -140,7 +139,7 @@ def get_fitbit_user_id(db: Session, user_id: int):
 
 
 def save_fitbit_last_update(db: Session, user_id: int, new_date: str, category: str):
-    last_updates = db.query(tables.FitbitLastUpdates).filter(tables.FitbitLastUpdates.user_id == user_id).first()
+    last_updates = get_fitbit_last_updates(db, user_id)
 
     new_date_obj = None
     if new_date == 'today':
