@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, date, timedelta
 from typing import List, Any
 import re
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 from sqlalchemy.orm import Session
 
 from database import tables, schemas
@@ -421,3 +421,25 @@ def accept_invitation(db: Session, user_id: int, study_id: int):
 
 def get_public_studies(db: Session):
     return db.query(tables.Studies).filter_by(type='Public').all()
+
+
+def get_average_sleep_data(session: Session):
+    # Query to calculate the averages of the sleep metrics
+    averages = session.query(
+        func.avg(tables.FitbitSleepLogs.minutesAsleep).label("average_minutes_asleep"),
+        func.avg(tables.FitbitSleepLogs.wake_minutes).label("average_wake_minutes"),
+        func.avg(tables.FitbitSleepLogs.rem_minutes).label("average_rem_minutes"),
+        func.avg(tables.FitbitSleepLogs.light_minutes).label("average_light_minutes"),
+        func.avg(tables.FitbitSleepLogs.deep_minutes).label("average_deep_minutes")
+    ).one()
+
+    # Prepare the result in a dictionary format
+    result = {
+        "sleep_avg": averages.average_minutes_asleep,
+        "wake_avg": averages.average_wake_minutes,
+        "rem_avg": averages.average_rem_minutes,
+        "light_avg": averages.average_light_minutes,
+        "deep_avg": averages.average_deep_minutes,
+    }
+
+    return result

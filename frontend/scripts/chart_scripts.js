@@ -1,3 +1,5 @@
+// Register the annotation plugin with Chart.js
+Chart.register(window['chartjs-plugin-annotation']);
 const ctx = document.getElementById('sleepChart').getContext('2d');
 let sleepChart;
 let chartVisibility;
@@ -141,7 +143,7 @@ function prepareYearlyData(data, selectedYear) {
     return { labels, deepHours, lightHours, remHours, wakeHours, asleepHours };
 }
 
-function createChart(type, labels, deepData, lightData, remData, wakeData, asleepData, visibility, isAverage=false) {
+function createChart(type, labels, deepData, lightData, remData, wakeData, asleepData, averageData, visibility, isAverage=false) {
     const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
     if (sleepChart) {
@@ -226,6 +228,156 @@ function createChart(type, labels, deepData, lightData, remData, wakeData, aslee
             ]
         },
         options: {
+            responsive: true,
+            plugins: {
+                annotation: {
+                    annotations: {
+                        total_avg_line: {
+                            type: 'line',
+                            yMin: averageData["sleep_avg"],
+                            yMax: averageData["sleep_avg"],
+                            borderColor: 'rgba(54, 162, 235, 0.6)',
+                            borderWidth: 1,
+                            borderDash: [40, 40],
+                            label: {
+                                display: true,
+                                content: 'Sleep Avg',  // Label text with value
+                                position: 'start',  // Label position: start, center, or end
+                                color: 'rgba(54, 162, 235, 1)',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                backgroundColor: 'rgba(255, 255, 255, 0)',
+                                padding: {
+                                    left: 3,
+                                    bottom: 13
+                                }
+                            },
+                            display: !visibility.sleep
+                        },
+                        awake_avg_line: {
+                            type: 'line',
+                            yMin: averageData["wake_avg"],
+                            yMax: averageData["wake_avg"],
+                            borderColor: 'rgba(255, 99, 132, 0.6)',
+                            borderWidth: 1,
+                            borderDash: [40, 40],
+                            label: {
+                                display: true,
+                                content: 'Awake Avg',  // Label text with value
+                                position: 'start',  // Label position: start, center, or end
+                                color: 'rgba(255, 99, 132, 1)',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                backgroundColor: 'rgba(255, 255, 255, 0)',
+                                padding: {
+                                    left: 3,
+                                    bottom: 13
+                                }
+                            },
+                            display: !visibility.wake
+                        },
+                        rem_avg_line: {
+                            type: 'line',
+                            yMin: averageData["rem_avg"],
+                            yMax: averageData["rem_avg"],
+                            borderColor: 'rgba(255, 206, 86, 0.6)',
+                            borderWidth: 1,
+                            borderDash: [40, 40],
+                            label: {
+                                display: true,
+                                content: 'Rem Avg',  // Label text with value
+                                position: 'start',  // Label position: start, center, or end
+                                color: 'rgba(255, 206, 86, 1)',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                backgroundColor: 'rgba(255, 255, 255, 0)',
+                                padding: {
+                                    left: 3,
+                                    bottom: 13
+                                }
+                            },
+                            display: !visibility.rem
+                        },
+                        light_avg_line: {
+                            type: 'line',
+                            yMin: averageData["light_avg"],
+                            yMax: averageData["light_avg"],
+                            borderColor: 'rgba(153, 102, 255, 0.6)',
+                            borderWidth: 1,
+                            borderDash: [40, 40],
+                            label: {
+                                display: true,
+                                content: 'Light Avg',  // Label text with value
+                                position: 'start',  // Label position: start, center, or end
+                                color: 'rgba(153, 102, 255, 1)',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                backgroundColor: 'rgba(255, 255, 255, 0)',
+                                padding: {
+                                    left: 3,
+                                    bottom: 13
+                                }
+                            },
+                            display: !visibility.light
+                        },
+                        deep_avg_line: {
+                            type: 'line',
+                            yMin: averageData["deep_avg"],
+                            yMax: averageData["deep_avg"],
+                            borderColor: 'rgba(75, 192, 192, 0.6)',
+                            borderWidth: 1,
+                            borderDash: [40, 40],
+                            label: {
+                                display: true,
+                                content: 'Deep Avg',  // Label text with value
+                                position: 'start',  // Label position: start, center, or end
+                                color: 'rgba(75, 192, 192, 1)',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                },
+                                backgroundColor: 'rgba(255, 255, 255, 0)',
+                                padding: {
+                                    left: 3,
+                                    bottom: 13
+                                }
+                            },
+                            display: !visibility.deep
+                        }
+                    }
+                },
+                legend: {
+                    onClick: function (e, legendItem) {
+                        const index = legendItem.datasetIndex;
+                        const dataset = sleepChart.data.datasets[index];
+                        const chartKeyIndex = dataset.label.split(" ")[0] === "Average" ? 1 : 0;
+                        const chartKey = dataset.label.toLowerCase().split(" ")[chartKeyIndex];
+                        const annotationKey = chartKey + '_avg_line';
+    
+                        // Toggle dataset visibility
+                        dataset.hidden = !dataset.hidden;
+                        if (chartKey === "total") {
+                            chartVisibility.sleep = !chartVisibility.sleep;
+                        } else {
+                            chartVisibility[chartKey] = !chartVisibility[chartKey];
+                        }
+
+                        // Toggle annotation visibility based on dataset visibility
+                        sleepChart.options.plugins.annotation.annotations[annotationKey].display = !dataset.hidden;
+    
+                        // Update the chart
+                        sleepChart.update();
+                    }
+                }
+            },
             scales: {
                 x: {
                     title: {
@@ -244,15 +396,6 @@ function createChart(type, labels, deepData, lightData, remData, wakeData, aslee
                     },
                     grid: {
                         display: false      
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function (tooltipItem) {
-                            return `${tooltipItem.dataset.label}: ${tooltipItem.raw} hours`;
-                        }
                     }
                 }
             }
@@ -299,7 +442,11 @@ function setDefaultMonthSelector() {
     monthSelector.value = monthValue;
 }
 
-function createCharts(data) {
+function createCharts(data, averageData) {
+
+    Object.keys(averageData).forEach(key => {
+        averageData[key] = convertToHours(averageData[key]);
+    });
 
     // Initial chart (last week data)
     const weeklyChartData = prepareWeeklyData(data);
@@ -311,6 +458,7 @@ function createCharts(data) {
         weeklyChartData.remHours,
         weeklyChartData.wakeHours,
         weeklyChartData.asleepHours,
+        averageData,
         getCurrentVisibility()
     );
 
@@ -331,6 +479,7 @@ function createCharts(data) {
                 weeklyChartData.remHours,
                 weeklyChartData.wakeHours,
                 weeklyChartData.asleepHours,
+                averageData,
                 visibility
             );
         } else if (event.target.value === "month") {
@@ -345,6 +494,7 @@ function createCharts(data) {
                 monthlyChartData.remHours,
                 monthlyChartData.wakeHours,
                 monthlyChartData.asleepHours,
+                averageData,
                 visibility
             );
         } else if (event.target.value === "year") {
@@ -359,6 +509,7 @@ function createCharts(data) {
                 yearlyChartData.remHours,
                 yearlyChartData.wakeHours,
                 yearlyChartData.asleepHours,
+                averageData,
                 visibility,
                 true
             );
@@ -379,6 +530,7 @@ function createCharts(data) {
             monthlyChartData.remHours,
             monthlyChartData.wakeHours,
             monthlyChartData.asleepHours,
+            averageData,
             visibility
         );
     });
@@ -398,6 +550,7 @@ function createCharts(data) {
             yearlyChartData.remHours,
             yearlyChartData.wakeHours,
             yearlyChartData.asleepHours,
+            averageData,
             visibility,
             true
         );
@@ -418,6 +571,7 @@ function createCharts(data) {
                 weeklyChartData.remHours,
                 weeklyChartData.wakeHours,
                 weeklyChartData.asleepHours,
+                averageData,
                 visibility
             );
         } else if (period === "month") {
@@ -431,6 +585,7 @@ function createCharts(data) {
                 monthlyChartData.remHours,
                 monthlyChartData.wakeHours,
                 monthlyChartData.asleepHours,
+                averageData,
                 visibility
             );
         } else if (period === "year") {
@@ -444,6 +599,7 @@ function createCharts(data) {
                 yearlyChartData.remHours,
                 yearlyChartData.wakeHours,
                 yearlyChartData.asleepHours,
+                averageData,
                 visibility,
                 true
             );

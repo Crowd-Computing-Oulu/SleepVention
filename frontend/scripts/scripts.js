@@ -274,10 +274,11 @@ function getExplore() {
             if (data === "Not authorized") {
                 reconfigureNavbar();
             } else {
-                createCharts(data);
+                createCharts(data["logs"], data["average"]);
             }
         })
         .catch(error => {
+            console.log(error);
             alert(error);
         });
 }

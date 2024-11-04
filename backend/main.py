@@ -189,13 +189,18 @@ async def explore(
 ):
     try:
         user = authentication_utils.get_current_user(request, db)
-        response = []
+        sleep_logs = []
+        average_sleep = crud.get_average_sleep_data(db)
 
         # Getting sleep data from database
-        sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
-        for sleep_log in sleep_logs:
-            response.append(responses.FitbitSleepResponseSchema.from_orm(sleep_log))
+        db_sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
+        for sleep_log in db_sleep_logs:
+            sleep_logs.append(responses.FitbitSleepResponseSchema.from_orm(sleep_log))
 
+        response = {
+            'logs': sleep_logs,
+            'average': average_sleep
+        }
         return response
 
     except:
