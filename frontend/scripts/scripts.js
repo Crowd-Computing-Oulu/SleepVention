@@ -1,4 +1,5 @@
-const serverURL = "http://195.148.20.248:8000/";
+const serverURL = "http://127.0.0.1:8000/";
+// const serverURL = "http://195.148.20.248:8000/";
 const publicPages = ["about_us.html", "homepage.html", "study.html"];
 const MAX_STR_Title_LENGTH = 70;
 const MAX_STR_CARD_LENGTH = 190;
@@ -102,7 +103,7 @@ function submitRegister() {
     fetchRequest(serverURL + 'register/', request)
         .then(data => {
             localStorage.setItem("token", data.token);
-            window.location.href = "/profile";
+            window.location.href = "/edit_profile";
         })
         .catch(error => {
             alertError(error);
@@ -148,6 +149,10 @@ function generateProfileHtml(profileInfo) {
         <p class="card-text">Weight: ${profileInfo.weight}</p>
     `;
 
+    if (profileInfo.prolific_id) {
+        infoDiv.innerHTML += `<p class="card-text">Prolific ID: ${profileInfo.prolific_id}</p>`;
+    }
+
     if (window.location.hash === '#messages') {
         messagesContainer.style.display = 'block';
     } else {
@@ -192,6 +197,7 @@ function getProfileEditForm() {
 
     const profileForm = Object.fromEntries(
         Object.entries({
+            prolific_id: document.getElementById("prolific_id").value,
             nationality: document.getElementById("nationality").value,
             birth_date: document.getElementById("birthdate").value,
             gender: document.getElementById("gender").value,

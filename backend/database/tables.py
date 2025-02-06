@@ -62,6 +62,7 @@ class UserInformation(Base):
     gender = Column(String(50))
     height = Column(Float)
     weight = Column(Float)
+    prolific_id = Column(String(255))
 
     # Relationship with users table
     user = relationship("Users", back_populates="user_information")

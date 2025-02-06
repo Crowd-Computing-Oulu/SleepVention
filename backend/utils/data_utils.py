@@ -57,8 +57,8 @@ def format_date_to_str(date_obj):
     return date_obj.strftime('%Y-%m-%d')
 
 
-def get_fitbit_activities(headers, start_date, fitbit_user_id):
-    fitbit_activities_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/activities/list.json?'
+def get_fitbit_activities(headers, start_date):
+    fitbit_activities_url = Fitbit_BASE_URL + f'/1/user/-/activities/list.json?'
     fitbit_activities_url += f'afterDate={start_date}'
     fitbit_activities_url += '&sort=asc'
     fitbit_activities_url += '&limit=100'
@@ -67,30 +67,30 @@ def get_fitbit_activities(headers, start_date, fitbit_user_id):
     return response
 
 
-def get_fitbit_heartrate(headers, start_date, fitbit_user_id):
+def get_fitbit_heartrate(headers, start_date):
     # Be careful that the maximum range is 1 year
-    fitbit_heartrate_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/activities/heart/date/{start_date}/today.json'
+    fitbit_heartrate_url = Fitbit_BASE_URL + f'/1/user/-/activities/heart/date/{start_date}/today.json'
     response = requests.get(fitbit_heartrate_url, headers=headers)
     return response
 
 
-def get_fitbit_hrv(headers, start_date, fitbit_user_id, db, user_id):
+def get_fitbit_hrv(headers, start_date, db, user_id):
     # Be careful that the maximum range is 30 days
     if date.today() - timedelta(days=30) > datetime.strptime(start_date, '%Y-%m-%d').date():
         end_date = datetime.strptime(start_date, '%Y-%m-%d').date() + timedelta(days=30)
         end_date_str = format_date_to_str(end_date)
-        fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/hrv/date/{start_date}/{end_date_str}.json'
+        fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/-/hrv/date/{start_date}/{end_date_str}.json'
 
         crud.save_fitbit_last_update(db, user_id, end_date_str, 'hrv')
     else:
-        fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/{fitbit_user_id}/hrv/date/{start_date}/today.json'
+        fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/-/hrv/date/{start_date}/today.json'
         crud.save_fitbit_last_update(db, user_id, 'today', 'hrv')
     response = requests.get(fitbit_hrv_url, headers=headers)
     return response
 
 
-def get_fitbit_sleep(headers, start_date, fitbit_user_id):
-    fitbit_sleep_url = Fitbit_BASE_URL + f'/1.2/user/{fitbit_user_id}/sleep/list.json?'
+def get_fitbit_sleep(headers, start_date):
+    fitbit_sleep_url = Fitbit_BASE_URL + f'/1.2/user/-/sleep/list.json?'
     fitbit_sleep_url += f'afterDate={start_date}'
     fitbit_sleep_url += '&sort=asc'
     fitbit_sleep_url += '&limit=100'
@@ -114,9 +114,9 @@ def get_data_from_fitbit(
         last_updates
 ):
     # Getting fitbit user ID
-    fitbit_user_id = crud.get_fitbit_user_id(db, user_id)
-    if not fitbit_user_id:
-        raise HTTPException(status_code=404, detail='There is no fitbit account connected to this user')
+    # fitbit_user_id = crud.get_fitbit_user_id(db, user_id)
+    # if not fitbit_user_id:
+    #     raise HTTPException(status_code=404, detail='There is no fitbit account connected to this user')
 
     # Getting fitbit token to get data from fitbit APIs
     fitbit_token = crud.get_fitbit_token_by_user_id(db, user_id)
@@ -135,20 +135,20 @@ def get_data_from_fitbit(
 
     # Getting Fitbit activity data
     activity_start_date = format_date_to_str(last_updates.activity)
-    activities_response = get_fitbit_activities(headers, activity_start_date, fitbit_user_id)
+    activities_response = get_fitbit_activities(headers, activity_start_date)
 
     # Getting Fitbit heartrate data
     heartrate_start_date = format_date_to_str(last_updates.heart_rate)
-    hr_response = get_fitbit_heartrate(headers, heartrate_start_date, fitbit_user_id)
+    hr_response = get_fitbit_heartrate(headers, heartrate_start_date)
 
     # Getting Fitbit heartrate variability data
     hrv_start_date = format_date_to_str(last_updates.hrv)
-    hrv_response = get_fitbit_hrv(headers, hrv_start_date, fitbit_user_id, db, user_id)
+    hrv_response = get_fitbit_hrv(headers, hrv_start_date, db, user_id)
     hj = hrv_response.json()
 
     # Getting Fitbit sleep data
     sleep_start_date = format_date_to_str(last_updates.sleep)
-    sleep_response = get_fitbit_sleep(headers, sleep_start_date, fitbit_user_id)
+    sleep_response = get_fitbit_sleep(headers, sleep_start_date)
 
     # Since all the requests are to the same domain, we only check one of them
     # to see if there is an access problem

@@ -49,3 +49,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+alembic/
+alembic.ini

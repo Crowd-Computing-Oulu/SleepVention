@@ -28,6 +28,7 @@ class UserProfileResponseSchema(BaseModel):
     gender: Optional[str] = None
     height: Optional[float] = None
     weight: Optional[float] = None
+    prolific_id: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -38,6 +39,7 @@ class UserProfileResponseSchema(BaseModel):
         self.gender = user_information.gender
         self.height = user_information.height
         self.weight = user_information.weight
+        self.prolific_id = user_information.prolific_id
 
 
 class FitbitActivityResponseSchema(BaseModel):

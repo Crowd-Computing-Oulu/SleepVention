@@ -40,6 +40,7 @@ class UserSchema(BaseModel):
 
 
 class UserInformationSchema(BaseModel):
+    prolific_id: Optional[str] = None
     nationality: Optional[str] = None
     birth_date: Optional[date] = None
     gender: Optional[str] = None
