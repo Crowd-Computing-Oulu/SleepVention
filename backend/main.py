@@ -271,12 +271,28 @@ async def fitbit_authenticate(
         request: Request,
         db: Session = Depends(get_db)
 ):
+    print('got here')
     fitbit_code = request.query_params.get('code')
     user_token = request.query_params.get('state')
     user = authentication_utils.get_current_user_by_token(user_token, db)
-    fitbit_token = data_utils.get_fitbit_token(fitbit_code)
+    code_verifier = crud.get_fitbit_code_verifier(db, user.id)
+    fitbit_token = data_utils.get_fitbit_token(fitbit_code, code_verifier)
     crud.add_fitbit_token(db, user.id, fitbit_token.access_token, fitbit_token.refresh_token)
+    print('got here2')
     return Response(status_code=200)
+
+
+@app.get("/fitbit_authenticating_url")
+async def get_fitbit_authenticate(
+        request: Request,
+        db: Session = Depends(get_db)
+):
+    # Get current user
+    user = authentication_utils.get_current_user(request, db)
+    user_token = authentication_utils.get_token(request)
+    auth_url, code_verifier = data_utils.generate_fitbit_auth_url(user_token)
+    crud.add_fitbit_code_verifier(db, user.id, code_verifier)
+    return auth_url
 
 
 @app.post("/data_file/")

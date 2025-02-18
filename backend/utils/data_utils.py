@@ -5,26 +5,34 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from database import crud, schemas, tables
 import json
+import base64
+import hashlib
+import os
 
 from utils import password_utils
 
-FITBIT_CLIENT_ID = '23PDRW'
-FITBIT_CLIENT_SECRET = '5cff99a1510ed622f0abee34f0e68997'
-PKCE_CODE_VERIFIER = '0n5r552d051q3e4l6a3t0x45224b5d4r3g4d2b0u3a2m012g6g4m6q3n4c5s0x1z5u42316v65465y260y4j0u0s0y6o261w0y5t1p66374a194f6m3m522u6x090k0x'
+FITBIT_CLIENT_ID = '23Q77F'
+FITBIT_CLIENT_SECRET = '38f27b1c182a2e5808e9a6e032221c20'
+# PKCE_CODE_VERIFIER = '0n5r552d051q3e4l6a3t0x45224b5d4r3g4d2b0u3a2m012g6g4m6q3n4c5s0x1z5u42316v65465y260y4j0u0s0y6o261w0y5t1p66374a194f6m3m522u6x090k0x'
 FITBIT_GET_TOKEN_URL = 'https://api.fitbit.com/oauth2/token'
 Fitbit_BASE_URL = 'https://api.fitbit.com'
+REDIRECT_URI = "http://127.0.0.1:8000/fitbit-authenticate"
+FITBIT_SCOPES = "activity cardio_fitness electrocardiogram heartrate location nutrition oxygen_saturation profile respiratory_rate settings sleep social temperature weight"
 
 
-def get_fitbit_token(fitbit_code) -> schemas.FitbitTokenSchema:
+def get_fitbit_token(fitbit_code, code_verifier) -> schemas.FitbitTokenSchema:
+    client_credentials = f"{FITBIT_CLIENT_ID}:{FITBIT_CLIENT_SECRET}"
+    encoded_credentials = base64.b64encode(client_credentials.encode()).decode()
+
     headers = {
-        'Authorization': 'Basic MjNQRFJXOjVjZmY5OWExNTEwZWQ2MjJmMGFiZWUzNGYwZTY4OTk3',
+        'Authorization': f'Basic {encoded_credentials}',
         'Content-Type': 'application/x-www-form-urlencoded'
     }
     data = {
         'client_id': FITBIT_CLIENT_ID,
         'grant_type': 'authorization_code',
         'code': fitbit_code,
-        'code_verifier': PKCE_CODE_VERIFIER
+        'code_verifier': code_verifier
     }
     response = requests.post(FITBIT_GET_TOKEN_URL, headers=headers, data=data)
     if response.status_code == 200:
@@ -36,8 +44,11 @@ def get_fitbit_token(fitbit_code) -> schemas.FitbitTokenSchema:
 
 def refresh_fitbit_token(fitbit_token) -> schemas.FitbitTokenSchema:
     refresh_token_str = fitbit_token.refresh_token
+    client_credentials = f"{FITBIT_CLIENT_ID}:{FITBIT_CLIENT_SECRET}"
+    encoded_credentials = base64.b64encode(client_credentials.encode()).decode()
+
     headers = {
-        'Authorization': 'Basic MjNQRFJXOjVjZmY5OWExNTEwZWQ2MjJmMGFiZWUzNGYwZTY4OTk3',
+        'Authorization': f'Basic {encoded_credentials}',
         'Content-Type': 'application/x-www-form-urlencoded'
     }
     data = {
@@ -204,3 +215,30 @@ def read_sleep_data_and_insert(json_file_path: str, session: Session):
                     # Increment the user count for unique username
                     user_count += 1
 
+
+def generate_pkce_pair():
+    # Generate a random code_verifier (43-128 characters)
+    code_verifier = base64.urlsafe_b64encode(os.urandom(64)).decode('utf-8').rstrip("=")
+
+    # Create a SHA256 hash of the code_verifier
+    code_challenge = base64.urlsafe_b64encode(
+        hashlib.sha256(code_verifier.encode('utf-8')).digest()
+    ).decode('utf-8').rstrip("=")
+
+    return code_verifier, code_challenge
+
+
+def generate_fitbit_auth_url(user_token):
+    code_verifier, code_challenge = generate_pkce_pair()
+
+    auth_url = (
+        f"https://www.fitbit.com/oauth2/authorize?"
+        f"response_type=code"
+        f"&client_id={FITBIT_CLIENT_ID}"
+        f"&scope={FITBIT_SCOPES}"
+        f"&code_challenge={code_challenge}"
+        f"&code_challenge_method=S256"
+        f"&state={user_token}"
+    )
+
+    return auth_url, code_verifier

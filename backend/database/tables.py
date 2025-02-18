@@ -94,6 +94,7 @@ class FitbitTokens(Base):
     __tablename__ = 'fitbit_tokens'
 
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    code_verifier = Column(String(255))
     access_token = Column(String(511), unique=True)
     refresh_token = Column(String(255), unique=True)
 

@@ -105,6 +105,26 @@ def get_fitbit_token_by_user_id(db: Session, user_id: int):
     return db.query(tables.FitbitTokens).filter(tables.FitbitTokens.user_id == user_id).first()
 
 
+def add_fitbit_code_verifier(db: Session, user_id: int, code_verifier: str):
+    fitbit_token = db.query(tables.FitbitTokens).filter(tables.FitbitTokens.user_id == user_id).first()
+    if not fitbit_token:
+        fitbit_token = tables.FitbitTokens(
+            user_id=user_id,
+            code_verifier=code_verifier
+        )
+    else:
+        fitbit_token.code_verifier = code_verifier
+    db.add(fitbit_token)
+    db.commit()
+    db.refresh(fitbit_token)
+    return fitbit_token
+
+
+def get_fitbit_code_verifier(db: Session, user_id: int):
+    fitbit_token = db.query(tables.FitbitTokens).filter(tables.FitbitTokens.user_id == user_id).first()
+    return fitbit_token.code_verifier
+
+
 def add_fitbit_token(db: Session, user_id: int, access_token: str, refresh_token: str):
     fitbit_token = db.query(tables.FitbitTokens).filter(tables.FitbitTokens.user_id == user_id).first()
     if not fitbit_token:
