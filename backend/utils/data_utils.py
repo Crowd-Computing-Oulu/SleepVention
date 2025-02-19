@@ -13,7 +13,6 @@ from utils import password_utils
 
 FITBIT_CLIENT_ID = '23Q77F'
 FITBIT_CLIENT_SECRET = '38f27b1c182a2e5808e9a6e032221c20'
-# PKCE_CODE_VERIFIER = '0n5r552d051q3e4l6a3t0x45224b5d4r3g4d2b0u3a2m012g6g4m6q3n4c5s0x1z5u42316v65465y260y4j0u0s0y6o261w0y5t1p66374a194f6m3m522u6x090k0x'
 FITBIT_GET_TOKEN_URL = 'https://api.fitbit.com/oauth2/token'
 Fitbit_BASE_URL = 'https://api.fitbit.com'
 REDIRECT_URI = "http://127.0.0.1:8000/fitbit-authenticate"
@@ -239,6 +238,7 @@ def generate_fitbit_auth_url(user_token):
         f"&code_challenge={code_challenge}"
         f"&code_challenge_method=S256"
         f"&state={user_token}"
+        f"&prompt=login"
     )
 
     return auth_url, code_verifier

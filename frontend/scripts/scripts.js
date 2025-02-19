@@ -1,5 +1,3 @@
-// import { redirectToFitbitAuth } from "./fitbit_scripts";
-
 const serverURL = "http://127.0.0.1:8000/";
 // const serverURL = "http://195.148.20.248:8000/";
 const publicPages = ["about_us.html", "homepage.html", "study.html"];
@@ -495,10 +493,6 @@ function getMyData() {
         })
         .catch(error => {
             if (error.status === 403) {
-			    // window.open("https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=23PDRW&scope=activity+cardio_fitness+electrocardiogram+heartrate+location+nutrition+oxygen_saturation+profile+respiratory_rate+settings+sleep+social+temperature+weight&code_challenge=lMNXGvUcuN9QrksqDqnUpS4YaUhIWzaTNH3KJEpV_jA&code_challenge_method=S256&state=" + localStorage.getItem("token"), '_blank').focus();
-                // import('./fitbit_scripts.js').then(async (module) => {
-                //     await module.redirectToFitbitAuth();
-                // });
                 redirectToFitbitAuth();
             }
             else {
