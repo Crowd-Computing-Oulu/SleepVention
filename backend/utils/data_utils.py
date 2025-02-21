@@ -85,18 +85,22 @@ def get_fitbit_heartrate(headers, start_date):
 
 
 def get_fitbit_hrv(headers, start_date, db, user_id):
+    start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+    get_more_hrv = False
+
     # Be careful that the maximum range is 30 days
-    if date.today() - timedelta(days=30) > datetime.strptime(start_date, '%Y-%m-%d').date():
-        end_date = datetime.strptime(start_date, '%Y-%m-%d').date() + timedelta(days=30)
+    if date.today() - timedelta(days=29) > start_date_obj:
+        end_date = start_date_obj + timedelta(days=29)
         end_date_str = format_date_to_str(end_date)
         fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/-/hrv/date/{start_date}/{end_date_str}.json'
 
         crud.save_fitbit_last_update(db, user_id, end_date_str, 'hrv')
+        get_more_hrv = True
     else:
         fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/-/hrv/date/{start_date}/today.json'
         crud.save_fitbit_last_update(db, user_id, 'today', 'hrv')
     response = requests.get(fitbit_hrv_url, headers=headers)
-    return response
+    return response, get_more_hrv
 
 
 def get_fitbit_sleep(headers, start_date):
@@ -121,7 +125,8 @@ def combine_fitbit_responses(activities_response, heartrate_response, hrv_respon
 def get_data_from_fitbit(
         db: Session,
         user_id: int,
-        last_updates
+        last_updates,
+        get_only_hrv: bool = False
 ):
     # Getting fitbit user ID
     # fitbit_user_id = crud.get_fitbit_user_id(db, user_id)
@@ -143,6 +148,13 @@ def get_data_from_fitbit(
         'Authorization': f'Bearer {fitbit_token_str}'
     }
 
+    # Getting Fitbit heartrate variability data
+    hrv_start_date = format_date_to_str(last_updates.hrv)
+    hrv_response, get_more_hrv = get_fitbit_hrv(headers, hrv_start_date, db, user_id)
+    if get_only_hrv:
+        print('hrv second request working')
+        return hrv_response.json()['hrv']
+
     # Getting Fitbit activity data
     activity_start_date = format_date_to_str(last_updates.activity)
     activities_response = get_fitbit_activities(headers, activity_start_date)
@@ -151,11 +163,6 @@ def get_data_from_fitbit(
     heartrate_start_date = format_date_to_str(last_updates.heart_rate)
     hr_response = get_fitbit_heartrate(headers, heartrate_start_date)
 
-    # Getting Fitbit heartrate variability data
-    hrv_start_date = format_date_to_str(last_updates.hrv)
-    hrv_response = get_fitbit_hrv(headers, hrv_start_date, db, user_id)
-    hj = hrv_response.json()
-
     # Getting Fitbit sleep data
     sleep_start_date = format_date_to_str(last_updates.sleep)
     sleep_response = get_fitbit_sleep(headers, sleep_start_date)
@@ -163,7 +170,7 @@ def get_data_from_fitbit(
     # Since all the requests are to the same domain, we only check one of them
     # to see if there is an access problem
     if sleep_response.status_code == 200:
-        return combine_fitbit_responses(activities_response, hr_response, hrv_response, sleep_response)
+        return combine_fitbit_responses(activities_response, hr_response, hrv_response, sleep_response), get_more_hrv
     elif sleep_response.status_code == 401:
         raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
     else:
@@ -174,13 +181,19 @@ def update_fitbit_data(db, user_id):
     last_updates = crud.get_fitbit_last_updates(db, user_id)
 
     # getting updated data from Fitbit APIs
-    fitbit_data = get_data_from_fitbit(db, user_id, last_updates)
+    fitbit_data, get_more_hrv = get_data_from_fitbit(db, user_id, last_updates)
 
     # Storing the updated data in database
     crud.add_fitbit_activities(db, user_id, fitbit_data['activities'])
     crud.add_fitbit_heartrate_logs(db, user_id, fitbit_data['heartrate'])
     crud.add_fitbit_hrv_logs(db, user_id, fitbit_data['hrv'])
     crud.add_fitbit_sleep_logs(db, user_id, fitbit_data['sleep'])
+
+    # Making another request to get more hrv data (since hrv only gives data of max 30 days)
+    if get_more_hrv:
+        last_updates = crud.get_fitbit_last_updates(db, user_id)
+        hrv_data_2 = get_data_from_fitbit(db, user_id, last_updates, True)
+        crud.add_fitbit_hrv_logs(db, user_id, hrv_data_2)
 
 
 def read_sleep_data_and_insert(json_file_path: str, session: Session):

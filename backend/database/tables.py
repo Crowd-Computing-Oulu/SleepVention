@@ -248,10 +248,10 @@ class FitbitLastUpdates(Base):
 
     def __init__(self, user_id):
         self.user_id = user_id
-        self.activity = date.today() - timedelta(days=30)
-        self.heart_rate = date.today() - timedelta(days=30)
-        self.hrv = date.today() - timedelta(days=30)
-        self.sleep = date.today() - timedelta(days=30)
+        self.activity = date.today() - timedelta(days=60)
+        self.heart_rate = date.today() - timedelta(days=60)
+        self.hrv = date.today() - timedelta(days=60)
+        self.sleep = date.today() - timedelta(days=60)
             
 
 class UserDataFiles(Base):

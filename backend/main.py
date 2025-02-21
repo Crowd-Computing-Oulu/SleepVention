@@ -229,6 +229,7 @@ async def mydata(
 
     # Update data tables
     data_utils.update_fitbit_data(db, user.id)
+    print(user.id)
 
     response = {'activities': {}, 'heartrate': {}, 'sleep': {}, 'sleep_levels': {}, 'files': []}
 
