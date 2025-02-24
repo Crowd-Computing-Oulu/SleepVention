@@ -55,14 +55,14 @@ Then, Install the project requirements.
    pip install -r ./backend/requirements.txt
    ```
 
-### Run the Program
+### Run the Program Locally
 
 First enter the backend directory, then run the following command:
    ```sh
    python main.py
    ```
 
-Now go to the frontend directory and open one of the html files.
+Now go to this URL [http://127.0.0.1:8000/](http://127.0.0.1:8000/) to see the website locally.
 
 ## Contact
 
