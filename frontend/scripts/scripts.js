@@ -1,5 +1,5 @@
-const serverURL = "http://127.0.0.1:8000/";
-// const serverURL = "http://195.148.20.248:8000/";
+// const serverURL = "http://127.0.0.1:8000/";
+const serverURL = "http://195.148.20.248:8000/";
 const publicPages = ["about_us.html", "homepage.html", "study.html"];
 const MAX_STR_Title_LENGTH = 70;
 const MAX_STR_CARD_LENGTH = 190;
