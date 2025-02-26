@@ -36,7 +36,7 @@ templates = Jinja2Templates(directory="../frontend/html")
 
 
 # Serve the main HTML file
-@app.get("/", response_class=HTMLResponse)
+@app.api_route("/", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], response_class=HTMLResponse)
 async def get_root_html(request: Request):
     return templates.TemplateResponse("homepage.html", {"request": request})
 
