@@ -145,8 +145,8 @@ async def register(
 
 @app.post("/login/")
 async def login(
-        username: str = Body(..., embed=True),
-        password: str = Body(..., embed=True),
+        username: str = Body(..., embed=False),
+        password: str = Body(..., embed=False),
         db: Session = Depends(get_db)
 ):
     # Authenticate user
