@@ -145,17 +145,27 @@ async def register(
 
 @app.post("/login/")
 async def login(
-        username: str = Body(..., embed=False),
-        password: str = Body(..., embed=False),
+        request: Request,  # Accept raw request
         db: Session = Depends(get_db)
 ):
-    # Authenticate user
-    user = crud.get_user_by_username(db, username)
-    if user and password_utils.check_password(password, crud.get_user_password(db, user.id)):
-        token = crud.add_token(db, user.id)
-        return responses.LoginResponseSchema.from_orm(token)
+    body = await request.body()
+    print("Received raw body:", body)  # Debugging: Print what FastAPI receives
 
-    raise HTTPException(status_code=400, detail="Invalid credentials")
+    try:
+        data = await request.json()  # Try parsing JSON
+        print("Parsed JSON:", data)  # Debugging: Print parsed JSON
+
+        # Validate and authenticate user
+        user = crud.get_user_by_username(db, data["username"])
+        if user and password_utils.check_password(data["password"], crud.get_user_password(db, user.id)):
+            token = crud.add_token(db, user.id)
+            return responses.LoginResponseSchema.from_orm(token)
+
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+
+    except Exception as e:
+        print("Error parsing request:", e)
+        raise HTTPException(status_code=400, detail="Invalid request format")
 
 
 @app.get("/get_profile/")
