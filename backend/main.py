@@ -143,7 +143,8 @@ async def login(
         db: Session = Depends(get_db)
 ):
     try:
-        data = await request.json()
+        body = await request.json()
+        data = schemas.LoginSchema.parse_obj(body)
         user = crud.get_user_by_username(db, data["username"])
         if user and password_utils.check_password(data["password"], crud.get_user_password(db, user.id)):
             token = crud.add_token(db, user.id)
