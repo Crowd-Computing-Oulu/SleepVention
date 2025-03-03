@@ -117,7 +117,8 @@ async def register(
         db: Session = Depends(get_db)
 ) -> responses.LoginResponseSchema:
     try:
-        data = await request.json()
+        body = await request.json()
+        data = schemas.RegisterSchema.parse_obj(body)
         new_user = schemas.UserSchema(**data.dict())
         if crud.get_user_by_username(db, new_user.username):
             raise HTTPException(status_code=400, detail="Username already registered")
@@ -176,7 +177,8 @@ async def edit_profile(
         db: Session = Depends(get_db)
 ):
     try:
-        data = await request.json()
+        body = await request.json()
+        data = schemas.UserInformationSchema.parse_obj(body)
         current_user = authentication_utils.get_current_user(request, db)
         user_information = crud.edit_user_information(db, current_user.id, data)
         response = responses.UserProfileResponseSchema.from_orm(current_user)
@@ -317,7 +319,8 @@ async def upload_file(
         db: Session = Depends(get_db)
 ):
     try:
-        data = await request.json()
+        body = await request.json()
+        data = schemas.DataFileUploadSchema.parse_obj(body)
         # Get current user
         user = authentication_utils.get_current_user(request, db)
         print(data.file_name, data.file_content)
@@ -347,7 +350,8 @@ async def edit_data_privacy(
         db: Session = Depends(get_db)
 ) -> responses.DataPrivacyResponseSchema:
     try:
-        data = await request.json()
+        body = await request.json()
+        data = schemas.EditingDataPrivacySchema.parse_obj(body)
         # Get current user
         user = authentication_utils.get_current_user(request, db)
 
@@ -365,7 +369,8 @@ async def create_study(
         db: Session = Depends(get_db)
 ):
     try:
-        data = await request.json()
+        body = await request.json()
+        data = schemas.StudySchema.parse_obj(body)
         user = authentication_utils.get_current_user(request, db)
         crud.add_study(db, user.id, data)
 
@@ -442,7 +447,8 @@ async def invite_to_study(
         db: Session = Depends(get_db)
 ):
     try:
-        data = await request.json()
+        body = await request.json()
+        data = schemas.StudyInvitationSchema.parse_obj(body)
         user = authentication_utils.get_current_user(request, db)
 
         invited_user = crud.get_user_by_invitation(db, data)
