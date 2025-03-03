@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
+from fastapi import Body
 
 from database.init import get_db, Base, engine
 from database import schemas, crud
@@ -133,7 +134,7 @@ async def register(
 
 @app.post("/login/")
 async def login(
-        data: schemas.LoginSchema,
+        data: schemas.LoginSchema = Body(...),
         db: Session = Depends(get_db)
 ) -> responses.LoginResponseSchema:
     user = crud.get_user_by_username(db, data.username)

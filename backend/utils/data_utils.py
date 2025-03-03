@@ -1,5 +1,4 @@
 from datetime import date, timedelta, datetime
-
 import requests
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -8,7 +7,6 @@ import json
 import base64
 import hashlib
 import os
-
 from utils import password_utils
 
 FITBIT_CLIENT_ID = '23Q77F'
