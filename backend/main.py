@@ -297,7 +297,7 @@ async def fitbit_authenticate(
     code_verifier = crud.get_fitbit_code_verifier(db, user.id)
     fitbit_token = data_utils.get_fitbit_token(fitbit_code, code_verifier)
     crud.add_fitbit_token(db, user.id, fitbit_token.access_token, fitbit_token.refresh_token)
-    return Response(status_code=200)
+    return "<b>You can now close this tab and go back to sleepvention.org<b>"
 
 
 @app.get("/fitbit_authenticating_url")
