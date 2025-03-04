@@ -4,11 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
-from fastapi import Body
 
 from database.init import get_db, Base, engine
 from database import schemas, crud
 from sqlalchemy.orm import Session
+from error_handling.error_handler import exception_handler
 
 from utils import responses, password_utils, authentication_utils, data_utils, study_utils, file_utils
 
@@ -112,52 +112,47 @@ def on_startup():
 
 
 @app.post("/register/")
+@exception_handler
 async def register(
         request: Request,
         db: Session = Depends(get_db)
 ) -> responses.LoginResponseSchema:
+    body = await request.json()
+    data = schemas.RegisterSchema.parse_obj(body)
+    new_user = schemas.UserSchema(**data.dict())
+    if crud.get_user_by_username(db, new_user.username):
+        raise HTTPException(status_code=400, detail="Username already registered")
+    if crud.get_user_by_email(db, new_user.email):
+        raise HTTPException(status_code=400, detail="Email already registered")
     try:
-        body = await request.json()
-        data = schemas.RegisterSchema.parse_obj(body)
-        new_user = schemas.UserSchema(**data.dict())
-        if crud.get_user_by_username(db, new_user.username):
-            raise HTTPException(status_code=400, detail="Username already registered")
-        if crud.get_user_by_email(db, new_user.email):
-            raise HTTPException(status_code=400, detail="Email already registered")
-        try:
-            db_user = crud.add_user(db, new_user)
-            encrypted_password = password_utils.encrypt_password(data.password)
-            crud.set_user_password(db, db_user.id, encrypted_password)
-            crud.add_user_information(db, db_user.id)
-            token = crud.add_token(db, db_user.id)
-            return responses.LoginResponseSchema.from_orm(token)
-        except ValidationError:
-            raise HTTPException(status_code=400, detail="Invalid data")
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=e)
+        db_user = crud.add_user(db, new_user)
+        encrypted_password = password_utils.encrypt_password(data.password)
+        crud.set_user_password(db, db_user.id, encrypted_password)
+        crud.add_user_information(db, db_user.id)
+        token = crud.add_token(db, db_user.id)
+        return responses.LoginResponseSchema.from_orm(token)
+    except ValidationError:
+        raise HTTPException(status_code=400, detail="Invalid data")
 
 
 @app.post("/login/")
+@exception_handler
 async def login(
         request: Request,
         db: Session = Depends(get_db)
 ):
-    try:
-        body = await request.json()
-        data = schemas.LoginSchema.parse_obj(body)
-        user = crud.get_user_by_username(db, data.username)
-        if user and password_utils.check_password(data.password, crud.get_user_password(db, user.id)):
-            token = crud.add_token(db, user.id)
-            return responses.LoginResponseSchema.from_orm(token)
+    body = await request.json()
+    data = schemas.LoginSchema.parse_obj(body)
+    user = crud.get_user_by_username(db, data.username)
+    if user and password_utils.check_password(data.password, crud.get_user_password(db, user.id)):
+        token = crud.add_token(db, user.id)
+        return responses.LoginResponseSchema.from_orm(token)
 
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=e)
+    raise HTTPException(status_code=400, detail="Invalid credentials")
 
 
 @app.get("/get_profile/")
+@exception_handler
 async def get_profile(
         request: Request,
         db: Session = Depends(get_db)
@@ -172,24 +167,22 @@ async def get_profile(
 
 
 @app.put("/profile/")
+@exception_handler
 async def edit_profile(
         request: Request,
         db: Session = Depends(get_db)
 ):
-    try:
-        body = await request.json()
-        data = schemas.UserInformationSchema.parse_obj(body)
-        current_user = authentication_utils.get_current_user(request, db)
-        user_information = crud.edit_user_information(db, current_user.id, data)
-        response = responses.UserProfileResponseSchema.from_orm(current_user)
-        response.set_user_information(user_information)
-        return response
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=e)
+    body = await request.json()
+    data = schemas.UserInformationSchema.parse_obj(body)
+    current_user = authentication_utils.get_current_user(request, db)
+    user_information = crud.edit_user_information(db, current_user.id, data)
+    response = responses.UserProfileResponseSchema.from_orm(current_user)
+    response.set_user_information(user_information)
+    return response
 
 
 @app.get("/get_home/")
+@exception_handler
 async def home(
         request: Request,
         db: Session = Depends(get_db)
@@ -202,31 +195,29 @@ async def home(
 
 
 @app.get("/get_explore/")
+@exception_handler
 async def explore(
         request: Request,
         db: Session = Depends(get_db)
 ):
-    try:
-        user = authentication_utils.get_current_user(request, db)
-        sleep_logs = []
-        average_sleep = crud.get_average_sleep_data(db)
+    user = authentication_utils.get_current_user(request, db)
+    sleep_logs = []
+    average_sleep = crud.get_average_sleep_data(db)
 
-        # Getting sleep data from database
-        db_sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
-        for sleep_log in db_sleep_logs:
-            sleep_logs.append(responses.FitbitSleepResponseSchema.from_orm(sleep_log))
+    # Getting sleep data from database
+    db_sleep_logs = crud.get_fitbit_sleep_logs(db, user.id)
+    for sleep_log in db_sleep_logs:
+        sleep_logs.append(responses.FitbitSleepResponseSchema.from_orm(sleep_log))
 
-        response = {
-            'logs': sleep_logs,
-            'average': average_sleep
-        }
-        return response
-
-    except:
-        return "Not authorized"
+    response = {
+        'logs': sleep_logs,
+        'average': average_sleep
+    }
+    return response
 
 
 @app.get("/get_about_us/")
+@exception_handler
 async def about_us(
         request: Request,
         db: Session = Depends(get_db)
@@ -239,6 +230,7 @@ async def about_us(
 
 
 @app.get("/get_mydata/")
+@exception_handler
 async def mydata(
         request: Request,
         db: Session = Depends(get_db)
@@ -287,6 +279,7 @@ async def mydata(
 
 
 @app.get("/fitbit-authenticate")
+@exception_handler
 async def fitbit_authenticate(
         request: Request,
         db: Session = Depends(get_db)
@@ -301,6 +294,7 @@ async def fitbit_authenticate(
 
 
 @app.get("/fitbit_authenticating_url")
+@exception_handler
 async def get_fitbit_authenticate(
         request: Request,
         db: Session = Depends(get_db)
@@ -314,24 +308,21 @@ async def get_fitbit_authenticate(
 
 
 @app.post("/data_file/")
+@exception_handler
 async def upload_file(
         request: Request,
         db: Session = Depends(get_db)
 ):
-    try:
-        body = await request.json()
-        data = schemas.DataFileUploadSchema.parse_obj(body)
-        # Get current user
-        user = authentication_utils.get_current_user(request, db)
-        print(data.file_name, data.file_content)
-        crud.add_data_file(db, user.id, data)
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=e)
-
+    body = await request.json()
+    data = schemas.DataFileUploadSchema.parse_obj(body)
+    # Get current user
+    user = authentication_utils.get_current_user(request, db)
+    print(data.file_name, data.file_content)
+    crud.add_data_file(db, user.id, data)
 
 
 @app.get("/get_data_privacy/")
+@exception_handler
 async def data_privacy(
         request: Request,
         db: Session = Depends(get_db)
@@ -345,40 +336,35 @@ async def data_privacy(
 
 
 @app.put("/data_privacy/")
+@exception_handler
 async def edit_data_privacy(
         request: Request,
         db: Session = Depends(get_db)
 ) -> responses.DataPrivacyResponseSchema:
-    try:
-        body = await request.json()
-        data = schemas.EditingDataPrivacySchema.parse_obj(body)
-        # Get current user
-        user = authentication_utils.get_current_user(request, db)
+    body = await request.json()
+    data = schemas.EditingDataPrivacySchema.parse_obj(body)
+    # Get current user
+    user = authentication_utils.get_current_user(request, db)
 
-        new_data_privacy = crud.edit_data_privacy_settings(db, user.id, data)
-        response = responses.DataPrivacyResponseSchema.from_orm(new_data_privacy)
-        return response
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=e)
+    new_data_privacy = crud.edit_data_privacy_settings(db, user.id, data)
+    response = responses.DataPrivacyResponseSchema.from_orm(new_data_privacy)
+    return response
 
 
 @app.post("/study/")
+@exception_handler
 async def create_study(
         request: Request,
         db: Session = Depends(get_db)
 ):
-    try:
-        body = await request.json()
-        data = schemas.StudySchema.parse_obj(body)
-        user = authentication_utils.get_current_user(request, db)
-        crud.add_study(db, user.id, data)
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=e)
+    body = await request.json()
+    data = schemas.StudySchema.parse_obj(body)
+    user = authentication_utils.get_current_user(request, db)
+    crud.add_study(db, user.id, data)
 
 
 @app.get("/get_own_studies/")
+@exception_handler
 async def get_own_studies(
         request: Request,
         db: Session = Depends(get_db)
@@ -394,6 +380,7 @@ async def get_own_studies(
 
 
 @app.get("/get_participated_studies/")
+@exception_handler
 async def get_participated_studies(
         request: Request,
         db: Session = Depends(get_db)
@@ -409,6 +396,7 @@ async def get_participated_studies(
 
 
 @app.get("/get_study/{study_id}/")
+@exception_handler
 async def get_study(
         study_id: int,
         request: Request,
@@ -430,6 +418,7 @@ async def get_study(
 
 
 @app.delete("/study/{study_id}/")
+@exception_handler
 async def delete_study(
         request: Request,
         study_id: int,
@@ -441,37 +430,35 @@ async def delete_study(
 
 
 @app.post("/study/{study_id}/invite/")
+@exception_handler
 async def invite_to_study(
         request: Request,
         study_id: int,
         db: Session = Depends(get_db)
 ):
-    try:
-        body = await request.json()
-        data = schemas.StudyInvitationSchema.parse_obj(body)
-        user = authentication_utils.get_current_user(request, db)
+    body = await request.json()
+    data = schemas.StudyInvitationSchema.parse_obj(body)
+    user = authentication_utils.get_current_user(request, db)
 
-        invited_user = crud.get_user_by_invitation(db, data)
-        # Checking if a user with that information exists in the database
-        if not invited_user:
-            raise HTTPException(status_code=404, detail="The user with the provided username/email was not found")
+    invited_user = crud.get_user_by_invitation(db, data)
+    # Checking if a user with that information exists in the database
+    if not invited_user:
+        raise HTTPException(status_code=404, detail="The user with the provided username/email was not found")
 
-        # Checking if the user is already participating in the study
-        if crud.check_participant_in_study(db, invited_user.id, study_id):
-            raise HTTPException(status_code=409, detail="The invited user is already in this study")
+    # Checking if the user is already participating in the study
+    if crud.check_participant_in_study(db, invited_user.id, study_id):
+        raise HTTPException(status_code=409, detail="The invited user is already in this study")
 
-        invitation = crud.add_study_invitation(db, invited_user.id, study_id)
-        # Checking if the user is already invited to the study
-        if not invitation:
-            raise HTTPException(status_code=409, detail="An invitation has already been sent to this user")
+    invitation = crud.add_study_invitation(db, invited_user.id, study_id)
+    # Checking if the user is already invited to the study
+    if not invitation:
+        raise HTTPException(status_code=409, detail="An invitation has already been sent to this user")
 
-        return {"detail": "Invitation sent to the user"}
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=e)
+    return {"detail": "Invitation sent to the user"}
 
 
 @app.get("/get_invitations/")
+@exception_handler
 async def get_invitations(
         request: Request,
         db: Session = Depends(get_db)
@@ -489,6 +476,7 @@ async def get_invitations(
 
 
 @app.delete("/invitation/{study_id}/")
+@exception_handler
 async def delete_invitation(
         request: Request,
         study_id: int,
@@ -500,6 +488,7 @@ async def delete_invitation(
 
 
 @app.put("/invitation/{study_id}/")
+@exception_handler
 async def accept_invitation(
         request: Request,
         study_id: int,
@@ -513,6 +502,7 @@ async def accept_invitation(
 
 
 @app.get("/get_study/{study_id}/data/csv/")
+@exception_handler
 async def get_study_data_csv(
         request: Request,
         study_id: int,
@@ -562,6 +552,7 @@ async def get_study_data_csv(
 
 
 @app.get("/get_studies/public/")
+@exception_handler
 async def get_public_studies(
         request: Request,
         db: Session = Depends(get_db)
