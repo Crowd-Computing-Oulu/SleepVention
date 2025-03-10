@@ -402,17 +402,24 @@ async def get_study(
         request: Request,
         db: Session = Depends(get_db)
 ) -> responses.StudyResponseSchema:
-    user = authentication_utils.get_current_user(request, db)
+    try:
+        user = authentication_utils.get_current_user(request, db)
+    except:
+        user = None
 
     retrieved_study = crud.get_study_by_id(db, study_id)
     if not retrieved_study:
         raise HTTPException(status_code=404, detail="Study not found")
 
-    response = responses.StudyResponseSchema.from_orm(retrieved_study)
-    response.participants_number = len(retrieved_study.participants)
+    if retrieved_study.type == 'private' and not user:
+        raise HTTPException(status_code=403, detail="You don't have access to this study")
+
     user_role = study_utils.get_user_study_relation(db, retrieved_study, user)
     if retrieved_study.type == 'private' and user_role == 'visitor':
         raise HTTPException(status_code=403, detail="You don't have access to this study")
+
+    response = responses.StudyResponseSchema.from_orm(retrieved_study)
+    response.participants_number = len(retrieved_study.participants)
     response.user_relation = user_role
     return response
 

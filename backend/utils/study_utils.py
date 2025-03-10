@@ -2,6 +2,9 @@ from database import crud
 
 
 def get_user_study_relation(db, study, user):
+    if not user:
+        return 'visitor'
+
     # Check if the user is the creator of the study
     if user.id == study.user_id:
         return 'creator'
