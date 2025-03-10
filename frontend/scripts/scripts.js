@@ -493,7 +493,9 @@ function getMyData(called_from) {
             fillMyDataPage(data);
             document.getElementById('connect-button-container').innerHTML = `Connected to Fitbit device`;
             document.getElementById('refresh-button').disabled = false;
-            alert('Your data got refreshed.');
+            if (called_from === "refresh button") {
+                alert('Your data got refreshed.');
+            }
         })
         .catch(error => {
             if (error.status === 403) {
