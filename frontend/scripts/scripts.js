@@ -479,7 +479,7 @@ function redirectToFitbitAuth() {
 }
 
 
-function getMyData() {
+function getMyData(called_from) {
     var request = {
         method: 'GET',
         headers: {
@@ -491,10 +491,19 @@ function getMyData() {
     fetchRequest(serverURL + 'get_mydata/', request)
         .then(data => {
             fillMyDataPage(data);
+            document.getElementById('connect-button-container').innerHTML = `Connected to Fitbit device`;
+            document.getElementById('refresh-button').disabled = false;
         })
         .catch(error => {
             if (error.status === 403) {
-                redirectToFitbitAuth();
+                if (called_from === "connect button") {
+                    redirectToFitbitAuth();
+                } else if (called_from === "page load") {
+                    document.getElementById('refresh-button').disabled = true;
+                    alert("Press on 'Connect to Fitbit' button to see your data");
+                } else {
+                    alert("Session expired, please reload the page"); 
+                }
             }
             else {
                 handleResponseError(error); 

@@ -52,8 +52,14 @@
 	<main class="d-flex flex-nowrap">
 		<div class="flex-shrink-0 p-3 bg-white" style="width: 280px;">
 			<ul class="list-unstyled ps-0">
+				<li id="connect-button-container" class="mb-1">
+					<button class="btn btn-outline-info d-inline-flex align-items-center rounded" onclick="getMyData('connect button');">
+						<img src="https://www.vectorlogo.zone/logos/fitbit/fitbit-icon.svg" alt="Fitbit Logo" style="width: 20px; height: 20px; margin-right: 10px;">
+						Connect to Fitbit
+					</button>
+				</li>
 				<li class="mb-1">
-					<button class="btn btn-outline-info d-inline-flex align-items-center rounded" onclick="reloadPage();">
+					<button id="refresh-button" class="btn btn-outline-info d-inline-flex align-items-center rounded" onclick="getMyData('refresh button');">
 						<i class="fa fa-refresh me-2"></i>
 						Refresh
 					</button>
@@ -122,7 +128,7 @@
 	<script>
 		window.addEventListener("load", function() {
             getMessages();
-            getMyData();
+            getMyData('page load');
         });
 	</script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
