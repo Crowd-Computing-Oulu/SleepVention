@@ -899,6 +899,8 @@ function generateStudyHtml(study) {
 
     // If the user is the creator of the study, add the invite button and edit button to the page
     if (study.user_relation === 'creator') {
+        document.getElementById("mystudies-navbar").className += " active";
+
         document.getElementById("top-navbar").innerHTML = `
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
@@ -950,6 +952,8 @@ function generateStudyHtml(study) {
 
     // If the user is a participant in the study, add the leave button to the page
     if (study.user_relation === 'participant') {
+        document.getElementById("mystudies-navbar").className += " active";
+
         document.getElementById("top-navbar").innerHTML = `
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
                 <ol class="breadcrumb">
