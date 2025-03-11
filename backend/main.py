@@ -72,6 +72,11 @@ async def get_invite_user_html(request: Request):
     return templates.TemplateResponse("invite_user.html", {"request": request})
 
 
+@app.get("/edit_study", response_class=HTMLResponse)
+async def get_invite_user_html(request: Request):
+    return templates.TemplateResponse("edit_study.html", {"request": request})
+
+
 @app.get("/login/", response_class=HTMLResponse)
 async def get_login_html(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
@@ -97,7 +102,7 @@ async def get_register_html(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
 
-@app.get("/study/", response_class=HTMLResponse)
+@app.get("/study", response_class=HTMLResponse)
 async def get_study_html(request: Request):
     return templates.TemplateResponse("study.html", {"request": request})
 
@@ -364,6 +369,19 @@ async def create_study(
     data = schemas.StudySchema.parse_obj(body)
     user = authentication_utils.get_current_user(request, db)
     crud.add_study(db, user.id, data)
+
+
+@app.put("/study/{study_id}/")
+@exception_handler
+async def edit_study(
+        study_id: int,
+        request: Request,
+        db: Session = Depends(get_db)
+):
+    body = await request.json()
+    data = schemas.StudySchema.parse_obj(body)
+    user = authentication_utils.get_current_user(request, db)
+    crud.edit_study(db, user.id, study_id, data)
 
 
 @app.get("/get_own_studies/")

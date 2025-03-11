@@ -363,6 +363,16 @@ def add_study(db: Session, user_id: int, data: schemas.StudySchema):
     db.refresh(new_db_row)
 
 
+def edit_study(db: Session, user_id: int, study_id: int, data: schemas.StudySchema):
+    study = db.query(tables.Studies).filter(tables.Studies.id == study_id).first()
+    for key, value in data.dict().items():
+        setattr(study, key, value)
+    db.add(study)
+    db.commit()
+    db.refresh(study)
+    return study
+
+
 def get_own_studies(db: Session, user_id: int):
     return db.query(tables.Studies).filter(tables.Studies.user_id == user_id).all()
 
