@@ -200,7 +200,10 @@ async def explore(
         request: Request,
         db: Session = Depends(get_db)
 ):
-    user = authentication_utils.get_current_user(request, db)
+    try:
+        user = authentication_utils.get_current_user(request, db)
+    except:
+        return "Not authorized"
     sleep_logs = []
     average_sleep = crud.get_average_sleep_data(db)
 
@@ -578,3 +581,15 @@ async def get_public_studies(
 
     return response
 
+
+@app.get("/check_authorization/")
+@exception_handler
+async def get_public_studies(
+        request: Request,
+        db: Session = Depends(get_db)
+):
+    try:
+        current_user = authentication_utils.get_current_user(request, db)
+        return "Authorized"
+    except:
+        return "Not authorized"

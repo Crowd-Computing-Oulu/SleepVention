@@ -266,6 +266,26 @@ function getHomepage() {
         });
 }
 
+function checkAuthorization() {
+    var request = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+
+    fetchRequest(serverURL + 'check_authorization/', request)
+        .then(data => {
+            if (data === "Not authorized") {
+                reconfigureNavbar();
+            }
+        })
+        .catch(error => {
+            alertError(error);
+        });
+}
+
 function getExplore() {
 
     var request = {
