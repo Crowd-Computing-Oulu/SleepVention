@@ -238,7 +238,6 @@ function createChart(type, labels, deepData, lightData, remData, wakeData, aslee
                             yMax: averageData["sleep_avg"],
                             borderColor: 'rgba(54, 162, 235, 0.6)',
                             borderWidth: 1,
-                            borderDash: [40, 40],
                             label: {
                                 display: true,
                                 content: 'Sleep Avg',  // Label text with value
@@ -262,7 +261,6 @@ function createChart(type, labels, deepData, lightData, remData, wakeData, aslee
                             yMax: averageData["wake_avg"],
                             borderColor: 'rgba(255, 99, 132, 0.6)',
                             borderWidth: 1,
-                            borderDash: [40, 40],
                             label: {
                                 display: true,
                                 content: 'Awake Avg',  // Label text with value
@@ -286,7 +284,6 @@ function createChart(type, labels, deepData, lightData, remData, wakeData, aslee
                             yMax: averageData["rem_avg"],
                             borderColor: 'rgba(255, 206, 86, 0.6)',
                             borderWidth: 1,
-                            borderDash: [40, 40],
                             label: {
                                 display: true,
                                 content: 'Rem Avg',  // Label text with value
@@ -310,7 +307,6 @@ function createChart(type, labels, deepData, lightData, remData, wakeData, aslee
                             yMax: averageData["light_avg"],
                             borderColor: 'rgba(153, 102, 255, 0.6)',
                             borderWidth: 1,
-                            borderDash: [40, 40],
                             label: {
                                 display: true,
                                 content: 'Light Avg',  // Label text with value
@@ -334,7 +330,6 @@ function createChart(type, labels, deepData, lightData, remData, wakeData, aslee
                             yMax: averageData["deep_avg"],
                             borderColor: 'rgba(75, 192, 192, 0.6)',
                             borderWidth: 1,
-                            borderDash: [40, 40],
                             label: {
                                 display: true,
                                 content: 'Deep Avg',  // Label text with value
