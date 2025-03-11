@@ -449,6 +449,20 @@ def accept_invitation(db: Session, user_id: int, study_id: int):
     return True
 
 
+def join_study(db: Session, user_id: int, study_id: int):
+    # Check if the participant is already in the study
+    existing_participant = db.query(tables.study_participants).filter_by(study_id=study_id, user_id=user_id).first()
+
+    if existing_participant:
+        return False
+
+    # Add the participant to the study
+    new_participant = tables.study_participants.insert().values(study_id=study_id, user_id=user_id)
+    db.execute(new_participant)
+    db.commit()
+    return True
+
+
 def get_public_studies(db: Session):
     return db.query(tables.Studies).filter_by(type='Public').all()
 

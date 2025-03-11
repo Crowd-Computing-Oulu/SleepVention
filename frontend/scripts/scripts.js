@@ -919,7 +919,6 @@ function editStudy(studyId) {
 
 function generateStudyHtml(study) {
 
-    console.log("genearestudyhtml started.");
     const formattedDesc = study.description.replace(/\n/g, '<br>')
     document.getElementById("study-info").innerHTML = `
         <h1>${study.name}</h1>
@@ -939,14 +938,10 @@ function generateStudyHtml(study) {
     `;
     title = trimStringToMaxLength(study.name, 30);
 
-    console.log('study information generated.');
-    console.log(study.user_relation);
     // If the user is the creator of the study, add the invite button and edit button to the page
     if (study.user_relation === 'creator') {
-        console.log('got here 1');
         
         document.getElementById("mystudies-navbar").className += " active";
-        console.log('got here 2');
 
         document.getElementById("top-navbar").innerHTML = `
             <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -956,25 +951,21 @@ function generateStudyHtml(study) {
                 </ol>
             </nav>
         `;
-        console.log('got here 3');
 
         document.getElementById("study-side").innerHTML += `
             <h5>Get participants data:</h5>
             <button class="btn btn-primary mt-3" onclick="getParticipantsData(${study.id});">Download all</button><br><br><br><br>
         `;
-        console.log('got here 4');
 
         document.getElementById("study-side").innerHTML += `
             <h5>Invite new users:</h5>
             <button class="btn btn-primary mt-3" onclick="window.location.href = '/invite_user?studyId=${study.id}';">Invite</button>
         `;
-        console.log('got here 5');
 
         document.getElementById("study-info").innerHTML += `
             <br>
             <button id="edit-study" class="btn btn-primary mb-5" onclick="window.location.href = '/edit_study?studyId=${study.id}';">Edit Information</button>
         `;
-        console.log('got here 6');
     }
 
     // If the user is invited to the study, add the accept and reject button to the page
@@ -1017,6 +1008,19 @@ function generateStudyHtml(study) {
         document.getElementById("study-info").innerHTML += `
             <br>
             <button class="btn btn-danger mb-5">Leave</button>
+        `;
+    }
+
+    
+    if (study.user_relation === 'visitor') {
+        document.getElementById("study-info").innerHTML += `
+            <br>
+            <input class="form-check-input" type="checkbox" value="" id="consent-checkbox" onclick="toggleAcceptButton();">
+            <label class="form-check-label" for="consent-checkbox">
+                I have read the consent form and agree to its conditons.
+            </label>
+            <br><br>
+            <button class="btn btn-success mb-5 disabled" id="accept-button" onclick="joinStudy(${study.id});">Join Study</button>
         `;
     }
 }
@@ -1239,6 +1243,30 @@ function acceptInvitation(studyId) {
         })
         .catch((response) => {
             alertError(response);
+        });
+}
+
+function joinStudy(studyId) {
+    var request = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem("token")
+        }
+    };
+    
+    fetchRequest(serverURL + 'join_study/' + studyId + '/', request)
+        .then(data => {
+            alert('You were joined to this study successfully');
+            window.location.href = '/study?studyId=' + studyId;
+        })
+        .catch((response) => {
+            if (response.status === 401){
+                alert("Please log into your account first.");
+                window.location.href = '/login/'
+            } else {
+                alertError(response);
+            }
         });
 }
 

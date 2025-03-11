@@ -529,6 +529,20 @@ async def accept_invitation(
     return {"detail": "Invitation was accepted successfully"}
 
 
+@app.post("/join_study/{study_id}/")
+@exception_handler
+async def join_study(
+        request: Request,
+        study_id: int,
+        db: Session = Depends(get_db)
+):
+    user = authentication_utils.get_current_user(request, db)
+    db_result = crud.join_study(db, user.id, study_id)
+    if not db_result:
+        raise HTTPException(status_code=409, detail="Invitation is already accepted")
+    return {"detail": "Invitation was accepted successfully"}
+
+
 @app.get("/get_study/{study_id}/data/csv/")
 @exception_handler
 async def get_study_data_csv(
