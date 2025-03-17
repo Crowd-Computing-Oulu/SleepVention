@@ -180,3 +180,8 @@ main {
 .list-group-item:hover {
   background-color: white;
 }
+
+#study-info {
+  overflow-wrap: break-word;
+  overflow-x: auto; /* Horizontal scrollbar only when needed */
+}
