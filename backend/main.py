@@ -580,7 +580,7 @@ async def get_study_data_csv(
             }
         )
 
-        file_name = 'user' + str(i+1) + '.zip'
+        file_name = str(participant.id) + '.zip'
         participants_data[file_name] = participant_zip_file
 
     response_zip_file = file_utils.create_zip_from_csvs(participants_data)
