@@ -583,7 +583,9 @@ async def get_study_data_csv(
 
         if query_results:
             participant_zip_file = file_utils.create_zip_from_csvs(query_results)
-            file_name = str(participant.id) + '.zip'
+            prolific_id = crud.get_prolific_id(db, participant.id)
+            file_name = prolific_id if prolific_id else str(participant.id)
+            file_name += '.zip'
             participants_data[file_name] = participant_zip_file
 
     response_zip_file = file_utils.create_zip_from_csvs(participants_data)
