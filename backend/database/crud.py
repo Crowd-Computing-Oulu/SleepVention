@@ -487,3 +487,7 @@ def get_average_sleep_data(session: Session):
     }
 
     return result
+
+
+def get_prolific_id(db: Session, user_id: int):
+    return db.query(tables.UserInformation).filter_by(user_id=user_id).first().prolific_id

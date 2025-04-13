@@ -559,29 +559,34 @@ async def get_study_data_csv(
     study = crud.get_study_by_id(db, study_id)
     participants_data = {}
     for i, participant in enumerate(study.participants):
+        query_results = {}
+
         activities = crud.get_fitbit_activities(db, participant.id)
-        activities_csv = file_utils.query_to_csv(activities)
+        if activities:
+            activities_csv = file_utils.query_to_csv(activities)
+            query_results['activities.csv'] = activities_csv
 
         heartrate_logs = crud.get_fitbit_heartrate_logs(db, participant.id)
-        hr_csv = file_utils.query_to_csv(heartrate_logs)
+        if heartrate_logs:
+            hr_csv = file_utils.query_to_csv(heartrate_logs)
+            query_results['heartrate.csv'] = hr_csv
 
         sleep_logs = crud.get_fitbit_sleep_logs(db, participant.id)
-        sleep_logs_csv = file_utils.query_to_csv(sleep_logs)
+        if sleep_logs:
+            sleep_logs_csv = file_utils.query_to_csv(sleep_logs)
+            query_results['sleep.csv'] = sleep_logs_csv
 
         sleep_levels = crud.get_sleep_levels_by_user_id(db, participant.id)
-        sleep_levels_csv = file_utils.query_to_csv(sleep_levels)
+        if sleep_levels:
+            sleep_levels_csv = file_utils.query_to_csv(sleep_levels)
+            query_results['sleep_levels.csv'] = sleep_levels_csv
 
-        participant_zip_file = file_utils.create_zip_from_csvs(
-            {
-                'activities.csv': activities_csv,
-                'heartrate.csv': hr_csv,
-                'sleep.csv': sleep_logs_csv,
-                'sleep_levels.csv': sleep_levels_csv
-            }
-        )
-
-        file_name = str(participant.id) + '.zip'
-        participants_data[file_name] = participant_zip_file
+        if query_results:
+            participant_zip_file = file_utils.create_zip_from_csvs(query_results)
+            prolific_id = crud.get_prolific_id(db, participant.id)
+            file_name = prolific_id if prolific_id else str(participant.id)
+            file_name += '.zip'
+            participants_data[file_name] = participant_zip_file
 
     response_zip_file = file_utils.create_zip_from_csvs(participants_data)
 
