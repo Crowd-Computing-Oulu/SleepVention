@@ -198,7 +198,7 @@ function getProfileEditForm() {
 
     const profileForm = Object.fromEntries(
         Object.entries({
-            prolific_id: document.getElementById("prolific_id").value,
+            // prolific_id: document.getElementById("prolific_id").value,
             nationality: document.getElementById("nationality").value,
             birth_date: document.getElementById("birthdate").value,
             gender: document.getElementById("gender").value,
