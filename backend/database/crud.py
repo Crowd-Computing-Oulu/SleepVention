@@ -449,7 +449,7 @@ def accept_invitation(db: Session, user_id: int, study_id: int):
     return True
 
 
-def join_study(db: Session, user_id: int, study_id: int):
+def join_study(db: Session, user_id: int, study_id: int, participant_identifier: str):
     # Check if the participant is already in the study
     existing_participant = db.query(tables.study_participants).filter_by(study_id=study_id, user_id=user_id).first()
 
@@ -457,7 +457,7 @@ def join_study(db: Session, user_id: int, study_id: int):
         return False
 
     # Add the participant to the study
-    new_participant = tables.study_participants.insert().values(study_id=study_id, user_id=user_id)
+    new_participant = tables.study_participants.insert().values(study_id=study_id, user_id=user_id, participant_identifier=participant_identifier)
     db.execute(new_participant)
     db.commit()
     return True
@@ -489,5 +489,5 @@ def get_average_sleep_data(session: Session):
     return result
 
 
-def get_prolific_id(db: Session, user_id: int):
-    return db.query(tables.UserInformation).filter_by(user_id=user_id).first().prolific_id
+def get_participant_identifier(db: Session, user_id: int, study_id: int):
+    return db.query(tables.study_participants).filter_by(user_id=user_id, study_id=study_id).first().participant_identifier

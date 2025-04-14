@@ -867,6 +867,7 @@ function getCreateStudyForm() {
             description: document.getElementById("description").value,
             type: document.getElementById("type").value,
             consent_form_link: document.getElementById("consent-link").value,
+            participant_id_required: document.getElementById('participant-identifier-required').checked
         })
     );
 
@@ -1020,7 +1021,7 @@ function generateStudyHtml(study) {
                 I have read the consent form and agree to its conditons.
             </label>
             <br><br>
-            <button class="btn btn-success mb-5 disabled" id="accept-button" onclick="joinStudy(${study.id});">Join Study</button>
+            <button class="btn btn-success mb-5 disabled" id="accept-button" onclick="openJoinStudyModal(${study.id}, ${study.participant_id_required});">Join Study</button>
         `;
     }
 }
@@ -1246,29 +1247,87 @@ function acceptInvitation(studyId) {
         });
 }
 
-function joinStudy(studyId) {
-    var request = {
+let selectedStudyId = null;
+
+function openJoinStudyModal(studyId, participant_id_required) {
+    selectedStudyId = studyId;
+    if (!participant_id_required) {
+        submitJoinStudy(false);
+        return;
+    }
+    document.getElementById('study-input').value = ''; // Clear previous input
+    document.getElementById('input-error').style.display = 'none'; // Hide error message
+    const modal = new bootstrap.Modal(document.getElementById('joinStudyModal'));
+    modal.show();
+}
+
+function submitJoinStudy(participant_id_required=true) {
+    let inputValue = null;
+    if (participant_id_required) {
+        const input = document.getElementById('study-input');
+        inputValue = input.value.trim();
+        const errorDiv = document.getElementById('input-error');
+
+        if (inputValue === '') {
+            errorDiv.style.display = 'block';
+            input.classList.add('is-invalid');
+            return;
+        }
+
+        input.classList.remove('is-invalid');
+        errorDiv.style.display = 'none';
+    }
+    const request = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'token': localStorage.getItem("token")
-        }
+        },
+        body: JSON.stringify({
+            participant_identifier: inputValue
+        })
     };
-    
-    fetchRequest(serverURL + 'join_study/' + studyId + '/', request)
+
+    fetchRequest(serverURL + 'join_study/' + selectedStudyId + '/', request)
         .then(data => {
             alert('You were joined to this study successfully');
-            window.location.href = '/study?studyId=' + studyId;
+            window.location.href = '/study?studyId=' + selectedStudyId;
         })
         .catch((response) => {
-            if (response.status === 401){
+            if (response.status === 401) {
                 alert("Please log into your account first.");
-                window.location.href = '/login/'
+                window.location.href = '/login/';
             } else {
                 alertError(response);
             }
         });
 }
+
+
+
+// function joinStudy(studyId) {
+//     var request = {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'token': localStorage.getItem("token")
+//         }
+//     };
+    
+//     fetchRequest(serverURL + 'join_study/' + studyId + '/', request)
+//         .then(data => {
+//             alert('You were joined to this study successfully');
+//             window.location.href = '/study?studyId=' + studyId;
+//         })
+//         .catch((response) => {
+//             if (response.status === 401){
+//                 alert("Please log into your account first.");
+//                 window.location.href = '/login/'
+//             } else {
+//                 alertError(response);
+//             }
+//         });
+// }
 
 function toggleAcceptButton() {
     document.getElementById('accept-button').classList.toggle("disabled");

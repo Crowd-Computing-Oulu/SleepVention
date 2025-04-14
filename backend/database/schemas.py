@@ -70,6 +70,7 @@ class StudySchema(BaseModel):
     description: str
     type: str
     consent_form_link: str
+    participant_id_required: bool
 
     class Config:
         from_attributes = True
@@ -78,3 +79,7 @@ class StudySchema(BaseModel):
 class StudyInvitationSchema(BaseModel):
     email: Optional[str] = None
     username: Optional[str] = None
+
+
+class JoinStudySchema(BaseModel):
+    participant_identifier: Optional[str] = None

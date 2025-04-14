@@ -8,7 +8,8 @@ from database.init import Base
 study_participants = Table(
     'study_participants', Base.metadata,
     Column('study_id', Integer, ForeignKey('studies.id'), primary_key=True),
-    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
+    Column('participant_identifier', String(255))
 )
 
 
@@ -289,6 +290,7 @@ class Studies(Base):
     description = Column(Text, nullable=False)
     type = Column(String(255), nullable=False)  # Can be 'Public' or 'Private'
     consent_form_link = Column(String(255), nullable=False)
+    participant_id_required = Column(Boolean, default=False)
 
     creator = relationship("Users", back_populates="own_studies")
     participants = relationship("Users", secondary=study_participants, back_populates="participated_studies")

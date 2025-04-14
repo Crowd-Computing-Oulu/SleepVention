@@ -536,8 +536,10 @@ async def join_study(
         study_id: int,
         db: Session = Depends(get_db)
 ):
+    body = await request.json()
+    data = schemas.JoinStudySchema.parse_obj(body)
     user = authentication_utils.get_current_user(request, db)
-    db_result = crud.join_study(db, user.id, study_id)
+    db_result = crud.join_study(db, user.id, study_id, data.participant_identifier)
     if not db_result:
         raise HTTPException(status_code=409, detail="Invitation is already accepted")
     return {"detail": "Invitation was accepted successfully"}
@@ -583,8 +585,8 @@ async def get_study_data_csv(
 
         if query_results:
             participant_zip_file = file_utils.create_zip_from_csvs(query_results)
-            prolific_id = crud.get_prolific_id(db, participant.id)
-            file_name = prolific_id if prolific_id else str(participant.id)
+            participant_identifier = crud.get_participant_identifier(db, participant.id, study_id)
+            file_name = participant_identifier if participant_identifier else str(participant.id)
             file_name += '.zip'
             participants_data[file_name] = participant_zip_file
 

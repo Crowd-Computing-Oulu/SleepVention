@@ -118,6 +118,7 @@ class StudyResponseSchema(BaseModel):
     description: str
     type: str
     consent_form_link: str
+    participant_id_required: bool
     participants_number: Optional[int] = 0
     user_relation: Optional[str] = 'visitor'
 
