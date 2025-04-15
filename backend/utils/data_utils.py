@@ -85,16 +85,19 @@ def get_fitbit_heartrate(headers, start_date):
 def get_fitbit_hrv(headers, start_date, db, user_id):
     start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
     get_more_hrv = False
+    print(start_date)
 
     # Be careful that the maximum range is 30 days
     if date.today() - timedelta(days=29) > start_date_obj:
         end_date = start_date_obj + timedelta(days=29)
         end_date_str = format_date_to_str(end_date)
+        print(end_date)
         fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/-/hrv/date/{start_date}/{end_date_str}.json'
 
         crud.save_fitbit_last_update(db, user_id, end_date_str, 'hrv')
         get_more_hrv = True
     else:
+        print('today')
         fitbit_hrv_url = Fitbit_BASE_URL + f'/1/user/-/hrv/date/{start_date}/today.json'
         crud.save_fitbit_last_update(db, user_id, 'today', 'hrv')
     response = requests.get(fitbit_hrv_url, headers=headers)
