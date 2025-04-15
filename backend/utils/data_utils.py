@@ -126,16 +126,12 @@ def get_data_from_fitbit(
         last_updates,
         get_only_hrv: bool = False
 ):
-    # Getting fitbit user ID
-    # fitbit_user_id = crud.get_fitbit_user_id(db, user_id)
-    # if not fitbit_user_id:
-    #     raise HTTPException(status_code=404, detail='There is no fitbit account connected to this user')
-
-    # Getting fitbit token to get data from fitbit APIs
+    print('before getting token')
     fitbit_token = crud.get_fitbit_token_by_user_id(db, user_id)
     if not fitbit_token:
         raise HTTPException(status_code=403, detail="Server failed to get access to the Fitbit API")
 
+    print('before refreshing token')
     # Updating the fitbit token to make sure it's not expired
     new_fitbit_token = refresh_fitbit_token(fitbit_token)
     crud.add_fitbit_token(db, user_id, new_fitbit_token.access_token, new_fitbit_token.refresh_token)
@@ -146,11 +142,15 @@ def get_data_from_fitbit(
         'Authorization': f'Bearer {fitbit_token_str}'
     }
 
+    print('before getting hrv')
     # Getting Fitbit heartrate variability data
     hrv_start_date = format_date_to_str(last_updates.hrv)
     hrv_response, get_more_hrv = get_fitbit_hrv(headers, hrv_start_date, db, user_id)
+    print('after getting hrv')
+    print(hrv_response.json())
     if get_only_hrv:
         print('hrv second request working')
+        print('inside hrv if')
         return hrv_response.json()['hrv']
 
     # Getting Fitbit activity data
