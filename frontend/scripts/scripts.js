@@ -73,7 +73,7 @@ function verifyRegisterInfor(username, email, password) {
     }
 
     // Regular expression for validating password
-    var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(password)) {
         alert("Password must be at least 8 characters long and include a combination of lowercase and uppercase letters and numbers.");
         return false;
