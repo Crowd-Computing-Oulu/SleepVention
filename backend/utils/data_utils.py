@@ -123,7 +123,7 @@ def combine_fitbit_responses(activities_response, heartrate_response, hrv_respon
     return {
         'activities': activities_response.json()['activities'],
         'heartrate': heartrate_response.json()['activities-heart'],
-        'hrv': hrv_response.json()['hrv'],
+        'hrv': hrv_response.json()['hrv'] if 'hrv' in hrv_response.json() else [],
         'sleep': sleep_response.json()['sleep']
     }
 
@@ -159,7 +159,7 @@ def get_data_from_fitbit(
     if get_only_hrv:
         print('hrv second request working')
         print('inside hrv if')
-        return hrv_response.json()['hrv']
+        return hrv_response.json()['hrv'] if 'hrv' in hrv_response.json() else []
 
     # Getting Fitbit activity data
     activity_start_date = format_date_to_str(last_updates.activity)
