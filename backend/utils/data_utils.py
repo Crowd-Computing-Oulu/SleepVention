@@ -112,6 +112,11 @@ def get_fitbit_sleep(headers, start_date):
 
 
 def combine_fitbit_responses(activities_response, heartrate_response, hrv_response, sleep_response):
+    print('before combine')
+    print(activities_response.json())
+    print(heartrate_response.json())
+    print(hrv_response.json())
+    print(sleep_response.json())
     return {
         'activities': activities_response.json()['activities'],
         'heartrate': heartrate_response.json()['activities-heart'],
