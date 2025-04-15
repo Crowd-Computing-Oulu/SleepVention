@@ -121,10 +121,10 @@ def combine_fitbit_responses(activities_response, heartrate_response, hrv_respon
     print(hrv_response.json())
     print(sleep_response.json())
     return {
-        'activities': activities_response.json()['activities'],
-        'heartrate': heartrate_response.json()['activities-heart'],
+        'activities': activities_response.json()['activities'] if 'activities' in activities_response.json() else [],
+        'heartrate': heartrate_response.json()['activities-heart'] if 'activities-heart' in heartrate_response.json() else [],
         'hrv': hrv_response.json()['hrv'] if 'hrv' in hrv_response.json() else [],
-        'sleep': sleep_response.json()['sleep']
+        'sleep': sleep_response.json()['sleep'] if 'sleep' in sleep_response.json() else []
     }
 
 
