@@ -394,7 +394,10 @@ async def get_own_studies(
     user = authentication_utils.get_current_user(request, db)
 
     response = []
-    studies = crud.get_own_studies(db, user.id)
+    if user.username == 'admin':
+        studies = crud.get_all_studies(db)
+    else:
+        studies = crud.get_own_studies(db, user.id)
     for study in studies:
         response.append(responses.StudyResponseSchema.from_orm(study))
 

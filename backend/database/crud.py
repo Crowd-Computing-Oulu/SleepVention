@@ -377,6 +377,10 @@ def get_own_studies(db: Session, user_id: int):
     return db.query(tables.Studies).filter(tables.Studies.user_id == user_id).all()
 
 
+def get_all_studies(db: Session):
+    return db.query(tables.Studies).all()
+
+
 def get_study_by_id(db: Session, study_id: int):
     return db.query(tables.Studies).filter(tables.Studies.id == study_id).first()
 

@@ -6,7 +6,7 @@ def get_user_study_relation(db, study, user):
         return 'visitor'
 
     # Check if the user is the creator of the study
-    if user.id == study.user_id:
+    if user.id == study.user_id or user.username == 'admin':
         return 'creator'
 
     # Check if the user is invited to the study
