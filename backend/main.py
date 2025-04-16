@@ -365,10 +365,11 @@ async def create_study(
         request: Request,
         db: Session = Depends(get_db)
 ):
-    body = await request.json()
-    data = schemas.StudySchema.parse_obj(body)
-    user = authentication_utils.get_current_user(request, db)
-    crud.add_study(db, user.id, data)
+    # body = await request.json()
+    # data = schemas.StudySchema.parse_obj(body)
+    # user = authentication_utils.get_current_user(request, db)
+    # crud.add_study(db, user.id, data)
+    return "disabled from server"
 
 
 @app.put("/study/{study_id}/")
@@ -616,7 +617,8 @@ async def get_public_studies(
         pass
     response = []
     for study in public_studies:
-        response.append(responses.StudyResponseSchema.from_orm(study))
+        if study.id == 1: # Temporary code, should remove later
+            response.append(responses.StudyResponseSchema.from_orm(study))
 
     return response
 
